@@ -47,6 +47,7 @@ numbers, or transaction records of any kind are used or represented.
 
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -63,13 +64,11 @@ class JCCT:
 
 
 JCCTS = [
-    JCCT("Mewat", "Haryana", 28.1169, 77.0034, 18.0, 0.17),
-    JCCT("Jamtara", "Jharkhand", 23.9600, 86.8000, 13.0, 0.19),
-    JCCT("Ahmedabad", "Gujarat", 23.0225, 72.5714, 20.0, 0.14),
-    JCCT("Hyderabad", "Telangana", 17.3850, 78.4867, 31.0, 0.14),
-    JCCT("Chandigarh", "Punjab/Haryana(UT)", 30.7333, 76.7794, 22.0, 0.12),
-    JCCT("Vishakhapatnam", "Andhra Pradesh", 17.6868, 83.2185, 23.0, 0.13),
-    JCCT("Guwahati", "Assam", 26.1445, 91.7362, 12.0, 0.11),
+    JCCT("Mumbai", "Maharashtra", 19.0760, 72.8777, 34.0, 0.35),
+    JCCT("Pune", "Maharashtra", 18.5204, 73.8567, 28.0, 0.25),
+    JCCT("Nagpur", "Maharashtra", 21.1458, 79.0882, 20.0, 0.15),
+    JCCT("Nashik", "Maharashtra", 19.9975, 73.7898, 18.0, 0.13),
+    JCCT("Thane", "Maharashtra", 19.2183, 72.9781, 26.0, 0.12),
 ]
 JCCT_BY_NAME = {j.name: j for j in JCCTS}
 JCCT_NAMES = [j.name for j in JCCTS]
@@ -260,7 +259,7 @@ def annotate_complaints_with_cashout(complaints: pd.DataFrame, tx_df: pd.DataFra
     hub_lon = complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].lon)
     complaints["final_atm_lat"] = hub_lat + lat_jitter
     complaints["final_atm_lon"] = hub_lon + lon_jitter
-    complaints["final_atm_id"] = [f"ATM-{j[:3].upper()}-{i:05d}" for i, j in enumerate(complaints["jcct_cashout"])]
+    complaints["final_atm_id"] = [f"ATM-MAH-{j[:3].upper()}-{i:05d}" for i, j in enumerate(complaints["jcct_cashout"])]
     return complaints
 
 
@@ -273,11 +272,12 @@ def generate(n_complaints: int = 12000, seed: int = RNG_SEED):
 
 
 if __name__ == "__main__":
+    out_dir = Path(__file__).resolve().parent
     complaints, tx_df, device_df = generate(n_complaints=12000)
 
-    complaints.to_csv("/home/claude/sentinel/ml/synthetic_complaints.csv", index=False)
-    tx_df.to_csv("/home/claude/sentinel/ml/synthetic_transactions.csv", index=False)
-    device_df.to_csv("/home/claude/sentinel/ml/synthetic_device_links.csv", index=False)
+    complaints.to_csv(out_dir / "synthetic_complaints.csv", index=False)
+    tx_df.to_csv(out_dir / "synthetic_transactions.csv", index=False)
+    device_df.to_csv(out_dir / "synthetic_device_links.csv", index=False)
 
     print(f"complaints: {len(complaints)} rows -> synthetic_complaints.csv")
     print(f"transactions: {len(tx_df)} rows -> synthetic_transactions.csv")
