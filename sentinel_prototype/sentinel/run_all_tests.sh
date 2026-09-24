@@ -3,14 +3,16 @@
 # and prints a pass/fail matrix. Exit code is non-zero if anything failed.
 set -uo pipefail
 
-ROOT="/home/claude/sentinel"
-export PYTHONPATH="$ROOT/backend"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH="$ROOT/backend:$ROOT/ml"
 
 declare -a MODULES=(
   "ml/generate_synthetic_data.py"
   "ml/benchmark_models.py"
   "ml/load_into_services.py"
+  "backend/app/services/intake_extractor.py"
   "backend/app/services/authenticity.py"
+  "backend/app/services/intake_service.py"
   "backend/app/services/hawkes.py"
   "backend/app/services/bayesian_updater.py"
   "backend/app/services/priority.py"

@@ -10,8 +10,14 @@ backend/app/adapters/resilient.py for the same pattern applied to Neo4j and
 the Fabric ledger.
 """
 
+import sys
 import time
 from dataclasses import asdict, dataclass
+from pathlib import Path
+
+_BACKEND_ROOT = str(Path(__file__).resolve().parents[2])
+if _BACKEND_ROOT not in sys.path:
+    sys.path.insert(0, _BACKEND_ROOT)
 
 from app.core.resilience import CircuitBreaker, CircuitOpenError, Outbox, retry_with_backoff
 
@@ -82,6 +88,11 @@ class DispatchService:
     def backlog_size(self) -> int:
         return self._outbox.pending_count()
 
+    def close(self) -> None:
+        """Close SQLite outbox connection."""
+        if hasattr(self, "_outbox") and self._outbox:
+            self._outbox.close()
+
 
 if __name__ == "__main__":
     # Simulate: CFCFRMS is down (controlled by an explicit flag, not a call
@@ -100,9 +111,13 @@ if __name__ == "__main__":
         return None
 
     import os
-    test_db = "/tmp/sentinel_dispatch_test.db"
+    import tempfile
+    test_db = os.path.join(tempfile.gettempdir(), f"sentinel_dispatch_test_{os.getpid()}.db")
     if os.path.exists(test_db):
-        os.remove(test_db)
+        try:
+            os.remove(test_db)
+        except OSError:
+            pass
 
     svc = DispatchService(webhook_fn=flaky_webhook, outbox_path=test_db)
 
@@ -123,22 +138,12 @@ if __name__ == "__main__":
 
     # CFCFRMS recovers.
     cfcfrms_state["down"] = False
-    # The breaker may already be OPEN from the 3 failures above; rebuild it
-    # fresh so replay_backlog's first probe call isn't rejected by a breaker
-    # still mid-recovery-timeout - a real deployment just waits out the
-    # timeout instead of resetting, but that would make this test slow.
     svc._breaker = CircuitBreaker(name="cfcfrms-webhook", failure_threshold=3, recovery_timeout_seconds=0)
     delivered = svc.replay_backlog()
     print(f"Replayed {delivered} queued alerts after recovery")
     assert delivered == 3 and svc.backlog_size() == 0
     print("OK: full backlog replayed and delivered once CFCFRMS recovered, zero data loss")
-    os.remove(test_db)
-    # timeout instead of resetting, but that would make this test slow.
-    svc._breaker = CircuitBreaker(name="cfcfrms-webhook", failure_threshold=3, recovery_timeout_seconds=0)
-    delivered = svc.replay_backlog()
-    print(f"Replayed {delivered} queued alerts after recovery")
-    assert delivered == 3 and svc.backlog_size() == 0
-    print("OK: full backlog replayed and delivered once CFCFRMS recovered, zero data loss")
+
     svc.close()
     if os.path.exists(test_db):
         try:

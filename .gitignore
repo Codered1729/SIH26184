@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+*.db
+!sentinel_prototype/sentinel/data/*.db
+node_modules/
+dist/
+.DS_Store
+Thumbs.db

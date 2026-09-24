@@ -4,13 +4,13 @@ Walk-forward validation, 4 temporal folds, synthetic calibrated dataset (`ml/syn
 
 | Model | Source | Opt. threshold | Precision | Recall | F1 | PR-AUC | Brier | Latency (ms/sample) |
 |---|---|---|---|---|---|---|---|---|
-| XGBoost | fallback:RandomForest(tuned) | 0.197 | 0.278 | 0.894 | 0.422 | 0.322 | 0.1888 | 0.0206 |
-| RandomForest (baseline) | real | 0.199 | 0.276 | 0.898 | 0.421 | 0.321 | 0.1888 | 0.0161 |
-| LogisticRegression (baseline) | real | 0.188 | 0.276 | 0.893 | 0.421 | 0.318 | 0.1902 | 0.0004 |
-| CatBoost | fallback:GradientBoosting | 0.116 | 0.269 | 0.910 | 0.414 | 0.296 | 0.2012 | 0.0036 |
-| LightGBM | fallback:HistGradientBoosting | 0.089 | 0.268 | 0.929 | 0.415 | 0.294 | 0.2034 | 0.0034 |
+| XGBoost | fallback:RandomForest(tuned) | 0.242 | 0.317 | 0.813 | 0.455 | 0.353 | 0.1989 | 0.0204 |
+| RandomForest (baseline) | real | 0.235 | 0.313 | 0.842 | 0.455 | 0.353 | 0.1989 | 0.0161 |
+| LogisticRegression (baseline) | real | 0.212 | 0.306 | 0.883 | 0.453 | 0.352 | 0.1998 | 0.0006 |
+| CatBoost | fallback:GradientBoosting | 0.135 | 0.301 | 0.896 | 0.449 | 0.333 | 0.2097 | 0.0036 |
+| LightGBM | fallback:HistGradientBoosting | 0.140 | 0.305 | 0.855 | 0.448 | 0.327 | 0.2129 | 0.0036 |
 
-**Selected model: XGBoost** (highest PR-AUC = 0.322).
+**Selected model: XGBoost** (highest PR-AUC = 0.353).
 
 Rows marked `fallback:*` used a scikit-learn substitute because lightgbm/catboost/xgboost could not be installed in the sandbox this benchmark was built in (no network egress). The harness auto-detects the real library via `try/except ImportError` - installing the real packages and re-running `benchmark_models.py` swaps them in with no code changes and will shift these numbers.
 

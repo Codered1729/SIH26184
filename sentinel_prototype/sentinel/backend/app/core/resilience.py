@@ -117,8 +117,11 @@ def retry_with_backoff(max_attempts: int = 3, base_delay: float = 0.2,
 # actual "backup" mechanism: anything that can't be delivered right now is
 # written here first, then replayed once the dependency recovers.
 # ---------------------------------------------------------------------------
+_DEFAULT_OUTBOX_PATH = str(Path(__file__).resolve().parents[2] / ".outbox.db")
+
+
 class Outbox:
-    def __init__(self, db_path: str = "/home/claude/sentinel/backend/.outbox.db", topic: str = "default"):
+    def __init__(self, db_path: str = _DEFAULT_OUTBOX_PATH, topic: str = "default"):
         self.topic = topic
         self._db_path = db_path
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
@@ -135,6 +138,14 @@ class Outbox:
             )
         """)
         self._conn.commit()
+
+    def close(self):
+        """Close SQLite database connection safely."""
+        with self._lock:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
 
     def enqueue(self, payload: dict) -> int:
         with self._lock:
@@ -234,9 +245,13 @@ if __name__ == "__main__":
     print("OK: retry_with_backoff retries transient failures and succeeds")
 
     # --- Outbox: verify durability + replay ---
-    test_db = "/tmp/sentinel_outbox_test.db"
+    import tempfile
+    test_db = os.path.join(tempfile.gettempdir(), f"sentinel_outbox_test_{os.getpid()}.db")
     if os.path.exists(test_db):
-        os.remove(test_db)
+        try:
+            os.remove(test_db)
+        except OSError:
+            pass
     outbox = Outbox(db_path=test_db, topic="dispatch")
     outbox.enqueue({"alert_id": "A-1"})
     outbox.enqueue({"alert_id": "A-2"})
@@ -246,4 +261,9 @@ if __name__ == "__main__":
     delivered = outbox.drain_and_replay(lambda payload: delivered_log.append(payload))
     assert delivered == 2 and outbox.pending_count() == 0
     print(f"OK: outbox durably queued and replayed {delivered} payloads: {delivered_log}")
-    os.remove(test_db)
+    outbox.close()
+    if os.path.exists(test_db):
+        try:
+            os.remove(test_db)
+        except OSError:
+            pass

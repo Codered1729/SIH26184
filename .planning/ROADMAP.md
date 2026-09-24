@@ -6,7 +6,7 @@ SENTINEL is developed as a streamlined, high-impact vertical prototype focused o
 
 ## Phases
 
-- [ ] **Phase 1: Maharashtra Data Calibration & Intake Extraction Engine** — Calibrate datasets for Maharashtra urban nodes, build raw complaint NLP/regex extractor, and wire into Authenticity Scoring Gate.
+- [x] **Phase 1: Maharashtra Data Calibration & Intake Extraction Engine** — Calibrate datasets for Maharashtra urban nodes, build raw complaint NLP/regex extractor, and wire into Authenticity Scoring Gate.
 - [ ] **Phase 2: Predictive Spatiotemporal Engine & Resilient Dispatch** — GBDT cash-out prediction, Hawkes ATM cluster ranking, Bayesian 45m decay, and Section 105 BNSS outbox dispatch.
 - [ ] **Phase 3: Interactive 4-Screen Operator Dashboard & Geospatial Visualizer** — 4-screen interface in the locked 4-color palette, FLIP card re-sorting, and Maharashtra hotspot map.
 - [ ] **Phase 4: Live Event Simulator & End-to-End Presentation Harness** — Interactive presentation controller with scenario injection and end-to-end offline reverification.
@@ -27,9 +27,9 @@ SENTINEL is developed as a streamlined, high-impact vertical prototype focused o
 4. Bounded k-hop graph extractor returns transfer nodes occurring strictly after the incident timestamp.
 
 Plans:
-- [ ] 01-01: Implement Maharashtra regional calibration and ATM coordinates registry in data generator.
-- [ ] 01-02: Implement NLP / Regex intake detail extraction service (`IntakeExtractor`).
-- [ ] 01-03: Integrate extraction with Authenticity Scoring Gate and SHA-256 Attestation Ledger.
+- [x] 01-01: Implement Maharashtra regional calibration and ATM coordinates registry in data generator.
+- [x] 01-02: Implement NLP / Regex intake detail extraction service (`IntakeExtractor`).
+- [x] 01-03: Integrate extraction with Authenticity Scoring Gate and SHA-256 Attestation Ledger.
 
 ---
 
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Maharashtra Data Calibration & Intake Extraction Engine | 0/3 | Not started | - |
+| 1. Maharashtra Data Calibration & Intake Extraction Engine | 3/3 | Complete | 2026-09-24 |
 | 2. Predictive Spatiotemporal Engine & Resilient Dispatch | 0/3 | Not started | - |
 | 3. Interactive 4-Screen Operator Dashboard & Geospatial Visualizer | 0/3 | Not started | - |
 | 4. Live Event Simulator & End-to-End Presentation Harness | 0/3 | Not started | - |
