@@ -86,15 +86,15 @@ def train_and_serialize():
     # 1. Feature Preprocessing
     encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
     cat_arr = encoder.fit_transform(df[CAT_COLS])
-    cat_cols_out = list(encoder.get_feature_names_out(CAT_COLS))
+    cat_cols_out = [str(c).replace("[", "").replace("]", "").replace("<", "") for c in encoder.get_feature_names_out(CAT_COLS)]
 
     X_cat = pd.DataFrame(cat_arr, columns=cat_cols_out, index=df.index)
     X = pd.concat([df[NUM_COLS].reset_index(drop=True), X_cat.reset_index(drop=True)], axis=1)
-    X.columns = X.columns.astype(str)
+    X.columns = [str(c).replace("[", "").replace("]", "").replace("<", "") for c in X.columns]
     feature_names = list(X.columns)
     y = df[TARGET].values
 
-    # 2. Define All 5 Candidate Models
+    # 2. Define All Candidate Models
     models_dict = {
         "RandomForest (tuned)": RandomForestClassifier(
             n_estimators=300, max_depth=8, random_state=42, n_jobs=-1
@@ -113,12 +113,54 @@ def train_and_serialize():
         ),
     }
 
+    # Include native XGBoost
+    try:
+        import xgboost as xgb
+        models_dict["XGBoost"] = xgb.XGBClassifier(
+            n_estimators=200,
+            max_depth=5,
+            learning_rate=0.05,
+            eval_metric="logloss",
+            random_state=42,
+            n_jobs=1,
+        )
+    except Exception as e:
+        print(f"[Notice] XGBoost not available: {e}")
+
+    # Include native CatBoost
+    try:
+        import catboost as cb
+        models_dict["CatBoost"] = cb.CatBoostClassifier(
+            iterations=200,
+            depth=5,
+            learning_rate=0.05,
+            verbose=0,
+            random_seed=42,
+            thread_count=1,
+        )
+    except Exception as e:
+        print(f"[Notice] CatBoost not available: {e}")
+
+    # Include native LightGBM if system policy allows
+    try:
+        import lightgbm as lgb
+        models_dict["LightGBM"] = lgb.LGBMClassifier(
+            n_estimators=200,
+            max_depth=5,
+            learning_rate=0.05,
+            random_state=42,
+            verbose=-1,
+            n_jobs=1,
+        )
+    except Exception as e:
+        print(f"[Notice] Native LightGBM skipped ({type(e).__name__}); HistGradientBoosting provides identical histogram-GBDT algorithm.")
+
     trained_models = {}
     thresholds = {}
     metrics = {}
     feature_importances = {}
 
-    print(f"\nTraining all {len(models_dict)} models on {len(X)} samples with {len(feature_names)} features...\n")
+    print(f"\nTraining all {len(models_dict)} models on {len(X):,} samples with {len(feature_names)} features...\n")
     print(f"{'Model':<25} {'PR-AUC':<10} {'Opt-Thresh':<12} {'F1-Opt':<10} {'Recall':<10} {'Time':<8}")
     print("-" * 75)
 
@@ -153,16 +195,19 @@ def train_and_serialize():
 
         # Feature importances
         if hasattr(clf, "feature_importances_"):
-            feature_importances[name] = dict(zip(feature_names, clf.feature_importances_.tolist()))
+            feature_importances[name] = dict(zip(feature_names, [float(v) for v in clf.feature_importances_]))
+        elif hasattr(clf, "get_feature_importance"):
+            feature_importances[name] = dict(zip(feature_names, [float(v) for v in clf.get_feature_importance()]))
         elif hasattr(clf, "coef_"):
-            feature_importances[name] = dict(zip(feature_names, np.abs(clf.coef_[0]).tolist()))
+            feature_importances[name] = dict(zip(feature_names, [float(v) for v in np.abs(clf.coef_[0])]))
         else:
             feature_importances[name] = {}
 
         print(f"{name:<25} {pr_auc:<10.3f} {opt_th:<12.3f} {f1_opt:<10.3f} {rec_opt:<10.3f} {train_time:.2f}s")
 
     # 3. Create Serialized Bundle
-    primary_model_name = "RandomForest (tuned)"
+    # Primary model dynamically selected by highest PR-AUC
+    primary_model_name = max(metrics.keys(), key=lambda k: metrics[k]["pr_auc"])
     bundle = {
         "models": trained_models,
         "primary_model_name": primary_model_name,

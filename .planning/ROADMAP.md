@@ -7,7 +7,7 @@ SENTINEL is developed as a streamlined, high-impact vertical prototype focused o
 ## Phases
 
 - [x] **Phase 1: Maharashtra Data Calibration & Intake Extraction Engine** — Calibrate datasets for Maharashtra urban nodes, build raw complaint NLP/regex extractor, and wire into Authenticity Scoring Gate.
-- [ ] **Phase 2: Predictive Spatiotemporal Engine & Resilient Dispatch** — GBDT cash-out prediction, Hawkes ATM cluster ranking, Bayesian 45m decay, and Section 105 BNSS outbox dispatch.
+- [x] **Phase 2: Predictive Spatiotemporal Engine & Resilient Dispatch** — GBDT cash-out prediction, Hawkes ATM cluster ranking, Bayesian 45m decay, and Section 105 BNSS outbox dispatch.
 - [ ] **Phase 3: Interactive 4-Screen Operator Dashboard & Geospatial Visualizer** — 4-screen interface in the locked 4-color palette, FLIP card re-sorting, and Maharashtra hotspot map.
 - [ ] **Phase 4: Live Event Simulator & End-to-End Presentation Harness** — Interactive presentation controller with scenario injection and end-to-end offline reverification.
 
@@ -45,9 +45,9 @@ Plans:
 4. Dispatch service generates formal Section 105 BNSS Lawful Notice documents and queues/replays alerts via durable SQLite Outbox with zero data loss.
 
 Plans:
-- [ ] 02-01: Train and serialize GBDT cash-out prediction pipeline on Maharashtra dataset.
-- [ ] 02-02: Integrate Hawkes ATM ranker and Bayesian posterior updater with 45m time decay.
-- [ ] 02-03: Implement Section 105 BNSS Lawful Notice generator and resilient SQLite outbox dispatch.
+- [x] 02-01: Train and serialize GBDT cash-out prediction pipeline on Maharashtra dataset.
+- [x] 02-02: Integrate Hawkes ATM ranker and Bayesian posterior updater with 45m time decay.
+- [x] 02-03: Implement Section 105 BNSS Lawful Notice generator and resilient SQLite outbox dispatch.
 
 ---
 

@@ -77,7 +77,7 @@ def build_candidates(seed: int):
             n_estimators=300, learning_rate=0.05, max_depth=-1,
             random_state=seed, verbose=-1,
         ))
-    except ImportError:
+    except (ImportError, OSError, Exception):
         candidates["LightGBM"] = ("fallback:HistGradientBoosting", HistGradientBoostingClassifier(
             max_iter=300, learning_rate=0.05, random_state=seed,
         ))  # HistGB uses the same histogram-binning strategy as LightGBM
@@ -86,9 +86,9 @@ def build_candidates(seed: int):
         import catboost as cb
         candidates["CatBoost"] = ("real", cb.CatBoostClassifier(
             iterations=300, learning_rate=0.05, depth=6,
-            random_state=seed, verbose=False,
+            random_state=seed, verbose=False, thread_count=1,
         ))
-    except ImportError:
+    except (ImportError, OSError, Exception):
         candidates["CatBoost"] = ("fallback:GradientBoosting", GradientBoostingClassifier(
             n_estimators=300, learning_rate=0.05, max_depth=6, random_state=seed,
         ))
@@ -97,9 +97,9 @@ def build_candidates(seed: int):
         import xgboost as xgb
         candidates["XGBoost"] = ("real", xgb.XGBClassifier(
             n_estimators=300, learning_rate=0.05, max_depth=6,
-            random_state=seed, eval_metric="logloss", use_label_encoder=False,
+            random_state=seed, eval_metric="logloss", n_jobs=1,
         ))
-    except ImportError:
+    except (ImportError, OSError, Exception):
         candidates["XGBoost"] = ("fallback:RandomForest(tuned)", RandomForestClassifier(
             n_estimators=300, max_depth=8, random_state=seed, n_jobs=-1,
         ))

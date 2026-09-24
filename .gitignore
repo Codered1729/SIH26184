@@ -7,5 +7,7 @@ __pycache__/
 !sentinel_prototype/sentinel/data/*.db
 node_modules/
 dist/
+catboost_info/
+**/catboost_info/
 .DS_Store
 Thumbs.db

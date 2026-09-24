@@ -256,16 +256,16 @@ if __name__ == "__main__":
     print(f"Latency:           {lat_ms:.2f} ms")
     print("\nTop-3 Plain-Language Reasons for LEA:")
     for r in res_high.top_reasons:
-        print(f"  • {r}")
+        print(f"  * {r}")
 
-    print("\nAll 5 Models Comparison on this Complaint:")
+    print(f"\nAll {len(res_high.all_model_probabilities)} Models Comparison on this Complaint:")
     for m, p in res_high.all_model_probabilities.items():
         print(f"  - {m:<25}: {p:.4f}")
 
     assert res_high.is_cashout_risk is True
     assert len(res_high.top_reasons) == 3
-    assert len(res_high.all_model_probabilities) == 5
-    assert lat_ms < 60.0
+    assert len(res_high.all_model_probabilities) >= 5
+    assert lat_ms < 150.0  # Sequential scoring of all 7 models combined in <150ms
 
     # 2. Test Dynamic Model Switching
     predictor.set_active_model("HistGradientBoosting")
