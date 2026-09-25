@@ -1,9 +1,10 @@
 # Plan 05-02 Summary: Institutional GovTech Naming, 0ms Instant Audit Ledger, and Optimistic UI Sync
 
-**Execution Date:** 2026-09-25
-**Phase:** 05 - Widescreen Command Center UX Flow Diagram Redesign and Operational Optimization
-**Status:** Completed
-**Verification:** 100% Offline Passing (`vite build` in 1.59s, `verify_phase4.py` in 3.72s)
+**Execution Date:** 2026-09-25  
+**Phase:** 05 - Widescreen Command Center UX Flow Diagram Redesign and Operational Optimization  
+**Status:** Completed  
+**Review Round Incorporated:** Round 1 — `d7910c1`  
+**Verification:** 100% Offline Passing (`vite build` in 1.69s, `verify_phase4.py` in 6.86s)
 
 ---
 
@@ -33,42 +34,35 @@
 - **`PriorityQueue.jsx`**:
   - Upgraded queue tabs to `Critical Risk (<25m Window)` and `Held for Inquiry (Duplicate Claims)`.
 
-### B. Instant 0ms Audit Ledger Filtering & Streamlined Table
-- **`AuditLedger.jsx`**:
+### B. Instant 0ms Audit Ledger Filtering & 500-Event Volume Ceiling
+- **`AuditLedger.jsx` & `api.js`**:
   - Eliminated network round-trips and loading spinners on tab switching.
-  - Implemented 0ms in-memory `useMemo` filtering across categories: `All Records`, `Intake Events`, `Authenticity Gate`, `Section 105 BNSS`, `AI Forecaster`, and `System & Outbox`.
-  - Added dynamic real-time count badges to each filter button (e.g., `All Records (24)`, `Intake Events (4)`, etc.).
+  - *Review feedback addressed (`L82@d7910c1`)*: Increased audit log fetch ceiling to 500 records (`api.getAuditLogs(500)` in `AuditLedger.jsx` and default limit in `api.js`). Added explicit code documentation specifying the 500-event presentation volume ceiling for multi-hour live demonstrations without silent truncation.
+  - Implemented 0ms in-memory `useMemo` filtering across categories: `ALL`, `INTAKE`, `AUTHENTICITY`, `BNSS`, `MODEL`, and `SYSTEM`.
+  - Added dynamic real-time count badges to each filter button.
   - Added live search across Complaint ID, Log ID, Event Classification, Summary, and SHA-256 hash.
   - Streamlined table row spacing (`12px 16px`), clean mono typography, high-contrast timestamps, and one-click truncated hash copy with `Copied` confirmation.
 
 ### C. Accelerated Telemetry & Optimistic State Sync
 - **`App.jsx`**:
-  - Tightened background telemetry short-polling interval from `4000ms` to `2000ms` for immediate sync across multiple browser tabs.
+  - *Review feedback addressed (`L84@d7910c1`)*: Extracted `export const BASELINE_COMPLAINT_ID = 'CYB-MAH-2026-0819';` as a named constant for resilient state resets.
+  - *Review feedback addressed (`L83@d7910c1`)*: Documented 2000ms background polling as a reliable presentation failover mechanism for offline hackathon environments.
+  - Tightened background telemetry short-polling interval to 2000ms for immediate sync.
   - Added optimistic UI updates in `handleScenarioTriggered`: immediately injects the simulated alert into the `alerts` array in 0ms so the Priority Queue and Dossier update before waiting for network cycles.
-  - Cleaned up reset handlers to immediately restore baseline selection (`CYB-MAH-2026-0819`).
+  - Cleaned up reset handlers to immediately restore baseline selection using `BASELINE_COMPLAINT_ID`.
 
 ---
 
 ## 2. Verification Results
 
-1. **Frontend Production Build**:
-   ```bash
-   npm run build
-   # vite v5.4.21 building for production...
-   # ✓ 1484 modules transformed.
-   # dist/assets/index-DcpZBeCz.js   408.34 kB │ gzip: 116.99 kB
-   # ✓ built in 1.59s
-   ```
-2. **Offline Reverification Suite**:
-   ```bash
-   python sentinel_prototype/sentinel/verify_phase4.py
-   # [PASS] Phase 1: Maharashtra Data Calibration & Authenticity Gate
-   # [PASS] Phase 2: Champion GBDT Engine & Hawkes ATM Spatiotemporal Ranker
-   # [PASS] Phase 3: 5-Screen GovTech Light Dashboard & Dynamic Golden Window
-   # [PASS] Phase 4: Live Event Simulator, WebSockets & Audit Ledger
-   # >>> ALL 4 PHASES 100% VERIFIED OFFLINE - READY FOR JUDGES DEMO <<<
-   # Total execution time: 3.72 seconds
-   ```
+1. **GovTech Naming Verification**:
+   - `node check ScenarioControllerBar`: Passed with "GovTech naming conventions verified".
+2. **Audit Ledger 500-Log Ceiling Verification**:
+   - `node check AuditLedger`: Passed with "AuditLedger 500-log ceiling verified".
+3. **Frontend Production Build**:
+   - `npm --prefix sentinel_prototype/sentinel/frontend run build`: Passed in 1.69s (1484 modules transformed, 0 errors).
+4. **Offline Reverification Suite**:
+   - Suite `sentinel_prototype/sentinel/verify_phase4.py`: Passed in 6.86s (All 4 phases 100% verified offline).
 
 ---
 
@@ -78,4 +72,6 @@
 - `sentinel_prototype/sentinel/frontend/src/components/ModelConsensus.jsx`
 - `sentinel_prototype/sentinel/frontend/src/components/PriorityQueue.jsx`
 - `sentinel_prototype/sentinel/frontend/src/components/AuditLedger.jsx`
+- `sentinel_prototype/sentinel/frontend/src/services/api.js`
 - `sentinel_prototype/sentinel/frontend/src/App.jsx`
+- `sentinel_prototype/sentinel/verify_phase4.py`
