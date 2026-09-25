@@ -112,9 +112,9 @@ export default function ScenarioControllerBar({
       zIndex: 990,
     }}>
       <div style={{
-        maxWidth: '1440px',
-        margin: '0 auto',
-        padding: '6px 20px',
+        maxWidth: '100%',
+        margin: '0',
+        padding: '6px 28px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -207,9 +207,9 @@ export default function ScenarioControllerBar({
       {/* Expanded Scenario Buttons Strip */}
       {!isCollapsed && (
         <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '0 20px 8px',
+          maxWidth: '100%',
+          margin: '0',
+          padding: '0 28px 8px',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
           gap: '8px',

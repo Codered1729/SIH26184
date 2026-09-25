@@ -60,121 +60,123 @@ export default function CaseDetail({
   const isDuplicate = details.authenticity_decision === 'DUPLICATE_UTR';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {/* Top Banner */}
-      <div className="card" style={{ padding: '12px 16px', backgroundColor: '#FFFFFF' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Top Banner with Action Controls */}
+      <div className="card" style={{ padding: '16px 24px', backgroundColor: '#FFFFFF' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button 
               onClick={onBack}
               className="btn btn-secondary"
-              style={{ padding: '4px 8px', fontSize: '11.5px' }}
+              style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
-              <ArrowLeft size={13} />
-              <span>Back</span>
+              <ArrowLeft size={14} />
+              <span>Back to Queue</span>
             </button>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <h2 style={{ fontSize: '1.2rem', color: 'var(--color-navy)', fontWeight: '800' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: '1.3rem', color: 'var(--color-navy)', fontWeight: '800', margin: 0 }}>
                   {dossier.complaint_id}
                 </h2>
-                <span className="badge badge-teal">
-                  {details.situational_baseline || 'Standard Window'}
+                <span className="badge badge-teal" style={{ padding: '4px 8px', fontSize: '11px' }}>
+                  {details.situational_baseline || 'Dynamic Window'}
                 </span>
                 {isDuplicate ? (
-                  <span className="badge badge-held">HELD: DUPLICATE UTR</span>
+                  <span className="badge badge-held" style={{ padding: '4px 8px', fontSize: '11px' }}>
+                    HELD: DUPLICATE UTR
+                  </span>
                 ) : (
-                  <span className={`badge ${details.risk_tier === 'CRITICAL' ? 'badge-critical' : 'badge-elevated'}`}>
+                  <span className={`badge ${details.risk_tier === 'CRITICAL' ? 'badge-critical' : 'badge-elevated'}`} style={{ padding: '4px 8px', fontSize: '11px' }}>
                     {details.risk_tier} RISK
                   </span>
                 )}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--color-muted)', fontFamily: 'var(--font-mono)', marginTop: '1px' }}>
-                UTR: {details.utr} • Jurisdiction: {details.victim_city} ({details.area})
+              <div style={{ fontSize: '11.5px', color: 'var(--color-muted)', fontFamily: 'var(--font-mono)', marginTop: '3px' }}>
+                UTR: {details.utr} • Jurisdiction: {details.victim_city} ({details.area || 'Hinjawadi IT Corridor'})
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={() => onOpenNotice(complaintId)}
               className="btn btn-navy"
-              style={{ padding: '6px 12px', fontSize: '12px' }}
+              style={{ padding: '8px 14px', fontSize: '12.5px', fontWeight: '600' }}
             >
-              <FileText size={13} color="var(--color-teal)" />
-              <span>Issue Sec. 105 BNSS Order</span>
+              <FileText size={14} color="var(--color-teal)" />
+              <span>Issue Section 105 Notice</span>
             </button>
 
             {!isDispatched && !isDuplicate && (
               <button
                 onClick={() => onDispatch(details)}
                 className="btn btn-primary"
-                style={{ padding: '6px 12px', fontSize: '12px' }}
+                style={{ padding: '8px 14px', fontSize: '12.5px', fontWeight: '600' }}
               >
-                <Send size={13} />
-                <span>Alert Beat Patrol</span>
+                <Send size={14} />
+                <span>Dispatch Police Beat</span>
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Case Overview Metrics Strip */}
+      {/* Case Overview Metrics Strip - Spacious, High-Contrast KPI Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '10px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gap: '14px',
       }}>
         {/* Complainant Strip */}
-        <div className="card" style={{ padding: '10px 14px', backgroundColor: '#FFFFFF' }}>
-          <div style={{ fontSize: '10px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700' }}>
-            Complainant Account
+        <div className="card" style={{ padding: '16px 20px', backgroundColor: '#FFFFFF' }}>
+          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.04em' }}>
+            Origin Complainant
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '2px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '4px' }}>
             {details.victim_city} Cyber Complainant
           </div>
-          <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '11.5px', color: '#64748B', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
             {details.victim_account || 'SBIN0004123:3819201948'}
           </div>
         </div>
 
         {/* Amount Strip */}
-        <div className="card" style={{ padding: '10px 14px', backgroundColor: '#FFFFFF' }}>
-          <div style={{ fontSize: '10px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700' }}>
-            Defrauded Amount
+        <div className="card" style={{ padding: '16px 20px', backgroundColor: '#FFFFFF' }}>
+          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.04em' }}>
+            Disputed Amount
           </div>
-          <div style={{ fontSize: '14px', fontWeight: '800', color: '#B91C1C', marginTop: '1px' }}>
-            ₹{details.amount?.toLocaleString('en-IN')}
+          <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#B91C1C', marginTop: '2px' }}>
+            ₹{details.amount?.toLocaleString('en-IN') || '78,000'}
           </div>
-          <div style={{ fontSize: '11px', color: '#64748B' }}>
+          <div style={{ fontSize: '11.5px', color: '#64748B', marginTop: '2px' }}>
             Channel: <strong>{details.channel || 'UPI'}</strong> (Hop {details.hop_depth || 1})
           </div>
         </div>
 
         {/* Beneficiary Mule Strip */}
-        <div className="card" style={{ padding: '10px 14px', backgroundColor: '#FFFFFF' }}>
-          <div style={{ fontSize: '10px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700' }}>
-            Beneficiary Mule Node
+        <div className="card" style={{ padding: '16px 20px', backgroundColor: '#FFFFFF' }}>
+          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.04em' }}>
+            Beneficiary Mule Layer
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '800', color: '#B45309', marginTop: '2px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: '#B45309', marginTop: '4px' }}>
             HDFC Primary Mule Node
           </div>
-          <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: '11.5px', color: '#64748B', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
             {details.beneficiary_account || 'HDFC0001048:50100482910'}
           </div>
         </div>
 
         {/* Target ATM Hotspot Strip */}
-        <div className="card" style={{ padding: '10px 14px', backgroundColor: '#FFFFFF' }}>
-          <div style={{ fontSize: '10px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700' }}>
-            Predicted Cash-Out ATM
+        <div className="card" style={{ padding: '16px 20px', backgroundColor: '#FFFFFF' }}>
+          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.04em' }}>
+            Target Cash-Out Terminal
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '2px' }}>
-            {details.leading_atm?.bank} — {details.leading_atm?.area}
+          <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '4px' }}>
+            {details.leading_atm?.bank || 'HDFC'} — {details.leading_atm?.area || 'Hinjawadi Phase 1'}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-teal-dark)', fontWeight: '700' }}>
-            Priority Score: {(details.priority_score * 100).toFixed(0)}%
+          <div style={{ fontSize: '11.5px', color: 'var(--color-teal-dark)', fontWeight: '700', marginTop: '2px' }}>
+            Hawkes Priority Score: {((details.priority_score || 0.88) * 100).toFixed(0)}%
           </div>
         </div>
       </div>

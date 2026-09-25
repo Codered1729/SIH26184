@@ -46,7 +46,7 @@ export default function ModelConsensus({ consensusData, championModel }) {
   };
 
   return (
-    <div className="card" style={{ padding: '16px 20px', backgroundColor: '#FFFFFF' }}>
+    <div className="card" style={{ padding: '20px 24px', backgroundColor: '#FFFFFF' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
         <div>

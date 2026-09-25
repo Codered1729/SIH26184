@@ -43,9 +43,9 @@ export default function Navbar({
     }}>
       {/* Top Header Bar */}
       <div style={{
-        maxWidth: '1440px',
-        margin: '0 auto',
-        padding: '8px 20px',
+        maxWidth: '100%',
+        margin: '0',
+        padding: '8px 28px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -152,12 +152,12 @@ export default function Navbar({
 
       {/* Navigation Screen Tabs */}
       <div style={{
-        maxWidth: '1440px',
-        margin: '0 auto',
-        padding: '0 20px',
+        maxWidth: '100%',
+        margin: '0',
+        padding: '0 28px',
         display: 'flex',
         alignItems: 'center',
-        gap: '2px',
+        gap: '4px',
         backgroundColor: '#071526',
         overflowX: 'auto',
       }}>
