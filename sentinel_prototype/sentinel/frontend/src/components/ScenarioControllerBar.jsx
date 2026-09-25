@@ -25,43 +25,43 @@ export default function ScenarioControllerBar({
   const scenarios = [
     {
       id: 'genuine_pune_upi',
-      title: 'Pune Genuine UPI',
-      subtitle: 'Cash-Out Forecast & 20m Window',
+      title: '1. High-Velocity UPI Siphon',
+      subtitle: 'Pune Hinjawadi • 20m Window',
       icon: Zap,
       badge: 'CRITICAL (0.91)',
       color: '#0B1F3A',
       accentColor: '#00C2A8',
-      desc: 'Injects genuine UPI fraud (₹78,000) in Hinjawadi with Hawkes ATM ranking.',
+      desc: 'Simulates high-velocity UPI mule diversion (₹78,000) triggering Hawkes ATM cluster excitation.',
     },
     {
       id: 'duplicate_utr_fail',
-      title: 'Duplicate UTR Hard-Fail',
-      subtitle: 'Authenticity Gate (Score: 0.00)',
+      title: '2. Sybil / Duplicate Claim',
+      subtitle: 'Authenticity Gate Hard-Fail',
       icon: ShieldAlert,
       badge: 'HELD FOR REVIEW',
       color: '#581C87',
       accentColor: '#A855F7',
-      desc: 'Addresses fake report objection: instant hard-fail with zero wrongful freezes.',
+      desc: 'Detects duplicate UTR claim; Authenticity Gate immediately assigns 0.00 score (zero wrongful freezes).',
     },
     {
       id: 'bank_outage_resilience',
-      title: 'Bank API Outage',
-      subtitle: 'CircuitBreaker OPEN & SQLite Outbox',
+      title: '3. Nodal Gateway Outage',
+      subtitle: 'CFCFRMS Drop • SQLite Outbox',
       icon: PlugZap,
       badge: 'OUTBOX QUEUED',
       color: '#9A3412',
       accentColor: '#F97316',
-      desc: 'Simulates webhook drop: trips CircuitBreaker to OPEN; 0 alerts lost.',
+      desc: 'Simulates bank webhook downtime: trips CircuitBreaker to OPEN; 0 alerts lost via SQLite queue.',
     },
     {
       id: 'multihop_decay',
-      title: 'Multi-Hop & Decay',
-      subtitle: '42m Runway & Bayesian Decay',
+      title: '4. Layered Syndicate Transfer',
+      subtitle: 'Thane Corridor • Bayesian Decay',
       icon: RefreshCw,
       badge: 'BAYESIAN DECAY',
       color: '#334155',
       accentColor: '#64748B',
-      desc: 'Layered mule transfer across Thane-Mumbai corridor decaying to _missed.',
+      desc: 'Multi-hop mule chain across Thane-Mumbai corridor; Bayesian belief decays to _missed after 42m.',
     },
   ];
 
@@ -91,7 +91,7 @@ export default function ScenarioControllerBar({
     setLoadingScenario('reset');
     try {
       await api.resetSimulationState();
-      setLastAction({ type: 'success', text: 'Demo state restored to pristine baseline' });
+      setLastAction({ type: 'success', text: 'Operational baseline restored' });
       if (onResetCompleted) {
         onResetCompleted();
       }
@@ -134,12 +134,12 @@ export default function ScenarioControllerBar({
           }}>
             <Sparkles size={13} color="var(--color-teal-dark)" />
             <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--color-navy)', letterSpacing: '0.04em' }}>
-              DEMO SIMULATOR
+              OPERATIONAL SCENARIOS & STRESS DRILLS
             </span>
           </div>
 
           <span style={{ fontSize: '11.5px', color: 'var(--color-muted)', fontWeight: '500' }}>
-            One-Click Presentation Scenarios
+            Live Incident Telemetry Simulator
           </span>
 
           {lastAction && (
@@ -183,7 +183,7 @@ export default function ScenarioControllerBar({
             }}
           >
             <RotateCcw size={12} className={loadingScenario === 'reset' ? 'spin' : ''} />
-            <span>Reset Demo State</span>
+            <span>Reset Operational Baseline</span>
           </button>
 
           <button

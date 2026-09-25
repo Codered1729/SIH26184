@@ -73,8 +73,8 @@ export default function App() {
       }
     );
 
-    // Backup short polling every 4 seconds to guarantee zero-fail resilience
-    const interval = setInterval(loadData, 4000);
+    // Backup short polling every 2 seconds to guarantee real-time telemetry sync
+    const interval = setInterval(loadData, 2000);
 
     return () => {
       cleanupWs();
@@ -119,6 +119,17 @@ export default function App() {
   };
 
   const handleScenarioTriggered = (complaintId, scenarioId, alertData) => {
+    // 0ms instant optimistic UI state update
+    if (alertData && alertData.complaint_id) {
+      setAlerts((prev) => {
+        const exists = prev.some((a) => a.complaint_id === alertData.complaint_id);
+        if (exists) {
+          return prev.map((a) => (a.complaint_id === alertData.complaint_id ? { ...a, ...alertData } : a));
+        }
+        return [alertData, ...prev];
+      });
+    }
+
     loadData();
     setSelectedComplaintId(complaintId);
     setHighlightedAlertId(complaintId);

@@ -22,11 +22,11 @@ export default function Navbar({
   onOpenIntake 
 }) {
   const tabs = [
-    { id: 'queue', label: 'Priority Triage Queue', icon: Shield, badge: alertsCount },
-    { id: 'dossier', label: 'Case Dossier & Graph', icon: Layers },
-    { id: 'map', label: 'Maharashtra ATM Hotspots', icon: MapPin },
-    { id: 'bnss', label: 'Section 105 BNSS Orders', icon: FileText },
-    { id: 'audit', label: 'Audit & Event Ledger', icon: FileClock, badge: auditCount || undefined },
+    { id: 'queue', label: 'Active Alerts', icon: Shield, badge: alertsCount },
+    { id: 'dossier', label: 'Incident Dossier', icon: Layers },
+    { id: 'map', label: 'ATM Hotspots & Interception', icon: MapPin },
+    { id: 'bnss', label: 'Section 105 BNSS Notices', icon: FileText },
+    { id: 'audit', label: 'Compliance Audit Ledger', icon: FileClock, badge: auditCount || undefined },
   ];
 
   const circuitState = outboxStatus?.circuit_breaker?.state || 'CLOSED';
@@ -145,7 +145,7 @@ export default function Navbar({
             }}
           >
             <Plus size={14} />
-            <span>Register Incident / SMS</span>
+            <span>Ingest Incident / SMS</span>
           </button>
         </div>
       </div>

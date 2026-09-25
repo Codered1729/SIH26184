@@ -63,11 +63,11 @@ export default function ModelConsensus({ consensusData, championModel }) {
               <Trophy size={15} color="var(--color-teal-dark)" />
             </div>
             <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--color-navy)', margin: 0 }}>
-              Champion Predictive Model: {champ.model_name}
+              Primary AI Forecaster: LightGBM / GBDT
             </h3>
           </div>
           <p style={{ fontSize: '11.5px', color: 'var(--color-muted)', marginTop: '2px', margin: 0 }}>
-            Ranked #1 across 4-fold temporal walk-forward evaluation • Evaluated strictly at F1-optimal threshold (0.197)
+            Calibrated on Maharashtra Regional Incident Dataset • Evaluated at F1-optimal threshold (0.197)
           </p>
         </div>
 

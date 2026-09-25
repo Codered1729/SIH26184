@@ -71,23 +71,23 @@ export default function PriorityQueue({
 
   const tabs = [
     { id: 'all', label: 'All Incidents', count: counts.all },
-    { id: 'critical', label: 'Immediate Action (<20%)', count: counts.critical, color: '#B91C1C' },
-    { id: 'held', label: 'Held for Inquiry (Duplicate UTR)', count: counts.held, color: '#6B21A8' },
+    { id: 'critical', label: 'Critical Risk (<25m Window)', count: counts.critical, color: '#B91C1C' },
+    { id: 'held', label: 'Held for Inquiry (Duplicate Claims)', count: counts.held, color: '#6B21A8' },
     { id: 'dispatched', label: 'Patrol Dispatched', count: counts.dispatched, color: '#1D4ED8' },
     { id: 'expired', label: 'Window Concluded', count: counts.expired, color: '#475569' },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Control Strip */}
-      <div className="card" style={{ padding: '12px 16px', backgroundColor: '#FFFFFF' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+      <div className="card" style={{ padding: '16px 20px', backgroundColor: '#FFFFFF' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
           <div>
-            <h2 style={{ fontSize: '1.15rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ShieldAlert size={18} color="var(--color-teal)" />
-              Incident Priority & Triage Queue
+            <h2 style={{ fontSize: '1.2rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800' }}>
+              <ShieldAlert size={20} color="var(--color-teal)" />
+              Active Incident Priority Queue
             </h2>
-            <p style={{ color: 'var(--color-muted)', fontSize: '11.5px', marginTop: '1px' }}>
+            <p style={{ color: 'var(--color-muted)', fontSize: '12px', marginTop: '2px' }}>
               Automated cash-out risk ranking (Risk × Urgency × Amount × Confidence). Interception countdown calibrated to transfer channel.
             </p>
           </div>
