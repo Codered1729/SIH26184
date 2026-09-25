@@ -63,9 +63,9 @@ Plans:
 4. Case Detail screen displays k-hop chain, 3-party attestation status, and priority score breakdown.
 
 Plans:
-- [ ] 03-01: Scaffold frontend application with design tokens, layout, and WebSocket/REST client.
-- [ ] 03-02: Implement Priority Queue (with FLIP transitions), Case Detail, Complaint Intake, and Model Metrics screens.
-- [ ] 03-03: Implement interactive Maharashtra Geospatial Map and Section 105 BNSS preview modal.
+- [x] 03-01: Scaffold frontend application with design tokens, layout, and WebSocket/REST client.
+- [x] 03-02: Implement Priority Queue (with FLIP transitions), Case Detail, Complaint Intake, and Model Metrics screens.
+- [x] 03-03: Implement interactive Maharashtra Geospatial Map and Section 105 BNSS preview modal.
 
 ---
 
@@ -80,9 +80,9 @@ Plans:
 3. Full end-to-end reverification script passes 100% offline without dependencies on external services.
 
 Plans:
-- [ ] 04-01: Implement simulation event generator and scenario trigger endpoints in FastAPI.
-- [ ] 04-02: Build UI scenario controller bar on the dashboard for one-click demo triggers.
-- [ ] 04-03: Run end-to-end verification and compile offline presentation runbook.
+- [x] 04-01: Implement simulation event generator and scenario trigger endpoints in FastAPI.
+- [x] 04-02: Build UI scenario controller bar on the dashboard for one-click demo triggers.
+- [x] 04-03: Run end-to-end verification and compile offline presentation runbook.
 
 ---
 
@@ -94,9 +94,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Maharashtra Data Calibration & Intake Extraction Engine | 3/3 | Complete | 2026-09-24 |
-| 2. Predictive Spatiotemporal Engine & Resilient Dispatch | 0/3 | Not started | - |
-| 3. Interactive 4-Screen Operator Dashboard & Geospatial Visualizer | 0/3 | Not started | - |
-| 4. Live Event Simulator & End-to-End Presentation Harness | 0/3 | Not started | - |
+| 2. Predictive Spatiotemporal Engine & Resilient Dispatch | 3/3 | Complete | 2026-09-24 |
+| 3. Interactive 4-Screen Operator Dashboard & Geospatial Visualizer | 3/3 | Complete | 2026-09-25 |
+| 4. Live Event Simulator & End-to-End Presentation Harness | 3/3 | Complete | 2026-09-25 |
 
 ---
 *Roadmap defined: 2026-09-24*
