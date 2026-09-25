@@ -52,7 +52,7 @@ export default function SyndicateGraph({ dossier }) {
           border: '1px solid var(--border-medium)',
           padding: '20px 12px',
         }}>
-          <svg viewBox="0 0 1120 180" style={{ width: '100%', minWidth: '880px', height: '180px' }}>
+          <svg viewBox="0 0 1120 180" role="img" aria-label="Funds Flow and Beneficiary Layering Path Diagram" style={{ width: '100%', minWidth: '880px', height: '180px' }}>
             <defs>
               <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#00A896" />

@@ -432,7 +432,7 @@ export const api = {
     return { status: 'success', message: 'Demo state reset' };
   },
 
-  async getAuditLogs(limit = 100, eventType = null) {
+  async getAuditLogs(limit = 500, eventType = null) {
     let url = `${API_BASE}/audit/logs?limit=${limit}`;
     if (eventType) url += `&event_type=${encodeURIComponent(eventType)}`;
     const data = await safeFetch(url);

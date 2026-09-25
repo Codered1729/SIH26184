@@ -26,11 +26,12 @@ export default function AuditLedger({ onRefreshParent }) {
   const [inspectLog, setInspectLog] = useState(null);
   const [copiedHash, setCopiedHash] = useState(null);
 
-  // Fetch all audit logs without server-side filtering to enable 0ms instant client filtering
+  // Fetch all audit logs without server-side filtering to enable 0ms instant client filtering.
+  // Ceiling set to 500 events to accommodate full multi-scenario live presentation sessions without truncation.
   const fetchLogs = async (showSpinner = false) => {
     if (showSpinner) setIsRefreshing(true);
     try {
-      const data = await api.getAuditLogs(150);
+      const data = await api.getAuditLogs(500);
       if (data && data.logs) {
         setLogs(data.logs);
       }

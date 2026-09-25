@@ -105,6 +105,7 @@ Plans:
 **Depends on**: Phase 4  
 **Requirements**: UI-01, UI-02, UI-03, UI-04  
 **Success Criteria** (what must be TRUE):
+
 1. UI utilizes 100% of widescreen displays without dead 1440px side margins or empty gaps.
 2. Funds Flow & Beneficiary Layering diagram displays zero text overlap between Hop 2 Mule and Target ATM with generous node separation.
 3. Information across dossier and queue cards is de-cluttered with comfortable spacing and clear visual hierarchy.
@@ -113,7 +114,12 @@ Plans:
 6. Scenario triggering provides instant optimistic card updates with 2s telemetry sync.
 
 Plans:
+**Wave 1**
+
 - [x] 05-01: Widescreen fluid layout, flow diagram overhaul, and spatial de-cluttering.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [x] 05-02: Institutional GovTech naming conventions, instant audit log performance, and optimistic telemetry sync.
 
 ---

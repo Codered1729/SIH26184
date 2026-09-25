@@ -9,9 +9,12 @@ import AuditLedger from './components/AuditLedger';
 import IntakeModal from './components/IntakeModal';
 import { api, initAlertsWebSocket } from './services/api';
 
+// Baseline complaint ID constant for resilient resets across seed modifications
+export const BASELINE_COMPLAINT_ID = 'CYB-MAH-2026-0819';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('queue'); // 'queue' | 'dossier' | 'map' | 'bnss' | 'audit'
-  const [selectedComplaintId, setSelectedComplaintId] = useState('CYB-MAH-2026-0819');
+  const [selectedComplaintId, setSelectedComplaintId] = useState(BASELINE_COMPLAINT_ID);
   const [highlightedAlertId, setHighlightedAlertId] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [outboxStatus, setOutboxStatus] = useState({});
@@ -144,7 +147,7 @@ export default function App() {
   const handleResetCompleted = () => {
     loadData();
     setHighlightedAlertId(null);
-    setSelectedComplaintId('CYB-MAH-2026-0819');
+    setSelectedComplaintId(BASELINE_COMPLAINT_ID);
   };
 
   return (
