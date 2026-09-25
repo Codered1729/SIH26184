@@ -33,6 +33,9 @@ MODULES = [
     "backend/app/adapters/ledger.py",
     "backend/app/adapters/resilient.py",
     "backend/app/core/resilience.py",
+    "backend/tests/test_api_routes.py",
+    "backend/tests/test_simulation.py",
+    "verify_phase4.py",
 ]
 
 
