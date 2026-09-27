@@ -78,9 +78,15 @@ export default function CaseDetail({
                 <h2 style={{ fontSize: '1.3rem', color: 'var(--color-navy)', fontWeight: '800', margin: 0 }}>
                   {dossier.complaint_id}
                 </h2>
-                <span className="badge badge-teal" style={{ padding: '4px 8px', fontSize: '11px' }}>
-                  {details.situational_baseline || 'Dynamic Window'}
-                </span>
+                {isDuplicate ? (
+                  <span className="badge badge-held" style={{ padding: '4px 8px', fontSize: '11px', backgroundColor: '#FAF5FF', color: '#7C3AED', border: '1px solid #D8B4FE', fontWeight: '700' }}>
+                    WINDOW SUSPENDED (GATE REJECTED)
+                  </span>
+                ) : (
+                  <span className="badge badge-teal" style={{ padding: '4px 8px', fontSize: '11px' }}>
+                    {details.situational_baseline || 'Dynamic Window'}
+                  </span>
+                )}
                 {isDuplicate ? (
                   <span className="badge badge-held" style={{ padding: '4px 8px', fontSize: '11px' }}>
                     HELD: DUPLICATE UTR
@@ -105,7 +111,7 @@ export default function CaseDetail({
               style={{ padding: '8px 14px', fontSize: '12.5px', fontWeight: '600' }}
             >
               <FileText size={14} color="var(--color-teal)" />
-              <span>Issue Section 105 Notice</span>
+              <span>{isDuplicate ? 'Review Held Notice Dossier' : 'Issue BNSS Lawful Notice'}</span>
             </button>
 
             {!isDispatched && !isDuplicate && (
@@ -117,6 +123,19 @@ export default function CaseDetail({
                 <Send size={14} />
                 <span>Dispatch Police Beat</span>
               </button>
+            )}
+            {isDuplicate && (
+              <div style={{
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: '#FAF5FF',
+                border: '1px solid #D8B4FE',
+                color: '#7C3AED',
+                fontSize: '11.5px',
+                fontWeight: '700',
+              }}>
+                Automated Freeze & Dispatch Blocked
+              </div>
             )}
           </div>
         </div>

@@ -108,9 +108,27 @@ def _sample_hop_depth(rng, n):
     return np.clip(rng.geometric(p=0.42, size=n), 1, 8)
 
 
+CHANNEL_TYPES = ["UPI", "IMPS", "AEPS_KIOSK", "ATM_CARDLESS", "NEFT"]
+CHANNEL_WEIGHTS = np.array([0.52, 0.22, 0.12, 0.08, 0.06])
+
+
 def generate_complaints(n: int, rng) -> pd.DataFrame:
     jcct_origin = rng.choice(JCCT_NAMES, size=n, p=JCCT_WEIGHTS)
     tier = rng.choice(PINCODE_TIERS, size=n, p=TIER_WEIGHTS)
+    channel_type = rng.choice(CHANNEL_TYPES, size=n, p=CHANNEL_WEIGHTS)
+
+    hour_probs = np.array([
+        0.05, 0.06, 0.06, 0.05, 0.03, 0.02,  # 00:00 - 05:00 (Dark window surge)
+        0.02, 0.02, 0.03, 0.04, 0.05, 0.05,  # 06:00 - 11:00
+        0.05, 0.05, 0.06, 0.06, 0.05, 0.05,  # 12:00 - 17:00
+        0.04, 0.04, 0.04, 0.04, 0.05, 0.05   # 18:00 - 23:00
+    ])
+    hour_probs = hour_probs / hour_probs.sum()
+    hour_of_day = rng.choice(np.arange(24), size=n, p=hour_probs)
+
+    is_weekday = rng.random(n) < 0.714
+    is_day_hours = (hour_of_day >= 10) & (hour_of_day <= 16)
+    is_banking_hours_flag = (is_weekday & is_day_hours).astype(int)
 
     base_density = np.array([JCCT_BY_NAME[j].atm_density_per_lakh for j in jcct_origin])
     tier_multiplier = np.select(
@@ -131,22 +149,30 @@ def generate_complaints(n: int, rng) -> pd.DataFrame:
     police_attested = rng.random(n) < 0.58
     attestation_count = utr_verified.astype(int) + bank_corroborated.astype(int) + police_attested.astype(int)
 
-    sophistication = (
-        0.35 * (hop_depth / 8)
-        + 0.25 * (linked_device_count > 2).astype(float)
-        + 0.20 * (1 / (1 + hop_velocity_min / 10))
-        + 0.20 * rng.normal(0, 1, n).clip(-1, 1) * 0.5
+    structuring_flag = ((amount >= 45000.0) & (rng.random(n) < 0.45)).astype(int)
+    fan_out_ratio = np.where(structuring_flag == 1, rng.integers(2, 6, size=n), 1)
+
+    sim_swap_last_48h = (rng.random(n) < 0.085).astype(int)
+    remote_access_tool_flag = (rng.random(n) < 0.115).astype(int)
+
+    # Non-linear operational ground-truth logic
+    risk_score = (
+        -3.35
+        + 1.8 * (structuring_flag == 1)
+        + 1.3 * (remote_access_tool_flag == 1)
+        + 1.1 * (sim_swap_last_48h == 1)
+        + 0.9 * (is_banking_hours_flag == 0)
+        + 0.7 * (channel_type == "UPI")
+        + 1.0 * (channel_type == "ATM_CARDLESS")
+        - 1.4 * (channel_type == "NEFT")
+        + 0.4 * (fan_out_ratio > 2)
+        + 0.3 * np.log1p(atm_density_home)
+        - 0.6 * (hop_velocity_min / 30.0).clip(0, 3)
+        + 0.5 * (time_to_file_min < 25)
+        + rng.normal(0, 0.5, n)
     )
-    logit = (
-        -2.75
-        + 1.8 * sophistication
-        + 0.4 * np.log1p(atm_density_home)
-        - 0.5 * (account_age_days / 1000)
-        + 0.3 * (attestation_count >= 2).astype(float)
-        - 0.35 * (time_to_file_min / 60)
-        + rng.normal(0, 0.6, n)
-    )
-    prob = 1 / (1 + np.exp(-logit))
+
+    prob = 1.0 / (1.0 + np.exp(-risk_score))
     label = (rng.random(n) < prob).astype(int)
 
     day = np.sort(rng.integers(0, 180, size=n))
@@ -155,6 +181,13 @@ def generate_complaints(n: int, rng) -> pd.DataFrame:
         "complaint_id": [f"C-{i:06d}" for i in range(n)],
         "jcct_origin": jcct_origin,
         "pincode_tier": tier,
+        "channel_type": channel_type,
+        "hour_of_day": hour_of_day,
+        "is_banking_hours_flag": is_banking_hours_flag,
+        "structuring_flag": structuring_flag,
+        "fan_out_ratio": fan_out_ratio,
+        "sim_swap_last_48h": sim_swap_last_48h,
+        "remote_access_tool_flag": remote_access_tool_flag,
         "atm_density_home_pincode": atm_density_home,
         "hop_depth": hop_depth,
         "amount": amount,
@@ -263,7 +296,7 @@ def annotate_complaints_with_cashout(complaints: pd.DataFrame, tx_df: pd.DataFra
     return complaints
 
 
-def generate(n_complaints: int = 12000, seed: int = RNG_SEED):
+def generate(n_complaints: int = 18000, seed: int = RNG_SEED):
     rng = np.random.default_rng(seed)
     complaints = generate_complaints(n_complaints, rng)
     tx_df, device_df = generate_transactions(complaints, rng)
@@ -273,7 +306,7 @@ def generate(n_complaints: int = 12000, seed: int = RNG_SEED):
 
 if __name__ == "__main__":
     out_dir = Path(__file__).resolve().parent
-    complaints, tx_df, device_df = generate(n_complaints=12000)
+    complaints, tx_df, device_df = generate(n_complaints=18000)
 
     complaints.to_csv(out_dir / "synthetic_complaints.csv", index=False)
     tx_df.to_csv(out_dir / "synthetic_transactions.csv", index=False)

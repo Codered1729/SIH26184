@@ -21,11 +21,11 @@ This document started as a build brief for handing to Antigravity/GSD. It's now 
 
 Run `./run_all_tests.sh` — full suite, ~2 seconds, no installs required.
 
-**Not executable in this build environment (no network/Docker access), but fully specified and interface-matched:** the FastAPI production entrypoint, Kafka wiring, real Neo4j/Fabric connections, the React frontend, `infra/docker-compose.yml`. These are written to be correct against the exact same interfaces the tested offline code uses — see the repo README for the honest built-vs-specified split.
+**Interface-matched stubs & roadmap specifications (NOT executed at distributed scale):** The FastAPI production entrypoint, Kafka wiring, real Neo4j/Fabric connections, and `infra/docker-compose.yml` are written as clean interface contracts matching the tested offline code. Crucially: this system has **not** been run or benchmarked on a live distributed cluster. In-memory NetworkX and SQLite do not simulate network partitions, consensus latency, or multi-broker rebalancing — those remain an unexecuted Phase 2 scaling roadmap.
 
 ## 2. The backup/resilience pattern, in one paragraph
 
-Every external dependency (Neo4j, Fabric, CFCFRMS) is called only through a `CircuitBreaker`. On failure it fails fast rather than hanging, and falls over to a same-interface offline implementation that's already built for the demo anyway — so "backup for when the API is down" and "offline demo mode" are the same code, not two things to maintain. Anything that can't be dropped (a dispatch alert, an attestation) goes into a SQLite-backed `Outbox` first and gets replayed automatically once the dependency recovers. Proven with real failure injection, not just written and assumed — see `backend/app/core/resilience.py` and `backend/app/adapters/resilient.py`.
+Every external dependency (Neo4j, Fabric, CFCFRMS) is accessed through an interface abstraction wrapped in a `CircuitBreaker`. On simulated connection failure (verified via injected exception stubs in `backend/app/adapters/resilient.py`), it fails fast rather than hanging, and falls over to the local in-memory/SQLite implementation. Anything that cannot be lost (a dispatch alert, an attestation) is enqueued in a SQLite-backed `Outbox` first and gets replayed once connectivity recovers. Proven with in-process fault injection — see `backend/app/core/resilience.py` and `backend/app/adapters/resilient.py`.
 
 ## 3. Error catalog highlights
 

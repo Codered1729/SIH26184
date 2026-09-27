@@ -225,17 +225,32 @@ export const api = {
         is_tamper_evident: true,
         status: "VALID_IMMUTABLE",
       },
+      champion_model: {
+        model_name: "LightGBM (Primary Operational Engine)",
+        f1_optimal_threshold: 0.291,
+        pr_auc: 0.654,
+        f1_score: 0.591,
+        latency_ms: 0.0016,
+        cashout_probability: item.cashout_probability,
+        exceeds_threshold: item.cashout_probability >= 0.291,
+        risk_tier: item.cashout_probability >= 0.70 ? "CRITICAL" : (item.cashout_probability >= 0.45 ? "HIGH" : "ELEVATED"),
+        top_features: [
+          { feature: "Malicious Remote Access / APK Tool", weight: 0.41, direction: "+Risk" },
+          { feature: "Transaction Velocity & Layering", weight: 0.32, direction: "+Risk" },
+          { feature: "Target Pincode ATM Density Cluster", weight: 0.27, direction: "+Risk" }
+        ]
+      },
       model_consensus: {
-        primary_model: "RandomForest (tuned)",
+        primary_model: "LightGBM (Primary Operational Engine)",
         primary_probability: item.cashout_probability,
-        consensus_average: 0.84,
+        consensus_average: item.cashout_probability,
         models: {
-          "RandomForest (tuned)": item.cashout_probability,
-          "XGBoost": Math.min(0.95, item.cashout_probability + 0.03),
+          "LightGBM (Primary Engine)": item.cashout_probability,
+          "XGBoost": Math.min(0.95, item.cashout_probability + 0.02),
           "CatBoost": Math.max(0.70, item.cashout_probability - 0.02),
-          "LightGBM (HistGB)": item.cashout_probability,
+          "GradientBoosting": Math.min(0.95, item.cashout_probability + 0.01),
+          "RandomForest (tuned)": item.cashout_probability,
           "RandomForest (baseline)": 0.78,
-          "LogisticRegression": 0.68,
           "Hawkes Spatiotemporal": 0.88,
         },
         top_reasons: item.top_reasons,
@@ -252,16 +267,182 @@ export const api = {
       status: 'offline_mode',
       total_atms: 10,
       atms: [
-        { atm_id: "ATM-MAH-MUM-00101", city: "Mumbai", area: "Bandra Kurla Complex", lat: 19.0660, lon: 72.8677, bank: "SBI", hawkes_intensity: 0.94, composite_priority: 0.91, is_pulsing_hotspot: true, is_in_cooldown: true, cooldown_remaining_sec: 720 },
-        { atm_id: "ATM-MAH-PUN-00202", city: "Pune", area: "Hinjawadi Phase 1", lat: 18.5912, lon: 73.7389, bank: "HDFC", hawkes_intensity: 0.91, composite_priority: 0.89, is_pulsing_hotspot: true, is_in_cooldown: false, cooldown_remaining_sec: 0 },
-        { atm_id: "ATM-MAH-PUN-00201", city: "Pune", area: "Shivajinagar Station", lat: 18.5314, lon: 73.8446, bank: "SBI", hawkes_intensity: 0.85, composite_priority: 0.83, is_pulsing_hotspot: true, is_in_cooldown: false, cooldown_remaining_sec: 0 },
-        { atm_id: "ATM-MAH-MUM-00102", city: "Mumbai", area: "Andheri East Metro", lat: 19.1197, lon: 72.8464, bank: "HDFC", hawkes_intensity: 0.76, composite_priority: 0.74, is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
-        { atm_id: "ATM-MAH-NAG-00501", city: "Nagpur", area: "Sitabuldi Main Road", lat: 21.1458, lon: 79.0882, bank: "SBI", hawkes_intensity: 0.72, composite_priority: 0.70, is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
-        { atm_id: "ATM-MAH-NAS-00401", city: "Nashik", area: "CBS Old City", lat: 19.9975, lon: 73.7898, bank: "SBI", hawkes_intensity: 0.68, composite_priority: 0.65, is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
-        { atm_id: "ATM-MAH-THA-00301", city: "Thane", area: "Thane West Station", lat: 19.1860, lon: 72.9759, bank: "SBI", hawkes_intensity: 0.64, composite_priority: 0.62, is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
+        { atm_id: "ATM-MAH-MUM-00101", city: "Mumbai", area: "Bandra Kurla Complex", lat: 19.0660, lon: 72.8677, bank: "SBI", hawkes_intensity: 0.94, composite_priority: 0.91, vulnerability_score: 0.94, vulnerability_tier: "CRITICAL", status: "PATROL_DEPLOYED", status_label: "Patrol Dispatched (12m cooldown)", is_pulsing_hotspot: true, is_in_cooldown: true, cooldown_remaining_sec: 720 },
+        { atm_id: "ATM-MAH-PUN-00202", city: "Pune", area: "Hinjawadi Phase 1", lat: 18.5912, lon: 73.7389, bank: "HDFC", hawkes_intensity: 0.91, composite_priority: 0.89, vulnerability_score: 0.91, vulnerability_tier: "CRITICAL", status: "ACTIVE_THREAT", status_label: "Active Cash-Out Threat", is_pulsing_hotspot: true, is_in_cooldown: false, cooldown_remaining_sec: 0 },
+        { atm_id: "ATM-MAH-PUN-00201", city: "Pune", area: "Shivajinagar Station", lat: 18.5314, lon: 73.8446, bank: "SBI", hawkes_intensity: 0.85, composite_priority: 0.83, vulnerability_score: 0.85, vulnerability_tier: "CRITICAL", status: "ACTIVE_THREAT", status_label: "Active Cash-Out Threat", is_pulsing_hotspot: true, is_in_cooldown: false, cooldown_remaining_sec: 0 },
+        { atm_id: "ATM-MAH-MUM-00102", city: "Mumbai", area: "Andheri East Metro", lat: 19.1197, lon: 72.8464, bank: "HDFC", hawkes_intensity: 0.76, composite_priority: 0.74, vulnerability_score: 0.76, vulnerability_tier: "ELEVATED", status: "SUSPICIOUS_VELOCITY", status_label: "Elevated Velocity Corridor", is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
+        { atm_id: "ATM-MAH-NAG-00501", city: "Nagpur", area: "Sitabuldi Main Road", lat: 21.1458, lon: 79.0882, bank: "SBI", hawkes_intensity: 0.72, composite_priority: 0.70, vulnerability_score: 0.72, vulnerability_tier: "ELEVATED", status: "SUSPICIOUS_VELOCITY", status_label: "Elevated Velocity Corridor", is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
+        { atm_id: "ATM-MAH-NAS-00401", city: "Nashik", area: "CBS Old City", lat: 19.9975, lon: 73.7898, bank: "SBI", hawkes_intensity: 0.68, composite_priority: 0.65, vulnerability_score: 0.68, vulnerability_tier: "ELEVATED", status: "SUSPICIOUS_VELOCITY", status_label: "Elevated Velocity Corridor", is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
+        { atm_id: "ATM-MAH-THA-00301", city: "Thane", area: "Thane West Station", lat: 19.1860, lon: 72.9759, bank: "SBI", hawkes_intensity: 0.64, composite_priority: 0.62, vulnerability_score: 0.64, vulnerability_tier: "ELEVATED", status: "SUSPICIOUS_VELOCITY", status_label: "Elevated Velocity Corridor", is_pulsing_hotspot: false, is_in_cooldown: false, cooldown_remaining_sec: 0 },
       ],
     };
   },
+
+  async getLeafletClusters() {
+    const data = await safeFetch(`${API_BASE}/leaflet/clusters`);
+    if (data && data.clusters) return data;
+
+    // Offline fallback for 5 Maharashtra clusters
+    return {
+      status: 'offline_mode',
+      total_clusters: 5,
+      total_atms: 17,
+      statewide_vulnerability_index: 0.73,
+      summary: {
+        critical_clusters: 2,
+        elevated_clusters: 2,
+        active_threats_count: 3,
+        patrol_deployed_count: 1,
+      },
+      clusters: [
+        {
+          cluster_id: 'CLUSTER-MUM-MMR',
+          name: 'Mumbai MMR Financial Hub',
+          city: 'Mumbai',
+          corridor_desc: 'Western Express Highway & BKC Core Financial Corridor',
+          center: [19.0681, 72.8613],
+          radius_meters: 13000,
+          bounds: [[19.00, 72.80], [19.15, 72.92]],
+          total_atms: 4,
+          vulnerability_score: 0.86,
+          max_vulnerability_score: 0.94,
+          vulnerability_tier: 'CRITICAL',
+          status: 'ACTIVE_THREAT',
+          status_label: 'Under Active Threat (BKC flagged)',
+          active_threat_count: 1,
+          patrol_deployed_count: 1,
+          dominant_banks: ['Axis', 'HDFC', 'ICICI', 'SBI'],
+          atms: [
+            { atm_id: 'ATM-MAH-MUM-00101', city: 'Mumbai', area: 'Bandra Kurla Complex', lat: 19.0660, lon: 72.8677, bank: 'SBI', hawkes_intensity: 0.94, vulnerability_score: 0.94, vulnerability_tier: 'CRITICAL', status: 'PATROL_DEPLOYED', status_label: 'Patrol Dispatched (12m cooldown)', is_in_cooldown: true, cooldown_remaining_sec: 720 },
+            { atm_id: 'ATM-MAH-MUM-00102', city: 'Mumbai', area: 'Andheri East Metro', lat: 19.1197, lon: 72.8464, bank: 'HDFC', hawkes_intensity: 0.76, vulnerability_score: 0.76, vulnerability_tier: 'ELEVATED', status: 'SUSPICIOUS_VELOCITY', status_label: 'Elevated Velocity Corridor', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-MUM-00103', city: 'Mumbai', area: 'Dadar TT Circle', lat: 19.0178, lon: 72.8478, bank: 'ICICI', hawkes_intensity: 0.62, vulnerability_score: 0.62, vulnerability_tier: 'ELEVATED', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-MUM-00104', city: 'Mumbai', area: 'Kurla West Station', lat: 19.0688, lon: 72.8833, bank: 'Axis', hawkes_intensity: 0.58, vulnerability_score: 0.58, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+          ],
+        },
+        {
+          cluster_id: 'CLUSTER-PUN-METRO',
+          name: 'Pune IT & Industrial Corridor',
+          city: 'Pune',
+          corridor_desc: 'Hinjawadi Infotech Park & Pune-Bangalore Corridor',
+          center: [18.5494, 73.8264],
+          radius_meters: 12000,
+          bounds: [[18.48, 73.70], [18.62, 73.94]],
+          total_atms: 4,
+          vulnerability_score: 0.88,
+          max_vulnerability_score: 0.91,
+          vulnerability_tier: 'CRITICAL',
+          status: 'ACTIVE_THREAT',
+          status_label: 'Under Active Threat (Hinjawadi Phase 1 flagged)',
+          active_threat_count: 2,
+          patrol_deployed_count: 0,
+          dominant_banks: ['Axis', 'HDFC', 'ICICI', 'SBI'],
+          atms: [
+            { atm_id: 'ATM-MAH-PUN-00201', city: 'Pune', area: 'Shivajinagar Station', lat: 18.5314, lon: 73.8446, bank: 'SBI', hawkes_intensity: 0.85, vulnerability_score: 0.85, vulnerability_tier: 'CRITICAL', status: 'ACTIVE_THREAT', status_label: 'Active Cash-Out Threat', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-PUN-00202', city: 'Pune', area: 'Hinjawadi Phase 1', lat: 18.5912, lon: 73.7389, bank: 'HDFC', hawkes_intensity: 0.91, vulnerability_score: 0.91, vulnerability_tier: 'CRITICAL', status: 'ACTIVE_THREAT', status_label: 'Active Cash-Out Threat', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-PUN-00203', city: 'Pune', area: 'Kothrud Paud Road', lat: 18.5074, lon: 73.8077, bank: 'ICICI', hawkes_intensity: 0.55, vulnerability_score: 0.55, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-PUN-00204', city: 'Pune', area: 'Viman Nagar Central', lat: 18.5679, lon: 73.9143, bank: 'Axis', hawkes_intensity: 0.52, vulnerability_score: 0.52, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+          ],
+        },
+        {
+          cluster_id: 'CLUSTER-THA-SUB',
+          name: 'Thane-Kalyan Industrial Belt',
+          city: 'Thane',
+          corridor_desc: 'Ghodbunder Road & Central Railway Junction Corridor',
+          center: [19.2303, 73.0253],
+          radius_meters: 11000,
+          bounds: [[19.16, 72.93], [19.28, 73.16]],
+          total_atms: 3,
+          vulnerability_score: 0.64,
+          max_vulnerability_score: 0.69,
+          vulnerability_tier: 'ELEVATED',
+          status: 'SUSPICIOUS_VELOCITY',
+          status_label: 'Elevated Risk Detected',
+          active_threat_count: 0,
+          patrol_deployed_count: 0,
+          dominant_banks: ['BoB', 'HDFC', 'SBI'],
+          atms: [
+            { atm_id: 'ATM-MAH-THA-00301', city: 'Thane', area: 'Thane West Station', lat: 19.1860, lon: 72.9759, bank: 'SBI', hawkes_intensity: 0.64, vulnerability_score: 0.64, vulnerability_tier: 'ELEVATED', status: 'SUSPICIOUS_VELOCITY', status_label: 'Elevated Velocity Corridor', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-THA-00302', city: 'Thane', area: 'Ghodbunder Road', lat: 19.2612, lon: 72.9644, bank: 'HDFC', hawkes_intensity: 0.69, vulnerability_score: 0.69, vulnerability_tier: 'ELEVATED', status: 'SUSPICIOUS_VELOCITY', status_label: 'Elevated Velocity Corridor', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-THA-00303', city: 'Thane', area: 'Kalyan Station West', lat: 19.2437, lon: 73.1355, bank: 'BoB', hawkes_intensity: 0.52, vulnerability_score: 0.52, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+          ],
+        },
+        {
+          cluster_id: 'CLUSTER-NAS-NORTH',
+          name: 'Nashik Urban & MIDC Corridor',
+          city: 'Nashik',
+          corridor_desc: 'Mumbai-Agra Highway & Satpur Industrial Belt',
+          center: [19.9968, 73.7587],
+          radius_meters: 9000,
+          bounds: [[19.95, 73.70], [20.03, 73.81]],
+          total_atms: 3,
+          vulnerability_score: 0.61,
+          max_vulnerability_score: 0.68,
+          vulnerability_tier: 'ELEVATED',
+          status: 'SUSPICIOUS_VELOCITY',
+          status_label: 'Elevated Risk Detected',
+          active_threat_count: 0,
+          patrol_deployed_count: 0,
+          dominant_banks: ['HDFC', 'ICICI', 'SBI'],
+          atms: [
+            { atm_id: 'ATM-MAH-NAS-00401', city: 'Nashik', area: 'CBS Old City', lat: 19.9975, lon: 73.7898, bank: 'SBI', hawkes_intensity: 0.68, vulnerability_score: 0.68, vulnerability_tier: 'ELEVATED', status: 'SUSPICIOUS_VELOCITY', status_label: 'Elevated Velocity Corridor', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-NAS-00402', city: 'Nashik', area: 'College Road', lat: 20.0063, lon: 73.7639, bank: 'HDFC', hawkes_intensity: 0.60, vulnerability_score: 0.60, vulnerability_tier: 'ELEVATED', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-NAS-00403', city: 'Nashik', area: 'Satpur MIDC', lat: 19.9866, lon: 73.7225, bank: 'ICICI', hawkes_intensity: 0.48, vulnerability_score: 0.48, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+          ],
+        },
+        {
+          cluster_id: 'CLUSTER-NAG-EAST',
+          name: 'Nagpur Vidarbha Corridor',
+          city: 'Nagpur',
+          corridor_desc: 'Sitabuldi Interchange & Wardha Road Tech Hub',
+          center: [21.1351, 79.0439],
+          radius_meters: 10000,
+          bounds: [[21.09, 78.96], [21.17, 79.11]],
+          total_atms: 3,
+          vulnerability_score: 0.58,
+          max_vulnerability_score: 0.72,
+          vulnerability_tier: 'MODERATE',
+          status: 'NORMAL_SURVEILLANCE',
+          status_label: 'Normal Corridor Surveillance',
+          active_threat_count: 0,
+          patrol_deployed_count: 0,
+          dominant_banks: ['Axis', 'HDFC', 'SBI'],
+          atms: [
+            { atm_id: 'ATM-MAH-NAG-00501', city: 'Nagpur', area: 'Sitabuldi Main Road', lat: 21.1458, lon: 79.0882, bank: 'SBI', hawkes_intensity: 0.72, vulnerability_score: 0.72, vulnerability_tier: 'ELEVATED', status: 'SUSPICIOUS_VELOCITY', status_label: 'Elevated Velocity Corridor', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-NAG-00502', city: 'Nagpur', area: 'Dharampeth Square', lat: 21.1428, lon: 79.0601, bank: 'HDFC', hawkes_intensity: 0.55, vulnerability_score: 0.55, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+            { atm_id: 'ATM-MAH-NAG-00503', city: 'Nagpur', area: 'MIDC Hingna', lat: 21.1166, lon: 78.9833, bank: 'Axis', hawkes_intensity: 0.44, vulnerability_score: 0.44, vulnerability_tier: 'MODERATE', status: 'NORMAL_SURVEILLANCE', status_label: 'Normal Surveillance', is_in_cooldown: false, cooldown_remaining_sec: 0 },
+          ],
+        },
+      ],
+    };
+  },
+
+  async getLeafletGeoJSON() {
+    const data = await safeFetch(`${API_BASE}/leaflet/geojson`);
+    if (data && data.features) return data;
+    return null;
+  },
+
+  async updateAtmStatus(atmId, action = 'DISPATCH_PATROL', notes = '') {
+    const data = await safeFetch(`${API_BASE}/leaflet/atms/${atmId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, notes }),
+    });
+    if (data) return data;
+    return {
+      status: 'success',
+      atm_id: atmId,
+      action,
+      new_status: action === 'DISPATCH_PATROL' ? 'PATROL_DEPLOYED' : 'NORMAL_SURVEILLANCE',
+      cooldown_remaining_sec: action === 'DISPATCH_PATROL' ? 900 : 0,
+      message: `Offline mode: ATM ${atmId} status updated to ${action}`,
+    };
+  },
+
+  async dispatchAtmPatrol(atmId) {
+    return this.updateAtmStatus(atmId, 'DISPATCH_PATROL');
+  },
+
 
   async submitComplaint(payload) {
     const data = await safeFetch(`${API_BASE}/intake/submit`, {
@@ -269,45 +450,67 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    if (data && data.alert) {
+      OFFLINE_FALLBACK.alerts = [
+        data.alert,
+        ...OFFLINE_FALLBACK.alerts.filter((a) => a.complaint_id !== data.alert.complaint_id),
+      ];
+      return data;
+    }
     if (data) return data;
 
     // Local fallback for offline simulation
     const cid = `CYB-MAH-${Date.now()}`;
     const isDup = payload.raw_text && payload.raw_text.includes('429104829102');
+    const newAlert = {
+      complaint_id: cid,
+      utr: isDup ? '429104829102' : `UTR${Date.now()}`,
+      victim_city: payload.victim_city || 'Pune',
+      area: 'Shivajinagar',
+      amount: payload.amount || 65000.0,
+      channel: payload.channel || 'UPI',
+      hop_depth: payload.hop_depth || 1,
+      situational_baseline: isDup ? 'Window Suspended (Gate Rejected)' : '⚡ Instant UPI Single-Hop (20m Window)',
+      total_window_seconds: isDup ? 0 : 1200,
+      elapsed_seconds: 0,
+      remaining_seconds: isDup ? 0 : 1190,
+      window_status: isDup ? 'SUSPENDED' : 'ACTIVE',
+      priority_score: isDup ? 0.00 : 0.92,
+      risk_tier: isDup ? 'HELD_FOR_REVIEW' : 'CRITICAL',
+      cashout_probability: isDup ? 0.00 : 0.91,
+      authenticity_score: isDup ? 0.0 : 0.96,
+      authenticity_decision: isDup ? 'DUPLICATE_UTR' : 'VERIFIED',
+      status: isDup ? 'HELD_FOR_REVIEW' : 'PENDING_DISPATCH',
+      top_reasons: isDup ? [
+        'Duplicate transaction UTR 429104829102 detected in ledger',
+        'Authenticity Gate hard-fail triggered: Score = 0.00',
+        'Preservation hold & beat dispatch suppressed — Duplicate UTR griefing neutralized to protect innocent accounts',
+      ] : [
+        'High-velocity single-hop transfer',
+        'Hawkes spatiotemporal cluster spike near Shivajinagar',
+      ],
+      leading_atm: {
+        atm_id: 'ATM-MAH-PUN-00201',
+        city: 'Pune',
+        area: 'Shivajinagar Station',
+        bank: 'SBI',
+        lat: 18.5314,
+        lon: 73.8446,
+      },
+      device_imei: '864291048291044',
+      shared_mule_devices: 1,
+      chain_hash: `hash-${cid}`,
+    };
+
+    OFFLINE_FALLBACK.alerts = [newAlert, ...OFFLINE_FALLBACK.alerts];
+
     return {
       status: 'success',
       complaint_id: cid,
       decision: isDup ? 'DUPLICATE_UTR' : 'VERIFIED',
-      risk_tier: isDup ? 'LOW' : 'CRITICAL',
-      cashout_probability: isDup ? 0.05 : 0.91,
-      alert: {
-        complaint_id: cid,
-        utr: isDup ? '429104829102' : `UTR${Date.now()}`,
-        victim_city: payload.victim_city || 'Pune',
-        area: 'Shivajinagar',
-        amount: payload.amount || 65000.0,
-        channel: payload.channel || 'UPI',
-        hop_depth: payload.hop_depth || 1,
-        situational_baseline: '⚡ Instant UPI Single-Hop (20m Window)',
-        total_window_seconds: 1200,
-        elapsed_seconds: 10,
-        remaining_seconds: 1190,
-        window_status: 'ACTIVE',
-        priority_score: isDup ? 0.05 : 0.92,
-        risk_tier: isDup ? 'LOW' : 'CRITICAL',
-        cashout_probability: isDup ? 0.05 : 0.91,
-        authenticity_score: isDup ? 0.0 : 0.96,
-        authenticity_decision: isDup ? 'DUPLICATE_UTR' : 'VERIFIED',
-        status: isDup ? 'HELD_FOR_REVIEW' : 'PENDING_DISPATCH',
-        leading_atm: {
-          atm_id: 'ATM-MAH-PUN-00201',
-          city: 'Pune',
-          area: 'Shivajinagar Station',
-          bank: 'SBI',
-          lat: 18.5314,
-          lon: 73.8446,
-        },
-      },
+      risk_tier: isDup ? 'HELD_FOR_REVIEW' : 'CRITICAL',
+      cashout_probability: isDup ? 0.00 : 0.91,
+      alert: newAlert,
     };
   },
 

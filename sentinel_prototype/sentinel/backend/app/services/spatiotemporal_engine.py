@@ -27,27 +27,75 @@ from app.services.hawkes import ATMRanking, HawkesATMRanker, WithdrawalEvent
 # Canonical Maharashtra ATM Cluster Nodes for Simulation & Dispatch
 MAHARASHTRA_ATMS: List[Dict[str, Any]] = [
     # Mumbai MMR Cluster
-    {"atm_id": "ATM-MAH-MUM-00101", "city": "Mumbai", "area": "Bandra Kurla Complex", "lat": 19.0660, "lon": 72.8677, "bank": "SBI"},
-    {"atm_id": "ATM-MAH-MUM-00102", "city": "Mumbai", "area": "Andheri East Metro", "lat": 19.1197, "lon": 72.8464, "bank": "HDFC"},
-    {"atm_id": "ATM-MAH-MUM-00103", "city": "Mumbai", "area": "Dadar TT Circle", "lat": 19.0178, "lon": 72.8478, "bank": "ICICI"},
-    {"atm_id": "ATM-MAH-MUM-00104", "city": "Mumbai", "area": "Kurla West Station", "lat": 19.0688, "lon": 72.8833, "bank": "Axis"},
+    {"atm_id": "ATM-MAH-MUM-00101", "city": "Mumbai", "area": "Bandra Kurla Complex", "lat": 19.0660, "lon": 72.8677, "bank": "SBI", "cluster_id": "CLUSTER-MUM-MMR"},
+    {"atm_id": "ATM-MAH-MUM-00102", "city": "Mumbai", "area": "Andheri East Metro", "lat": 19.1197, "lon": 72.8464, "bank": "HDFC", "cluster_id": "CLUSTER-MUM-MMR"},
+    {"atm_id": "ATM-MAH-MUM-00103", "city": "Mumbai", "area": "Dadar TT Circle", "lat": 19.0178, "lon": 72.8478, "bank": "ICICI", "cluster_id": "CLUSTER-MUM-MMR"},
+    {"atm_id": "ATM-MAH-MUM-00104", "city": "Mumbai", "area": "Kurla West Station", "lat": 19.0688, "lon": 72.8833, "bank": "Axis", "cluster_id": "CLUSTER-MUM-MMR"},
     # Pune Cluster
-    {"atm_id": "ATM-MAH-PUN-00201", "city": "Pune", "area": "Shivajinagar Station", "lat": 18.5314, "lon": 73.8446, "bank": "SBI"},
-    {"atm_id": "ATM-MAH-PUN-00202", "city": "Pune", "area": "Hinjawadi Phase 1", "lat": 18.5912, "lon": 73.7389, "bank": "HDFC"},
-    {"atm_id": "ATM-MAH-PUN-00203", "city": "Pune", "area": "Kothrud Paud Road", "lat": 18.5074, "lon": 73.8077, "bank": "ICICI"},
-    {"atm_id": "ATM-MAH-PUN-00204", "city": "Pune", "area": "Viman Nagar Central", "lat": 18.5679, "lon": 73.9143, "bank": "Axis"},
+    {"atm_id": "ATM-MAH-PUN-00201", "city": "Pune", "area": "Shivajinagar Station", "lat": 18.5314, "lon": 73.8446, "bank": "SBI", "cluster_id": "CLUSTER-PUN-METRO"},
+    {"atm_id": "ATM-MAH-PUN-00202", "city": "Pune", "area": "Hinjawadi Phase 1", "lat": 18.5912, "lon": 73.7389, "bank": "HDFC", "cluster_id": "CLUSTER-PUN-METRO"},
+    {"atm_id": "ATM-MAH-PUN-00203", "city": "Pune", "area": "Kothrud Paud Road", "lat": 18.5074, "lon": 73.8077, "bank": "ICICI", "cluster_id": "CLUSTER-PUN-METRO"},
+    {"atm_id": "ATM-MAH-PUN-00204", "city": "Pune", "area": "Viman Nagar Central", "lat": 18.5679, "lon": 73.9143, "bank": "Axis", "cluster_id": "CLUSTER-PUN-METRO"},
     # Thane Cluster
-    {"atm_id": "ATM-MAH-THA-00301", "city": "Thane", "area": "Thane West Station", "lat": 19.1860, "lon": 72.9759, "bank": "SBI"},
-    {"atm_id": "ATM-MAH-THA-00302", "city": "Thane", "area": "Ghodbunder Road", "lat": 19.2612, "lon": 72.9644, "bank": "HDFC"},
-    {"atm_id": "ATM-MAH-THA-00303", "city": "Thane", "area": "Kalyan Station West", "lat": 19.2437, "lon": 73.1355, "bank": "BoB"},
+    {"atm_id": "ATM-MAH-THA-00301", "city": "Thane", "area": "Thane West Station", "lat": 19.1860, "lon": 72.9759, "bank": "SBI", "cluster_id": "CLUSTER-THA-SUB"},
+    {"atm_id": "ATM-MAH-THA-00302", "city": "Thane", "area": "Ghodbunder Road", "lat": 19.2612, "lon": 72.9644, "bank": "HDFC", "cluster_id": "CLUSTER-THA-SUB"},
+    {"atm_id": "ATM-MAH-THA-00303", "city": "Thane", "area": "Kalyan Station West", "lat": 19.2437, "lon": 73.1355, "bank": "BoB", "cluster_id": "CLUSTER-THA-SUB"},
     # Nashik Cluster
-    {"atm_id": "ATM-MAH-NAS-00401", "city": "Nashik", "area": "CBS Old City", "lat": 19.9975, "lon": 73.7898, "bank": "SBI"},
-    {"atm_id": "ATM-MAH-NAS-00402", "city": "Nashik", "area": "College Road", "lat": 20.0063, "lon": 73.7639, "bank": "HDFC"},
-    {"atm_id": "ATM-MAH-NAS-00403", "city": "Nashik", "area": "Satpur MIDC", "lat": 19.9866, "lon": 73.7225, "bank": "ICICI"},
+    {"atm_id": "ATM-MAH-NAS-00401", "city": "Nashik", "area": "CBS Old City", "lat": 19.9975, "lon": 73.7898, "bank": "SBI", "cluster_id": "CLUSTER-NAS-NORTH"},
+    {"atm_id": "ATM-MAH-NAS-00402", "city": "Nashik", "area": "College Road", "lat": 20.0063, "lon": 73.7639, "bank": "HDFC", "cluster_id": "CLUSTER-NAS-NORTH"},
+    {"atm_id": "ATM-MAH-NAS-00403", "city": "Nashik", "area": "Satpur MIDC", "lat": 19.9866, "lon": 73.7225, "bank": "ICICI", "cluster_id": "CLUSTER-NAS-NORTH"},
     # Nagpur Cluster
-    {"atm_id": "ATM-MAH-NAG-00501", "city": "Nagpur", "area": "Sitabuldi Main Road", "lat": 21.1458, "lon": 79.0882, "bank": "SBI"},
-    {"atm_id": "ATM-MAH-NAG-00502", "city": "Nagpur", "area": "Dharampeth Square", "lat": 21.1428, "lon": 79.0601, "bank": "HDFC"},
-    {"atm_id": "ATM-MAH-NAG-00503", "city": "Nagpur", "area": "MIDC Hingna", "lat": 21.1166, "lon": 78.9833, "bank": "Axis"},
+    {"atm_id": "ATM-MAH-NAG-00501", "city": "Nagpur", "area": "Sitabuldi Main Road", "lat": 21.1458, "lon": 79.0882, "bank": "SBI", "cluster_id": "CLUSTER-NAG-EAST"},
+    {"atm_id": "ATM-MAH-NAG-00502", "city": "Nagpur", "area": "Dharampeth Square", "lat": 21.1428, "lon": 79.0601, "bank": "HDFC", "cluster_id": "CLUSTER-NAG-EAST"},
+    {"atm_id": "ATM-MAH-NAG-00503", "city": "Nagpur", "area": "MIDC Hingna", "lat": 21.1166, "lon": 78.9833, "bank": "Axis", "cluster_id": "CLUSTER-NAG-EAST"},
+]
+
+MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
+    {
+        "cluster_id": "CLUSTER-MUM-MMR",
+        "name": "Mumbai MMR Financial Hub",
+        "city": "Mumbai",
+        "center": [19.0681, 72.8613],
+        "radius_meters": 13000,
+        "corridor_desc": "Western Express Highway & BKC Core Financial Corridor",
+        "atm_ids": ["ATM-MAH-MUM-00101", "ATM-MAH-MUM-00102", "ATM-MAH-MUM-00103", "ATM-MAH-MUM-00104"],
+    },
+    {
+        "cluster_id": "CLUSTER-PUN-METRO",
+        "name": "Pune IT & Industrial Corridor",
+        "city": "Pune",
+        "center": [18.5494, 73.8264],
+        "radius_meters": 12000,
+        "corridor_desc": "Hinjawadi Infotech Park & Pune-Bangalore Corridor",
+        "atm_ids": ["ATM-MAH-PUN-00201", "ATM-MAH-PUN-00202", "ATM-MAH-PUN-00203", "ATM-MAH-PUN-00204"],
+    },
+    {
+        "cluster_id": "CLUSTER-THA-SUB",
+        "name": "Thane-Kalyan Industrial Belt",
+        "city": "Thane",
+        "center": [19.2303, 73.0253],
+        "radius_meters": 11000,
+        "corridor_desc": "Ghodbunder Road & Central Railway Junction Corridor",
+        "atm_ids": ["ATM-MAH-THA-00301", "ATM-MAH-THA-00302", "ATM-MAH-THA-00303"],
+    },
+    {
+        "cluster_id": "CLUSTER-NAS-NORTH",
+        "name": "Nashik Urban & MIDC Corridor",
+        "city": "Nashik",
+        "center": [19.9968, 73.7587],
+        "radius_meters": 9000,
+        "corridor_desc": "Mumbai-Agra Highway & Satpur Industrial Belt",
+        "atm_ids": ["ATM-MAH-NAS-00401", "ATM-MAH-NAS-00402", "ATM-MAH-NAS-00403"],
+    },
+    {
+        "cluster_id": "CLUSTER-NAG-EAST",
+        "name": "Nagpur Vidarbha Corridor",
+        "city": "Nagpur",
+        "center": [21.1351, 79.0439],
+        "radius_meters": 10000,
+        "corridor_desc": "Sitabuldi Interchange & Wardha Road Tech Hub",
+        "atm_ids": ["ATM-MAH-NAG-00501", "ATM-MAH-NAG-00502", "ATM-MAH-NAG-00503"],
+    },
 ]
 
 

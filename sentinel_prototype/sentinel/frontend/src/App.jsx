@@ -113,11 +113,26 @@ export default function App() {
   };
 
   const handleComplaintSubmitted = (newResult) => {
+    // 0ms instant optimistic UI state update: put newly ingested incident directly into queue state
+    if (newResult && newResult.alert) {
+      setAlerts((prev) => {
+        const exists = prev.some((a) => a.complaint_id === newResult.alert.complaint_id);
+        if (exists) {
+          return prev.map((a) => (a.complaint_id === newResult.alert.complaint_id ? { ...a, ...newResult.alert } : a));
+        }
+        return [newResult.alert, ...prev];
+      });
+    }
+
     loadData();
     if (newResult && newResult.complaint_id) {
       setSelectedComplaintId(newResult.complaint_id);
       setHighlightedAlertId(newResult.complaint_id);
       setActiveTab('queue');
+
+      setTimeout(() => {
+        setHighlightedAlertId((current) => (current === newResult.complaint_id ? null : current));
+      }, 7000);
     }
   };
 
@@ -197,6 +212,8 @@ export default function App() {
         {/* Screen 3: Pan-India Spatiotemporal Map & Maharashtra Hotspots */}
         {activeTab === 'map' && (
           <GeospatialMap
+            alerts={alerts}
+            onSelectAlert={handleSelectAlert}
             onSelectAtm={(atm) => console.log('Selected ATM:', atm)}
             onDispatchAlert={handleDispatchAlert}
           />

@@ -66,7 +66,8 @@ These are real gaps. Listing them here is the point — a judge asking "what abo
 2. **No model-file health check on startup.** Add a `/health/model` endpoint that loads and sanity-checks the model artifact before accepting traffic; fail closed (503), not open (garbage predictions).
 3. **No authentication/authorization layer** on the API itself yet — this build focuses on the prediction/dispatch pipeline. Production needs LEA-officer login, role-based access, and audit logging on who viewed which alert.
 4. **Clock skew between services** isn't handled — the Bayesian updater and Hawkes ranker both trust `timestamp` fields at face value. Production should use a single time source (NTP-synced hosts, or a logical clock) rather than trusting each service's local clock.
-5. **No load testing performed.** Latency numbers in `model_comparison.md` are per-sample, single-threaded, on this sandbox's CPU — not a production concurrency benchmark.
+5. **No load testing performed.** Latency numbers in `model_comparison.md` are per-sample, single-threaded, on commodity CPU hardware — not a production concurrency benchmark under high-throughput distributed load.
+6. **No distributed multi-node cluster testing (Kafka / Neo4j / Fabric).** The resilient fallback tests (`resilient.py`) use in-process simulated exception stubs (`_FlakyNeo4jStub`), not a physical multi-node cluster. Real distributed failure modes (network partitions, split-brain scenarios, Kafka consumer group rebalances, and Fabric Raft consensus latency) are unexecuted Phase 2 scaling roadmap items, not tested capabilities.
 
 ---
 

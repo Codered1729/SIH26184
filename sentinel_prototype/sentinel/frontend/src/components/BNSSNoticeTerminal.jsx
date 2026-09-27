@@ -69,10 +69,10 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
           <div>
             <h2 style={{ fontSize: '1.15rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <FileText size={18} color="var(--color-teal)" />
-              Section 105 BNSS Lawful Preservation Directive & Dispatch Gateway
+              Section 105 BNSS Preservation Notice & Outbox
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: '11.5px', marginTop: '1px' }}>
-              Court-admissible preservation order under Section 105, Bharatiya Nagarik Suraksha Sanhita, 2023, and resilient transactional outbox queue.
+              Court-admissible statutory freeze directive (BNSS §105) & zero-loss dispatch gateway.
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
                   color: viewMode === 'html' ? '#FFFFFF' : 'var(--color-muted)',
                 }}
               >
-                Court Notice (Sec. 65B)
+                Court Notice (Sec. 63 BSA)
               </button>
               <button
                 onClick={() => setViewMode('text')}
@@ -130,27 +130,27 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
         </div>
       </div>
 
-      {/* Main Grid: Notice Document on Left, Resilient Outbox on Right */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '12px' }}>
-        {/* Notice Document Viewer */}
-        <div className="card" style={{ padding: '20px', backgroundColor: '#FFFFFF', minHeight: '480px' }}>
+      {/* Main Grid: Notice Document on Left (Full Width), Resilient Outbox on Right */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '14px', alignItems: 'start' }}>
+        {/* Notice Document Viewer - Full Widescreen Width */}
+        <div style={{ width: '100%', minHeight: '480px' }}>
           {viewMode === 'html' ? (
             notice ? (
               <div 
                 dangerouslySetInnerHTML={{ __html: notice.html_content }}
-                style={{ width: '100%', overflowX: 'auto' }}
+                style={{ width: '100%' }}
               />
             ) : (
-              <div style={{ padding: '30px', textAlign: 'center', color: 'var(--color-muted)' }}>
+              <div className="card" style={{ padding: '30px', textAlign: 'center', color: 'var(--color-muted)', backgroundColor: '#FFFFFF' }}>
                 Loading Section 105 BNSS Directive...
               </div>
             )
           ) : (
-            <div style={{
+            <div className="card" style={{
               backgroundColor: '#F8FAFC',
               border: '1px solid var(--border-medium)',
               borderRadius: 'var(--radius-sm)',
-              padding: '14px',
+              padding: '16px',
               fontFamily: 'var(--font-mono)',
               fontSize: '11.5px',
               lineHeight: 1.55,
@@ -166,27 +166,27 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Circuit Breaker Status Card */}
           <div className="card" style={{ padding: '14px', backgroundColor: '#FFFFFF' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Activity size={16} color="var(--color-navy)" />
                 <h3 style={{ fontSize: '13px', color: 'var(--color-navy)' }}>
-                  CFCFRMS Gateway Interface
+                  CFCFRMS Gateway
                 </h3>
               </div>
               <span className={`badge ${cb.state === 'CLOSED' ? 'badge-verified' : (cb.state === 'HALF_OPEN' ? 'badge-elevated' : 'badge-critical')}`}>
-                {cb.state === 'CLOSED' ? 'CLOSED (NORMAL)' : (cb.state === 'HALF_OPEN' ? 'HALF-OPEN' : 'OPEN (ISOLATED)')}
+                {cb.state === 'CLOSED' ? 'NORMAL (CLOSED)' : (cb.state === 'HALF_OPEN' ? 'PROBING (HALF-OPEN)' : 'OUTAGE (OPEN)')}
               </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', padding: '4px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', padding: '3px 0', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--color-muted)' }}>Failure Count:</span>
-                <strong>{cb.failure_count} / {cb.failure_threshold || 3} failures</strong>
+                <strong>{cb.failure_count} / {cb.failure_threshold || 3}</strong>
               </div>
 
               {cb.state === 'OPEN' && (
                 <div style={{
-                  padding: '6px 10px',
+                  padding: '6px 8px',
                   backgroundColor: '#FEF2F2',
                   borderRadius: 'var(--radius-sm)',
                   border: '1px solid #FCA5A5',
@@ -198,14 +198,15 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
                 }}>
                   <Clock size={13} />
                   <span>
-                    <strong>Retry Cooldown Active:</strong> {cb.retry_cooldown_remaining_sec || 25}s remaining before probe
+                    <strong>Retry Cooldown:</strong> {cb.retry_cooldown_remaining_sec || 25}s remaining
                   </span>
                 </div>
               )}
 
-              <p style={{ fontSize: '11px', color: 'var(--color-muted)', marginTop: '2px', lineHeight: 1.4 }}>
-                If banking webhooks or CFCFRMS APIs encounter an outage, notices are buffered in local SQLite with zero loss.
-              </p>
+              <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span className="indicator-dot dot-teal" style={{ width: '6px', height: '6px' }}></span>
+                <span>Auto-queuing to SQLite buffer during gateway drop</span>
+              </div>
             </div>
           </div>
 

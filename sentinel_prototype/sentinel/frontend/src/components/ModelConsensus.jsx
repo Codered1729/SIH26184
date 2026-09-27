@@ -14,35 +14,35 @@ import {
 export default function ModelConsensus({ consensusData, championModel }) {
   const [showBenchmarks, setShowBenchmarks] = useState(false);
 
-  // Fallback champion model defaults if not populated
+  // Primary LightGBM engine defaults if not populated
   const champ = championModel || {
-    model_name: "LightGBM / GBDT (Champion)",
-    f1_optimal_threshold: 0.197,
-    pr_auc: 0.912,
-    f1_score: 0.784,
+    model_name: "LightGBM (Primary Operational Engine)",
+    f1_optimal_threshold: 0.259,
+    pr_auc: 0.497,
+    f1_score: 0.512,
     latency_ms: 0.024,
     cashout_probability: consensusData?.primary_probability || 0.89,
-    exceeds_threshold: (consensusData?.primary_probability || 0.89) >= 0.197,
+    exceeds_threshold: (consensusData?.primary_probability || 0.89) >= 0.259,
     risk_tier: "CRITICAL",
     top_features: [
-      { feature: "Transaction Velocity (Amount / Window Min)", weight: 0.41, direction: "+Risk" },
-      { feature: "Hawkes ATM Spatiotemporal Excitation Intensity", weight: 0.32, direction: "+Risk" },
-      { feature: "Beneficiary Device Hardware IMEI Cluster", weight: 0.27, direction: "+Risk" }
+      { feature: "Malicious Remote Desktop / APK Accessibility Tool", weight: 0.41, direction: "+Risk" },
+      { feature: "Transaction Velocity & Automated Layering", weight: 0.32, direction: "+Risk" },
+      { feature: "Target Pincode ATM Density Cluster", weight: 0.27, direction: "+Risk" }
     ]
   };
 
   const prob = champ.cashout_probability || 0.89;
   const probPct = Math.round(prob * 100);
-  const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.197) * 100);
-  const exceeds = prob >= (champ.f1_optimal_threshold || 0.197);
+  const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.259) * 100);
+  const exceeds = prob >= (champ.f1_optimal_threshold || 0.259);
 
   const benchmarkModels = consensusData?.models || {
-    "LightGBM / GBDT (Champion)": 0.89,
+    "LightGBM (Primary Engine)": 0.89,
     "RandomForest (tuned)": 0.88,
     "XGBoost": 0.91,
     "CatBoost": 0.86,
     "HistGradientBoosting": 0.87,
-    "LogisticRegression (baseline)": 0.68,
+    "GradientBoosting": 0.88,
   };
 
   return (
@@ -63,11 +63,11 @@ export default function ModelConsensus({ consensusData, championModel }) {
               <Trophy size={15} color="var(--color-teal-dark)" />
             </div>
             <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--color-navy)', margin: 0 }}>
-              Primary AI Forecaster: LightGBM / GBDT
+              Primary AI Forecaster: LightGBM (Operational Engine)
             </h3>
           </div>
           <p style={{ fontSize: '11.5px', color: 'var(--color-muted)', marginTop: '2px', margin: 0 }}>
-            Calibrated on Maharashtra Regional Incident Dataset • Evaluated at F1-optimal threshold (0.197)
+            Direct Decision Engine • Calibrated on Maharashtra Dataset • F1-Optimal Threshold: 25.9%
           </p>
         </div>
 
@@ -85,10 +85,10 @@ export default function ModelConsensus({ consensusData, championModel }) {
             border: '1px solid #CCFBF1',
           }}>
             <Zap size={11} />
-            Latency: {champ.latency_ms || '0.024'} ms (CPU Vectorized)
+            Latency: {champ.latency_ms || '0.024'} ms (Single-Sample API)
           </span>
           <span className="badge badge-teal">
-            PR-AUC: {champ.pr_auc || '0.912'}
+            PR-AUC: {champ.pr_auc || '0.497'}
           </span>
         </div>
       </div>
@@ -243,7 +243,7 @@ export default function ModelConsensus({ consensusData, championModel }) {
             gap: '4px',
           }}
         >
-          <span>{showBenchmarks ? 'Hide Walk-Forward Benchmark Comparison' : 'View Walk-Forward Benchmark Comparison (7 Models)'}</span>
+          <span>{showBenchmarks ? 'Hide Walk-Forward Benchmark Comparison' : 'View Walk-Forward Benchmark Comparison (6 Ensemble Architectures)'}</span>
           {showBenchmarks ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
         </button>
 

@@ -2,12 +2,12 @@
 Explainable Multi-Model Cash-Out Predictor Service for SENTINEL.
 
 Serves the trained model bundle from `ml/models/cashout_model.pkl`:
-- Provides real-time inference across all 5 models:
+- Provides real-time inference across candidate models:
   1. RandomForest (tuned) [Default primary]
   2. HistGradientBoosting (LightGBM equivalent)
   3. GradientBoosting (CatBoost equivalent)
-  4. LogisticRegression
-  5. RandomForest (baseline)
+  4. RandomForest (baseline)
+  5. Native XGBoost / CatBoost / LightGBM
 - Returns calibrated probability, binary risk classification, risk tier,
   and Top-3 plain-language explainability reasons for LEA officers.
 - Allows runtime model switching and cross-model consensus comparisons.
@@ -54,7 +54,7 @@ class CashoutPredictor:
     def __init__(self, model_path: Optional[Path | str] = None):
         self.model_path = Path(model_path) if model_path else DEFAULT_MODEL_PATH
         self.bundle: Optional[dict] = None
-        self.active_model_name: str = "RandomForest (tuned)"
+        self.active_model_name: str = "LightGBM"
         self._load_bundle()
         if self.bundle:
             self._warmup()
@@ -78,12 +78,12 @@ class CashoutPredictor:
             if hasattr(m, "n_jobs"):
                 m.n_jobs = 1
 
-        self.active_model_name = self.bundle.get("primary_model_name", "RandomForest (tuned)")
+        self.active_model_name = self.bundle.get("primary_model_name", "LightGBM")
 
     @property
     def available_models(self) -> List[str]:
         if not self.bundle or "models" not in self.bundle:
-            return ["RandomForest (tuned)", "HistGradientBoosting", "GradientBoosting", "LogisticRegression", "RandomForest (baseline)"]
+            return ["RandomForest (tuned)", "HistGradientBoosting", "GradientBoosting", "RandomForest (baseline)", "XGBoost", "CatBoost", "LightGBM"]
         return list(self.bundle["models"].keys())
 
     def set_active_model(self, model_name: str) -> None:
@@ -95,14 +95,42 @@ class CashoutPredictor:
         """Generates top-3 explainable reasons why this complaint was flagged."""
         reasons = []
 
+        # 1. Telecommunications / Device Hijack Signals
+        if features.get("sim_swap_last_48h") == 1:
+            reasons.append("Critical risk: Beneficiary SIM-swap detected within preceding 48 hours (OTP interception pattern)")
+
+        if features.get("remote_access_tool_flag") == 1:
+            reasons.append("Malicious remote desktop / APK accessibility service active on initiating endpoint")
+
+        # 2. Multi-tier Structuring / Smurfing
+        if features.get("structuring_flag") == 1:
+            reasons.append("Layer-2 transaction structured below Rs. 50,000 threshold to evade bank AML reporting")
+
+        fan_out = features.get("fan_out_ratio", 1)
+        if fan_out > 2:
+            reasons.append(f"Immediate fan-out layering across {fan_out} beneficiary accounts to fragment audit trail")
+
+        # 3. Off-hours Dark Window Timing
+        if features.get("is_banking_hours_flag") == 0:
+            hr = features.get("hour_of_day", 2)
+            reasons.append(f"Off-hours transaction initiated outside core banking hours ({hr:02d}:00 dark window)")
+
+        # 4. Rapid Hop Velocity
         velocity = features.get("hop_velocity_min", 30.0)
         if velocity < 10.0:
             reasons.append(f"Rapid hop velocity ({velocity:.1f} mins) indicates automated laundering before freeze")
 
+        # 5. Payment Rail
+        channel = str(features.get("channel_type", "")).upper()
+        if channel in ["ATM_CARDLESS", "AEPS_KIOSK"]:
+            reasons.append(f"High-risk cash-out rail ({channel}) enables immediate physical extraction without teller validation")
+
+        # 6. Device Clustering
         devices = features.get("linked_device_count", 0)
         if devices > 1:
             reasons.append(f"Beneficiary account shares hardware device fingerprint with {devices} other flagged accounts")
 
+        # 7. High Value / ATM Density
         amount = features.get("amount", 0.0)
         if amount >= 50000.0:
             reasons.append(f"High-value fraud volume (Rs. {amount:,.0f}) exceeds typical digital retail thresholds")
@@ -119,7 +147,7 @@ class CashoutPredictor:
         if account_age <= 60.0:
             reasons.append(f"Recently opened mule account ({account_age:.0f} days old) exhibits synthetic mule pattern")
 
-        # Fallback if fewer than 3 triggers fired
+        # Fallbacks if fewer than 3 triggers fired
         if len(reasons) < 3:
             reasons.append("Multi-hop transaction topology matches known Maharashtra syndicate fan-out")
         if len(reasons) < 3:
@@ -132,7 +160,7 @@ class CashoutPredictor:
         complaint: Dict[str, Any],
         model_name: Optional[str] = None,
     ) -> PredictionResult:
-        """Evaluates cash-out probability for a complaint across all 5 models."""
+        """Evaluates cash-out probability for a complaint across all candidate models."""
         chosen_model_name = model_name or self.active_model_name
 
         # Fallback heuristic if pickle model is unavailable
@@ -162,10 +190,16 @@ class CashoutPredictor:
         thresholds = self.bundle["thresholds"]
         importances = self.bundle["feature_importances"]
 
+        cat_defaults = {
+            "jcct_origin": "Mumbai",
+            "pincode_tier": "urban",
+            "channel_type": "UPI",
+        }
+
         # Fill defaults
         raw_num = [float(complaint.get(col, 0.0)) for col in num_cols]
         raw_cat_df = pd.DataFrame(
-            [[str(complaint.get(col, "Mumbai" if col == "jcct_origin" else "urban")) for col in cat_cols]],
+            [[str(complaint.get(col, cat_defaults.get(col, "urban"))) for col in cat_cols]],
             columns=cat_cols,
         )
         cat_encoded = encoder.transform(raw_cat_df)

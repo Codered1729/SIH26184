@@ -13,14 +13,13 @@ if not exist "ml\models\cashout_model.pkl" (
     python ml\train_and_serialize.py
 )
 
-echo [2/3] Checking frontend build...
-if not exist "frontend\dist\index.html" (
-    echo [*] Building frontend production bundle...
-    cd frontend
+echo [2/3] Preparing frontend bundle...
+cd frontend
+if not exist "node_modules" (
     call npm install
-    call npm run build
-    cd ..
 )
+call npm run build
+cd ..
 
 echo [3/3] Starting Unified SENTINEL Server on http://localhost:8000 ...
 echo - Web Dashboard:         http://localhost:8000/

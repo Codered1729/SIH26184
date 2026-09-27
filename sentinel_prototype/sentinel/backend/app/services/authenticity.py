@@ -31,6 +31,8 @@ class ComplaintSignals:
     account_avg_amount: float | None = None
     duplicate_utr: bool = False
     suspect_repository_hit: bool = False
+    rate_limit_exceeded: bool = False
+    invalid_utr_format: bool = False
 
 
 @dataclass
@@ -102,7 +104,17 @@ def score(signals: ComplaintSignals) -> ScoringResult:
 
     # Hard fails override the weighted score entirely.
     if HARD_FAIL_ON_DUPLICATE_UTR and signals.duplicate_utr:
-        reasons.append("HARD FAIL: UTR already reported by another complainant")
+        reasons.append("HARD FAIL: UTR already reported by another complainant (duplicate claim)")
+        return ScoringResult(composite_score=0.0, attestation_count=attestation_count,
+                              decision=Decision.HELD_FOR_REVIEW, reasons=reasons)
+
+    if getattr(signals, "invalid_utr_format", False):
+        reasons.append("HARD FAIL: UTR failed structural / NPCI format checksum verification")
+        return ScoringResult(composite_score=0.0, attestation_count=attestation_count,
+                              decision=Decision.HELD_FOR_REVIEW, reasons=reasons)
+
+    if getattr(signals, "rate_limit_exceeded", False):
+        reasons.append("HARD FAIL: Origin device/IP rate limit exceeded (>3 filings in 1 hour)")
         return ScoringResult(composite_score=0.0, attestation_count=attestation_count,
                               decision=Decision.HELD_FOR_REVIEW, reasons=reasons)
 

@@ -1,15 +1,17 @@
 """
-Section 105 BNSS Lawful Notice Generator for SENTINEL.
+BNSS 2023 Lawful Notice Generator for SENTINEL.
 
-Pursuant to Section 105 of the Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS),
-empowering Law Enforcement Agencies (LEAs) to mandate immediate discovery,
-temporary hold, and preservation of proceeds of cybercrime.
+Pursuant to Section 106 (Police Seizure of Property linked to Offence) and
+Section 107(5) (Ex-Parte Judicial Interim Attachment of Proceeds of Crime)
+read with Section 105 (Mandatory Electronic Search & Seizure Recording) of the
+Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS), empowering Law Enforcement
+Agencies (LEAs) to mandate immediate temporary hold on disputed funds.
 
 Generates:
 1. Structured LawfulNotice dataclass
 2. Formatted plain text notice for teletype / dispatch API
 3. Styled HTML notice conforming to the locked palette (#0B1F3A, #00C2A8)
-   for court-admissible audit proof under Section 65B Indian Evidence Act.
+   for court-admissible audit proof certified under Section 63(4) BSA, 2023.
 """
 
 import sys
@@ -48,7 +50,7 @@ class LawfulNotice:
 class BNSSNoticeGenerator:
     """Generates legally defensible hold orders and beat interception directives."""
 
-    STATUTORY_SECTION = "Section 105, Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)"
+    STATUTORY_SECTION = "Sections 106 & 107(5) read with Section 105, Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) & Section 63, Bharatiya Sakshya Adhiniyam, 2023 (BSA)"
     DEFAULT_ISSUING_AGENCY = "Maharashtra State Cyber Police (Special Cyber Cell 1930 / I4C)"
 
     @classmethod
@@ -67,15 +69,17 @@ class BNSSNoticeGenerator:
     ) -> LawfulNotice:
         ts = timestamp or time.time()
         formatted_date = time.strftime("%d-%b-%Y %H:%M:%S IST", time.localtime(ts))
-        notice_id = f"BNSS-105-MAH-{time.strftime('%Y', time.localtime(ts))}-{complaint_id.replace('C-', '')}"
+        notice_id = f"BNSS-106-107-MAH-{time.strftime('%Y', time.localtime(ts))}-{complaint_id.replace('C-', '')}"
         candidate_atms = candidate_atms or []
 
         statutory_declaration = (
             f"Whereas credible information has been attested under 3-party cryptographic proof that proceeds of "
             f"cyber fraud totaling INR {amount_inr:,.2f} under UTR {utr} have been illicitly transferred to "
-            f"Beneficiary Account {beneficiary_account} with {target_bank}; You are hereby commanded under Section 105 "
+            f"Beneficiary Account {beneficiary_account} with {target_bank}; You are hereby commanded under Section 106 "
+            f"(Seizure of Property linked to Offence) and Section 107(5) (Ex-Parte Attachment of Proceeds of Crime) "
             f"of the Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) to place an immediate digital freeze on said "
-            f"proceeds and assist field officers in monitoring candidate withdrawal terminals."
+            f"proceeds and assist field officers in monitoring candidate withdrawal terminals. Electronic record certified "
+            f"under Section 105 BNSS and Section 63 of the Bharatiya Sakshya Adhiniyam, 2023 (BSA)."
         )
 
         return LawfulNotice(
@@ -129,12 +133,12 @@ SUBJECT: STATUTORY ORDER FOR PROMPT HOLD & ATTACHMENT OF FRAUD PROCEEDS
 
 3. PREDICTED PHYSICAL CASH-OUT ATMS (BEAT PATROL DIRECTIVE):
 {atm_lines or '    (No physical ATMs prioritized - digital hold only)\n'}
-4. STATUTORY MANDATE (SECTION 105 BNSS, 2023):
+4. STATUTORY MANDATE (SECTIONS 106 & 107(5) BNSS, 2023):
    "{notice.statutory_declaration}"
 
 5. CRYPTOGRAPHIC INTEGRITY CERTIFICATION:
    - 3-Party Attestation Root Hash: {notice.attestation_chain_hash}
-   - Authenticated under Section 65B of Indian Evidence Act / BSA 2023.
+   - Authenticated under Section 63(4) of Bharatiya Sakshya Adhiniyam, 2023 (BSA Schedule Hash Seal).
 ================================================================================
 BY ORDER OF THE AUTHORIZED CYBER CRIME INVESTIGATING OFFICER
 ================================================================================
@@ -158,92 +162,128 @@ BY ORDER OF THE AUTHORIZED CYBER CRIME INVESTIGATING OFFICER
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Section 105 BNSS Lawful Notice - {notice.notice_id}</title>
+  <title>Sections 106 & 107(5) BNSS Lawful Notice - {notice.notice_id}</title>
   <style>
     body {{
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #F5F7FA;
+      background-color: transparent;
       color: #1A1A1A;
       margin: 0;
-      padding: 24px;
+      padding: 0;
+      width: 100%;
     }}
     .notice-card {{
-      max-width: 800px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
       background: #FFFFFF;
-      border: 2px solid #0B1F3A;
+      border: 1.5px solid #0B1F3A;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(11, 31, 58, 0.08);
+      box-shadow: 0 2px 10px rgba(11, 31, 58, 0.06);
       overflow: hidden;
+      box-sizing: border-box;
     }}
     .header {{
       background-color: #0B1F3A;
       color: #FFFFFF;
-      padding: 20px 24px;
-      border-bottom: 4px solid #00C2A8;
+      padding: 16px 20px;
+      border-bottom: 3px solid #00C2A8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }}
     .header h1 {{
-      margin: 0 0 6px 0;
-      font-size: 18px;
-      letter-spacing: 0.5px;
+      margin: 0 0 3px 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
       text-transform: uppercase;
     }}
     .header p {{
       margin: 0;
-      font-size: 13px;
-      color: #E2E8F0;
+      font-size: 12px;
+      color: #CBD5E1;
+    }}
+    .header-badge {{
+      background: rgba(0, 194, 168, 0.2);
+      border: 1px solid #00C2A8;
+      color: #00C2A8;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
     }}
     .content {{
-      padding: 24px;
+      padding: 20px;
     }}
     .meta-grid {{
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
       background: #F8FAFC;
-      padding: 16px;
+      padding: 14px 16px;
       border-radius: 6px;
-      border-left: 4px solid #0B1F3A;
+      border: 1px solid #E2E8F0;
     }}
     .meta-item label {{
-      font-size: 11px;
+      font-size: 10.5px;
       text-transform: uppercase;
       color: #64748B;
-      font-weight: bold;
+      font-weight: 700;
       display: block;
+      margin-bottom: 2px;
     }}
     .meta-item span {{
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13.5px;
+      font-weight: 700;
       color: #0B1F3A;
+      word-break: break-all;
     }}
     .declaration {{
-      background: rgba(0, 194, 168, 0.08);
+      background: #F0FDF4;
       border-left: 4px solid #00C2A8;
+      border-radius: 0 6px 6px 0;
       padding: 14px 16px;
-      font-size: 13px;
+      font-size: 12.5px;
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      color: #0B1F3A;
+    }}
+    .table-container {{
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
     }}
     table {{
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 8px;
+      font-size: 12.5px;
     }}
     th {{
       background: #0B1F3A;
       color: #FFFFFF;
       text-align: left;
-      padding: 8px;
+      padding: 9px 12px;
       font-size: 11px;
       text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }}
     .attestation-footer {{
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 20px;
+      padding-top: 14px;
       border-top: 1px dashed #CBD5E1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
       font-family: monospace;
       font-size: 11px;
       color: #475569;
@@ -253,42 +293,55 @@ BY ORDER OF THE AUTHORIZED CYBER CRIME INVESTIGATING OFFICER
 <body>
   <div class="notice-card">
     <div class="header">
-      <h1>Statutory Hold Notice — Section 105 BNSS, 2023</h1>
-      <p>{notice.issuing_authority}</p>
+      <div>
+        <h1>Statutory Hold Directive — Sections 106 & 107(5) BNSS, 2023</h1>
+        <p>{notice.issuing_authority}</p>
+      </div>
+      <div class="header-badge">
+        DISPUTED-AMOUNT LIEN ENFORCEMENT
+      </div>
     </div>
     <div class="content">
       <div class="meta-grid">
-        <div class="meta-item"><label>Notice ID</label><span>{notice.notice_id}</span></div>
-        <div class="meta-item"><label>Issuance Date</label><span>{notice.formatted_date}</span></div>
-        <div class="meta-item"><label>Transaction UTR</label><span>{notice.utr}</span></div>
-        <div class="meta-item"><label>Amount Subject to Hold</label><span style="color: #00C2A8;">INR {notice.amount_inr:,.2f}</span></div>
-        <div class="meta-item"><label>Beneficiary Bank</label><span>{notice.target_bank}</span></div>
-        <div class="meta-item"><label>Beneficiary Account</label><span>{notice.beneficiary_account}</span></div>
+        <div class="meta-item"><label>Directive ID</label><span>{notice.notice_id}</span></div>
+        <div class="meta-item"><label>Issuance Timestamp</label><span>{notice.formatted_date}</span></div>
+        <div class="meta-item"><label>Transaction UTR</label><span style="font-family: monospace;">{notice.utr}</span></div>
+        <div class="meta-item"><label>Disputed Amount Under Lien</label><span style="color: #00A896; font-size: 15px;">INR {notice.amount_inr:,.2f}</span></div>
+        <div class="meta-item"><label>Target Bank</label><span>{notice.target_bank}</span></div>
+        <div class="meta-item"><label>Beneficiary Mule Account</label><span style="font-family: monospace;">{notice.beneficiary_account}</span></div>
       </div>
 
       <div class="declaration">
-        <strong>STATUTORY INJUNCTION:</strong> {notice.statutory_declaration}
+        <strong>LEGAL DIRECTIVE:</strong> Under Sections 106 & 107(5) of the <em>Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)</em>, recipient bank is ordered to place an <strong>IMMEDIATE DISPUTED-AMOUNT LIEN</strong> strictly on <strong>INR {notice.amount_inr:,.2f}</strong> in account <strong>{notice.beneficiary_account}</strong> (UTR: <strong>{notice.utr}</strong>). Blanket account freezes are prohibited. Proceeds are authenticated as illicit cyber fraud transfers under Section 105 BNSS electronic logging. Field officers are simultaneously dispatched to monitor prioritized physical cash-out terminals.
       </div>
 
-      <h3 style="font-size: 14px; text-transform: uppercase; color: #0B1F3A; margin: 20px 0 8px 0;">Prioritized Physical Withdrawal Terminals</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>ATM Identifier</th>
-            <th>Location / Area</th>
-            <th>Bank</th>
-            <th>Priority</th>
-          </tr>
-        </thead>
-        <tbody>
-          {atm_rows}
-        </tbody>
-      </table>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 6px;">
+        <h3 style="font-size: 13px; text-transform: uppercase; color: #0B1F3A; margin: 0; font-weight: 800; letter-spacing: 0.5px;">
+          Prioritized Physical ATM Extraction Terminals
+        </h3>
+        <span style="font-size: 11px; color: #64748B; font-weight: 600;">Ranked by Hawkes Spatiotemporal Clustering</span>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 60px;">Rank</th>
+              <th>ATM Identifier</th>
+              <th>Terminal Location / Hub</th>
+              <th>Bank Network</th>
+              <th style="width: 140px;">Hawkes Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            {atm_rows}
+          </tbody>
+        </table>
+      </div>
 
       <div class="attestation-footer">
-        <div><strong>Cryptographic Chain Hash:</strong> {notice.attestation_chain_hash}</div>
-        <div style="margin-top: 4px;">Certified under Section 65B Indian Evidence Act / Bharatiya Sakshya Adhiniyam, 2023.</div>
+        <div><strong>Cryptographic Hash Chain:</strong> <span style="color: #00A896;">{notice.attestation_chain_hash}</span></div>
+        <div>Section 63(4) Bharatiya Sakshya Adhiniyam, 2023 (BSA Schedule Hash Seal)</div>
       </div>
     </div>
   </div>

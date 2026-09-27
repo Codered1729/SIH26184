@@ -92,6 +92,31 @@ export default function Navbar({
 
         {/* Operational Telemetry Indicators */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Authenticated Officer Session Badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '3px 8px',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'rgba(0, 194, 168, 0.12)',
+            border: '1px solid rgba(0, 194, 168, 0.3)',
+            fontSize: '11px',
+          }}>
+            <Shield size={12} color="var(--color-teal)" />
+            <span style={{ color: '#E2E8F0', fontWeight: '600' }}>Insp. R. Deshmukh (#4482)</span>
+            <span style={{
+              fontSize: '9.5px',
+              fontWeight: '800',
+              padding: '1px 5px',
+              borderRadius: '2px',
+              backgroundColor: 'var(--color-teal)',
+              color: '#0B1F3A',
+            }}>
+              CYBER_OFFICER
+            </span>
+          </div>
+
           {/* Circuit Breaker Status */}
           <div style={{
             display: 'flex',

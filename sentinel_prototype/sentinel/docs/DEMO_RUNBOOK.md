@@ -11,8 +11,8 @@ Use this lookup matrix during live judging. Trigger the scenario from the top co
 | Scenario Button | Target Screen | What Judges See | 1-Sentence Punchline |
 |---|---|---|---|
 | **⚡ Pune Genuine UPI** | Priority Queue $\rightarrow$ Case Dossier | Pulsing red critical card (`#FEE2E2`), dynamic 20m countdown window, Champion GBDT 91.4% cash-out probability dial, Top-3 explainable risk drivers. | *"Caught within the 20-minute golden window before ATM cash-out."* |
-| **🛡️ Duplicate UTR** | Priority Queue (`Held for Review` tab) | Score 0.00, `DUPLICATE_UTR` badge, zero dispatch buttons, zero freezes triggered. | *"Zero wrongful account freezes via Authenticity Gate — defeating Sybil claims."* |
-| **🔌 Bank Outage** | BNSS Outbox Terminal | CircuitBreaker trips to `OPEN` (red badge), alert retained safely in durable SQLite outbox with 0 data loss. | *"Guaranteed zero alert loss during bank API or CFCFRMS downtime."* |
+| **🛡️ Duplicate UTR** | Priority Queue (`Held for Review` tab) | Score 0.00, `DUPLICATE_UTR` badge, zero dispatch buttons, zero freezes triggered. | *"Neutralizes duplicate-UTR griefing and automated Sybil attacks before dispatch."* |
+| **🔌 Bank Outage** | BNSS Outbox Terminal | CircuitBreaker trips to `OPEN` (red badge), alert retained safely in durable SQLite outbox. | *"Durable transactional SQLite outbox guarantees alert retention during gateway downtime."* |
 | **🔄 Multi-Hop Mule** | Geospatial Map $\rightarrow$ Case Dossier | 2-hop syndicate fan-out across Thane-Mumbai, 42m runway, Bayesian belief decaying to `_missed`. | *"Tracks layered syndicate hops across Maharashtra corridors before trail goes cold."* |
 | **↺ Reset State** | Any Screen | Clean state recovery, resets circuit breaker to `CLOSED`, clears temporary data, logs SHA-256 reset hash. | *"Instant demo reset for repeat judging rounds in under 500ms."* |
 
@@ -22,17 +22,18 @@ Use this lookup matrix during live judging. Trigger the scenario from the top co
 
 Keep these exact figures top of mind for technical and domain questions:
 
-* **Champion ML Model**: LightGBM / GBDT (Trained on calibrated Maharashtra dataset)
-* **F1-Optimal Cutoff**: `0.197` (optimized for high-recall cyber fraud triage)
-* **PR-AUC Score**: `0.912` (Precision-Recall Area Under Curve on imbalanced data)
-* **Inference Latency**: `< 0.03 ms` per sample (vectorized CPU inference; `0.001 ms` nominal)
+* **Champion ML Model**: LightGBM (Primary Operational Engine, calibrated on 18,000 Maharashtra synthetic complaints)
+* **F1-Optimal Decision Cutoff**: `0.259` (25.9% threshold calibrated for recall-prioritized cyber fraud triage)
+* **Out-of-Sample PR-AUC**: `0.497` (4-fold temporal walk-forward holdout validation; ~2.5x lift over ~0.20 uninformative baseline)
+* **Precision / Recall @ Cutoff**: Precision `41.6%` | Recall `67.0%` (deliberately captures 2 out of 3 cash-out attempts; raw ML false alarms filtered downstream by Authenticity Gate, Hawkes spatial correlation, and Human Officer review)
+* **Inference Latency**: `0.024 ms` single-sample end-to-end API call | `0.0037 ms / sample` vectorized CPU throughput
 * **Situational Dynamic Golden Windows**:
   * **UPI Single-Hop**: `18 – 25 minutes`
   * **Multi-Hop Mule Chains**: `35 – 45 minutes`
   * **NEFT / RTGS Batches**: `45 – 60 minutes`
 * **ATM Dispatch Cooldown**: `15 minutes` (prevents spamming police beats at identical terminals)
-* **Statutory Authority**: *Section 105, Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)* & *Section 65B Indian Evidence Act*
-* **Network Independence**: `100% Offline` (operates with zero external internet dependencies)
+* **Statutory Authority**: *Sections 106 & 107(5) BNSS, 2023* (Police Seizure & Interim Attachment) & *Section 63(4) Bharatiya Sakshya Adhiniyam, 2023 (BSA)* (Mandatory Hash Certificate)
+* **Validation Status**: `Calibrated Synthetic Benchmark` (RBI ATM densities + NCRP typologies; field pilot pending)
 
 ---
 
@@ -51,11 +52,11 @@ Follow this 5-screen operational walkthrough:
 
 ### Step 2: Investigate Risk Drivers (Case Dossier & Champion Model)
 1. Click on the alert card to open the **Case Dossier**.
-2. Point to the **Champion Model Inference Card**:
-   - Champion Model: **LightGBM / GBDT** (F1-optimal threshold 0.197, PR-AUC 0.912).
+2. Point to the **Primary AI Forecaster Card**:
+   - Primary Engine: **LightGBM** (F1-optimal threshold 0.259, Out-of-Sample PR-AUC 0.497, 0.024ms latency).
    - Cash-Out Probability: **91%** (`CRITICAL RISK`).
-   - Top-3 Plain-Language Risk Drivers: Transaction Velocity, Proximity Hawkes Intensity, Shared Hardware IMEI Cluster.
-3. Expand **Multi-Model Consensus Comparison** to show how the champion model compares to baseline Random Forest, CatBoost, and Logistic Regression.
+   - Top-3 Plain-Language Risk Drivers: Malicious Remote Access Tool, Transaction Velocity, ATM Hawkes Intensity.
+3. Expand **Evaluated Model Comparison** to show how LightGBM compares to CatBoost, XGBoost, and Random Forest.
 4. Show the interactive **Syndicate Topology Graph** (Victim $\rightarrow$ Mule 1 $\rightarrow$ Cash-Out ATM).
 
 ### Step 3: Localize Withdrawal Threat (Geospatial Map & Hawkes Hotspots)
@@ -67,9 +68,9 @@ Follow this 5-screen operational walkthrough:
 
 ### Step 4: Verify Lawful Preservation (BNSS Notice Terminal & Outbox)
 1. Switch to **BNSS Notice Terminal**.
-2. Showcase the auto-generated **Section 105 BNSS Lawful Preservation Order**:
-   - Contains statutory command, UTR, target bank, and candidate ATMs.
-   - Court-admissible SHA-256 seal under Section 65B Indian Evidence Act.
+2. Showcase the auto-generated **Sections 106 & 107(5) BNSS Lawful Disputed-Amount Hold Order**:
+   - Contains statutory command, UTR, target bank, candidate ATMs, and strict disputed-amount lien (₹78,000 hold, prohibiting blanket account freeze).
+   - Court-admissible SHA-256 certificate under Section 63(4) Bharatiya Sakshya Adhiniyam, 2023 (BSA).
 3. Point out the **Resilient Outbox Status**:
    - Displays CircuitBreaker status (`CLOSED` or `OPEN`), delivery log, and zero-loss SQLite queue.
 

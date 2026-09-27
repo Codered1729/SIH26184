@@ -2,12 +2,12 @@
 """
 Multi-Model Training & Serialization Pipeline for SENTINEL.
 
-Trains all 5 candidate models on Maharashtra cybercrime data:
-1. RandomForest (tuned) - Primary winner (highest PR-AUC)
+Trains candidate models on Maharashtra cybercrime data:
+1. RandomForest (tuned)
 2. HistGradientBoosting (LightGBM equivalent)
 3. GradientBoosting (CatBoost equivalent)
-4. LogisticRegression (Linear baseline)
-5. RandomForest (baseline)
+4. RandomForest (baseline)
+5. Native XGBoost / CatBoost / LightGBM
 
 Calibrates F1-optimal thresholds for each model and bundles them
 into `sentinel_prototype/sentinel/ml/models/cashout_model.pkl`.
@@ -25,7 +25,6 @@ from sklearn.ensemble import (
     HistGradientBoostingClassifier,
     RandomForestClassifier,
 )
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     average_precision_score,
     f1_score,
@@ -43,7 +42,7 @@ MODEL_DIR = HERE / "models"
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 MODEL_BUNDLE_PATH = MODEL_DIR / "cashout_model.pkl"
 
-CAT_COLS = ["jcct_origin", "pincode_tier"]
+CAT_COLS = ["jcct_origin", "pincode_tier", "channel_type"]
 NUM_COLS = [
     "atm_density_home_pincode",
     "hop_depth",
@@ -57,6 +56,12 @@ NUM_COLS = [
     "bank_corroborated",
     "police_attested",
     "attestation_count",
+    "hour_of_day",
+    "is_banking_hours_flag",
+    "structuring_flag",
+    "fan_out_ratio",
+    "sim_swap_last_48h",
+    "remote_access_tool_flag",
 ]
 TARGET = "cashout_in_window"
 
@@ -104,9 +109,6 @@ def train_and_serialize():
         ),
         "GradientBoosting": GradientBoostingClassifier(
             n_estimators=200, learning_rate=0.05, max_depth=5, random_state=42
-        ),
-        "LogisticRegression": LogisticRegression(
-            max_iter=1000, C=1.0, random_state=42
         ),
         "RandomForest (baseline)": RandomForestClassifier(
             n_estimators=200, max_depth=8, random_state=42, n_jobs=-1
@@ -206,8 +208,8 @@ def train_and_serialize():
         print(f"{name:<25} {pr_auc:<10.3f} {opt_th:<12.3f} {f1_opt:<10.3f} {rec_opt:<10.3f} {train_time:.2f}s")
 
     # 3. Create Serialized Bundle
-    # Primary model dynamically selected by highest PR-AUC
-    primary_model_name = max(metrics.keys(), key=lambda k: metrics[k]["pr_auc"])
+    # Primary model explicitly locked to LightGBM (Primary Operational Engine)
+    primary_model_name = "LightGBM" if "LightGBM" in trained_models else "HistGradientBoosting"
     bundle = {
         "models": trained_models,
         "primary_model_name": primary_model_name,
