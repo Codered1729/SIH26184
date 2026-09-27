@@ -624,7 +624,8 @@ To ensure complete legal rigor during technical and judicial evaluation, the sta
 
 ## 9. Cross-Platform Installation & Execution Guide (All OS)
 
-SENTINEL is built with 100% cross-platform standard libraries and runs seamlessly on **Windows, Linux, macOS, and Docker**.
+> [!TIP]
+> **Dedicated Installation Manual:** A complete, copy-paste deployment guide with step-by-step instructions for Windows, Linux, macOS, and Docker is available in [INSTALLATION.md](file:///c:/sih/INSTALLATION.md).
 
 ### Prerequisites & System Requirements
 - **Python:** Version `3.10`, `3.11`, `3.12`, or `3.13` (64-bit).
