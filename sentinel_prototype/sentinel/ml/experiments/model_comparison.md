@@ -4,12 +4,12 @@ Walk-forward validation, 4 temporal folds, synthetic calibrated dataset (`ml/syn
 
 | Model | Source | Opt. threshold | Precision | Recall | F1 | PR-AUC | Brier | Latency (ms/sample) |
 |---|---|---|---|---|---|---|---|---|
-| RandomForest (baseline) | real | 0.282 | 0.441 | 0.672 | 0.528 | 0.522 | 0.1764 | 0.0309 |
-| CatBoost | real | 0.252 | 0.415 | 0.716 | 0.524 | 0.517 | 0.1752 | 0.0017 |
-| LightGBM | real | 0.259 | 0.416 | 0.670 | 0.512 | 0.497 | 0.1810 | 0.0031 |
-| XGBoost | real | 0.232 | 0.398 | 0.717 | 0.512 | 0.496 | 0.1815 | 0.0064 |
+| RandomForest (baseline) | real | 0.275 | 0.432 | 0.691 | 0.529 | 0.526 | 0.1762 | 0.0112 |
+| CatBoost | real | 0.269 | 0.430 | 0.680 | 0.524 | 0.518 | 0.1745 | 0.0006 |
+| LightGBM | real | 0.249 | 0.412 | 0.683 | 0.513 | 0.495 | 0.1805 | 0.0018 |
+| XGBoost | real | 0.243 | 0.407 | 0.694 | 0.510 | 0.492 | 0.1812 | 0.0034 |
 
-**Selected model: RandomForest (baseline)** (highest PR-AUC = 0.522).
+**Selected model: RandomForest (baseline)** (highest PR-AUC = 0.526).
 
 Rows marked `fallback:*` used a scikit-learn substitute because lightgbm/catboost/xgboost could not be installed in the sandbox this benchmark was built in (no network egress). The harness auto-detects the real library via `try/except ImportError` - installing the real packages and re-running `benchmark_models.py` swaps them in with no code changes and will shift these numbers.
 

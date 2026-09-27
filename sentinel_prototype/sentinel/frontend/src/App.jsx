@@ -176,6 +176,7 @@ export default function App() {
         backendOnline={backendOnline}
         outboxStatus={outboxStatus}
         onOpenIntake={() => setIsIntakeOpen(true)}
+        onRefresh={loadData}
       />
 
       {/* Global Top Presentation Command Bar across all screens */}
@@ -219,7 +220,7 @@ export default function App() {
           />
         )}
 
-        {/* Screen 4: Section 105 BNSS Lawful Notice & Outbox Terminal */}
+        {/* Screen 4: Complaint Notice Ledger & Outbox Terminal */}
         {activeTab === 'bnss' && (
           <BNSSNoticeTerminal
             complaintId={selectedComplaintId || "CYB-MAH-2026-0819"}

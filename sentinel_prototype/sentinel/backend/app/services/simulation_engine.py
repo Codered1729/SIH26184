@@ -144,17 +144,17 @@ class SimulationEngine:
             },
             {
                 "id": "multihop_decay",
-                "title": "Multi-Hop Mule & Bayesian Decay",
-                "subtitle": "Dynamic 45m Runway & Decay",
+                "title": "Inter-JCCT Multi-Hop Mule & Bayesian Decay",
+                "subtitle": "Thane (MH) ➔ Ahmedabad (GJ) Corridor",
                 "icon": "RefreshCw",
                 "badge": "BAYESIAN DECAY",
                 "badge_color": "slate",
-                "description": "Simulates a layered 2-hop mule transfer across the Thane-Mumbai corridor (₹1,35,000). Demonstrates dynamic 42m runway calculation and closed-form Bayesian decay to _missed after inactivity.",
+                "description": "Simulates a layered interstate mule transfer from Thane (JCCT-Maharashtra) to Ahmedabad (JCCT-Gujarat) for ₹1,35,000. Demonstrates dynamic 45m runway calculation and closed-form Bayesian decay to _missed state following 45m inactivity at Ahmedabad Ashram Road terminal.",
                 "proof_points": [
-                    "Multi-hop syndicate tracking",
-                    "Situational 42m dynamic runway",
-                    "Bayesian posterior updating",
-                    "Exponential decay to _missed"
+                    "Inter-JCCT interstate coordination (MH -> GJ)",
+                    "Situational 45m dynamic golden window",
+                    "Bayesian posterior updating with distance decay",
+                    "Exponential degradation to _missed state"
                 ]
             }
         ]
@@ -182,6 +182,11 @@ class SimulationEngine:
                 "authenticity_score": 0.96,
                 "authenticity_decision": "VERIFIED",
                 "status": "PENDING_DISPATCH",
+                "situational_baseline": "⚡ Instant UPI Single-Hop (20m Window)",
+                "total_window_seconds": 1200,
+                "elapsed_seconds": 60,
+                "remaining_seconds": 1140,
+                "window_status": "ACTIVE",
                 "leading_atm": MAHARASHTRA_ATMS[5],  # Pune Hinjawadi HDFC
                 "device_imei": "864291048291021",
                 "shared_mule_devices": 3,
@@ -280,7 +285,7 @@ class SimulationEngine:
                 "utr": "429104829107",
                 "victim_city": "Mumbai",
                 "area": "Bandra Kurla Complex",
-                "amount": 110000.0,
+                "amount": 140000.0,
                 "victim_account": "ICIC0000192:6392019481",
                 "beneficiary_account": "SBIN0000101:20194829104",
                 "channel": "IMPS",
@@ -289,6 +294,11 @@ class SimulationEngine:
                 "authenticity_score": 0.93,
                 "authenticity_decision": "VERIFIED",
                 "status": "OUTBOX_QUEUED",
+                "situational_baseline": "🔄 Multi-Hop Mule (Hop 2) (45m Window)",
+                "total_window_seconds": 2700,
+                "elapsed_seconds": 120,
+                "remaining_seconds": 2580,
+                "window_status": "ACTIVE",
                 "leading_atm": MAHARASHTRA_ATMS[0],
                 "device_imei": "864291048291021",
                 "shared_mule_devices": 3,
@@ -339,18 +349,30 @@ class SimulationEngine:
                 "authenticity_score": 0.91,
                 "authenticity_decision": "VERIFIED",
                 "status": "EXPIRED",
-                "leading_atm": MAHARASHTRA_ATMS[4],  # Thane West
+                "situational_baseline": "⏱️ Window Concluded (>45m elapsed since debit)",
+                "total_window_seconds": 2700,
+                "elapsed_seconds": 2700,
+                "remaining_seconds": 0,
+                "window_status": "EXPIRED",
+                "leading_atm": MAHARASHTRA_ATMS[18],  # Ahmedabad Ashram Road HDFC
                 "device_imei": "359104829104812",
                 "shared_mule_devices": 1,
+                "inter_jcct": "JCCT-Maharashtra -> JCCT-Gujarat",
                 "cashout_probability": 0.35,
                 "priority_score": 0.38,
                 "risk_tier": "EXPIRED",
                 "chain_hash": hashlib.sha256(f"decay:{complaint_id}:{now}".encode()).hexdigest(),
                 "top_reasons": [
-                    "Layered mule transfer across Thane-Mumbai corridor (Hop 2)",
-                    "Dynamic 42-minute golden window expired without cash extraction",
-                    "Bayesian spatiotemporal belief decayed to _missed state",
+                    "Inter-JCCT layered transfer: JCCT-Maharashtra (Thane) -> JCCT-Gujarat (Ahmedabad)",
+                    "Dynamic 45-minute golden window expired without cash extraction at Ahmedabad Ashram Road ATM",
+                    "Bayesian spatiotemporal belief decayed to _missed state below operational threshold",
                 ],
+                "inter_jcct_coordination": {
+                    "source_jcct": "JCCT-Maharashtra (Western Nodal)",
+                    "target_jcct": "JCCT-Gujarat (Ahmedabad Nodal)",
+                    "protocol": "I4C CFCFRMS Inter-State Coordination Webhook",
+                    "status": "TELEMETRY_SHARED",
+                },
                 "champion_model": {
                     "model_name": "LightGBM / GBDT (Champion)",
                     "f1_optimal_threshold": 0.259,
@@ -368,7 +390,7 @@ class SimulationEngine:
             audit = self.append_audit_log(
                 "BAYESIAN_DECAY_EXPIRED",
                 complaint_id,
-                "45-minute golden window expired for Thane multi-hop mule. Bayesian belief decayed to _missed.",
-                {"scenario": scenario_id, "window_status": "EXPIRED"}
+                "45-minute golden window expired for Thane-Ahmedabad inter-JCCT mule. Bayesian belief decayed to _missed.",
+                {"scenario": scenario_id, "window_status": "EXPIRED", "inter_jcct": "MH->GJ"}
             )
             return alert, audit

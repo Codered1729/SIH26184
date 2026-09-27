@@ -6,7 +6,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
   const [rawText, setRawText] = useState('');
   const [victimCity, setVictimCity] = useState('Pune');
   const [channel, setChannel] = useState('UPI');
-  const [amount, setAmount] = useState('65000');
+  const [amount, setAmount] = useState('78000');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -14,20 +14,20 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
 
   const handleLoadDemo = (type) => {
     if (type === 'genuine') {
-      setRawText("Rs 65000.00 debited from a/c **4123 via UPI on 25-09-2026. UTR: 429104829102. If not you, report to cyber cell.");
+      setRawText("Rs 78000.00 debited from a/c **4123 via UPI on 25-09-2026. UTR: 429104829105. Hinjawadi IT Corridor victim reporting unauthorized debit.");
       setVictimCity('Pune');
       setChannel('UPI');
-      setAmount('65000');
+      setAmount('78000');
     } else if (type === 'duplicate') {
       setRawText("Rs 65000.00 debited from a/c **9999 via UPI on 25-09-2026. UTR: 429104829102. Repeated duplicate complaint.");
       setVictimCity('Mumbai');
       setChannel('UPI');
       setAmount('65000');
     } else if (type === 'neft') {
-      setRawText("NEFT transaction of Rs 140000.00 credited to account 20194829104. Immediate cash-out flagged.");
-      setVictimCity('Nagpur');
-      setChannel('NEFT');
-      setAmount('140000');
+      setRawText("IMPS transaction of Rs 135000.00 credited to account 1029481920. Layered transfer from Thane corridor to Ahmedabad hub.");
+      setVictimCity('Thane');
+      setChannel('IMPS');
+      setAmount('135000');
     }
   };
 
@@ -117,7 +117,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               className="btn btn-secondary"
               style={{ padding: '3px 8px', fontSize: '11px' }}
             >
-              1. Verified UPI (₹65k - Pune)
+              1. Genuine UPI (₹78k - Pune)
             </button>
             <button
               type="button"
@@ -125,7 +125,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               className="btn btn-secondary"
               style={{ padding: '3px 8px', fontSize: '11px', borderColor: '#FCA5A5', color: '#B91C1C' }}
             >
-              2. Duplicate UTR (Rejection Test)
+              2. Duplicate UTR (Sybil Rejection)
             </button>
             <button
               type="button"
@@ -133,7 +133,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               className="btn btn-secondary"
               style={{ padding: '3px 8px', fontSize: '11px' }}
             >
-              3. Multi-Hop NEFT (₹1.4L - Nagpur)
+              3. Multi-Hop IMPS (₹1.35L - Thane ➔ Ahmedabad)
             </button>
           </div>
         </div>

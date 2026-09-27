@@ -6,7 +6,7 @@ Integrates:
 2. Dynamic Bayesian belief updater with 45-minute golden window decay (BayesianUpdater)
 3. Maharashtra ATM coordinate registry across Mumbai MMR, Pune, Nagpur, Nashik, and Thane
 
-Outputs prioritized physical ATM targets for police beat dispatch and tracks
+Outputs prioritized physical ATM targets for police patrol unit dispatch and tracks
 decay of the 45-minute golden window until the window closes.
 """
 
@@ -45,9 +45,18 @@ MAHARASHTRA_ATMS: List[Dict[str, Any]] = [
     {"atm_id": "ATM-MAH-NAS-00402", "city": "Nashik", "area": "College Road", "lat": 20.0063, "lon": 73.7639, "bank": "HDFC", "cluster_id": "CLUSTER-NAS-NORTH"},
     {"atm_id": "ATM-MAH-NAS-00403", "city": "Nashik", "area": "Satpur MIDC", "lat": 19.9866, "lon": 73.7225, "bank": "ICICI", "cluster_id": "CLUSTER-NAS-NORTH"},
     # Nagpur Cluster
-    {"atm_id": "ATM-MAH-NAG-00501", "city": "Nagpur", "area": "Sitabuldi Main Road", "lat": 21.1458, "lon": 79.0882, "bank": "SBI", "cluster_id": "CLUSTER-NAG-EAST"},
-    {"atm_id": "ATM-MAH-NAG-00502", "city": "Nagpur", "area": "Dharampeth Square", "lat": 21.1428, "lon": 79.0601, "bank": "HDFC", "cluster_id": "CLUSTER-NAG-EAST"},
-    {"atm_id": "ATM-MAH-NAG-00503", "city": "Nagpur", "area": "MIDC Hingna", "lat": 21.1166, "lon": 78.9833, "bank": "Axis", "cluster_id": "CLUSTER-NAG-EAST"},
+    {"atm_id": "ATM-MAH-NAG-00501", "city": "Nagpur", "state": "Maharashtra", "jcct_team": "JCCT-Maharashtra", "area": "Sitabuldi Main Road", "lat": 21.1458, "lon": 79.0882, "bank": "SBI", "cluster_id": "CLUSTER-NAG-EAST"},
+    {"atm_id": "ATM-MAH-NAG-00502", "city": "Nagpur", "state": "Maharashtra", "jcct_team": "JCCT-Maharashtra", "area": "Dharampeth Square", "lat": 21.1428, "lon": 79.0601, "bank": "HDFC", "cluster_id": "CLUSTER-NAG-EAST"},
+    {"atm_id": "ATM-MAH-NAG-00503", "city": "Nagpur", "state": "Maharashtra", "jcct_team": "JCCT-Maharashtra", "area": "MIDC Hingna", "lat": 21.1166, "lon": 78.9833, "bank": "Axis", "cluster_id": "CLUSTER-NAG-EAST"},
+
+    # JCCT Team 2: Gujarat / Ahmedabad Hub (Interstate ATMs)
+    {"atm_id": "ATM-GUJ-AHM-00601", "city": "Ahmedabad", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "SG Highway Tech Park", "lat": 23.0489, "lon": 72.5097, "bank": "SBI", "cluster_id": "CLUSTER-AHM-WEST"},
+    {"atm_id": "ATM-GUJ-AHM-00602", "city": "Ahmedabad", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "Ashram Road Commercial", "lat": 23.0300, "lon": 72.5695, "bank": "HDFC", "cluster_id": "CLUSTER-AHM-WEST"},
+    {"atm_id": "ATM-GUJ-AHM-00603", "city": "Ahmedabad", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "Maninagar Station", "lat": 22.9978, "lon": 72.6026, "bank": "ICICI", "cluster_id": "CLUSTER-AHM-WEST"},
+    {"atm_id": "ATM-GUJ-SUR-00701", "city": "Surat", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "Ring Road Textile Market", "lat": 21.1926, "lon": 72.8424, "bank": "SBI", "cluster_id": "CLUSTER-SUR-TEXTILE"},
+    {"atm_id": "ATM-GUJ-SUR-00702", "city": "Surat", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "Athwa Lines Central", "lat": 21.1764, "lon": 72.8055, "bank": "HDFC", "cluster_id": "CLUSTER-SUR-TEXTILE"},
+    {"atm_id": "ATM-GUJ-BRD-00801", "city": "Vadodara", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "Alkapuri Station Hub", "lat": 22.3107, "lon": 73.1812, "bank": "BoB", "cluster_id": "CLUSTER-BRD-CENTRAL"},
+    {"atm_id": "ATM-GUJ-BRD-00802", "city": "Vadodara", "state": "Gujarat", "jcct_team": "JCCT-Gujarat", "area": "Sayajigunj Market", "lat": 22.3088, "lon": 73.1895, "bank": "Axis", "cluster_id": "CLUSTER-BRD-CENTRAL"},
 ]
 
 MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
@@ -55,6 +64,8 @@ MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
         "cluster_id": "CLUSTER-MUM-MMR",
         "name": "Mumbai MMR Financial Hub",
         "city": "Mumbai",
+        "state": "Maharashtra",
+        "jcct_team": "JCCT-Maharashtra",
         "center": [19.0681, 72.8613],
         "radius_meters": 13000,
         "corridor_desc": "Western Express Highway & BKC Core Financial Corridor",
@@ -64,6 +75,8 @@ MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
         "cluster_id": "CLUSTER-PUN-METRO",
         "name": "Pune IT & Industrial Corridor",
         "city": "Pune",
+        "state": "Maharashtra",
+        "jcct_team": "JCCT-Maharashtra",
         "center": [18.5494, 73.8264],
         "radius_meters": 12000,
         "corridor_desc": "Hinjawadi Infotech Park & Pune-Bangalore Corridor",
@@ -73,6 +86,8 @@ MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
         "cluster_id": "CLUSTER-THA-SUB",
         "name": "Thane-Kalyan Industrial Belt",
         "city": "Thane",
+        "state": "Maharashtra",
+        "jcct_team": "JCCT-Maharashtra",
         "center": [19.2303, 73.0253],
         "radius_meters": 11000,
         "corridor_desc": "Ghodbunder Road & Central Railway Junction Corridor",
@@ -82,6 +97,8 @@ MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
         "cluster_id": "CLUSTER-NAS-NORTH",
         "name": "Nashik Urban & MIDC Corridor",
         "city": "Nashik",
+        "state": "Maharashtra",
+        "jcct_team": "JCCT-Maharashtra",
         "center": [19.9968, 73.7587],
         "radius_meters": 9000,
         "corridor_desc": "Mumbai-Agra Highway & Satpur Industrial Belt",
@@ -91,12 +108,51 @@ MAHARASHTRA_CLUSTERS: List[Dict[str, Any]] = [
         "cluster_id": "CLUSTER-NAG-EAST",
         "name": "Nagpur Vidarbha Corridor",
         "city": "Nagpur",
+        "state": "Maharashtra",
+        "jcct_team": "JCCT-Maharashtra",
         "center": [21.1351, 79.0439],
         "radius_meters": 10000,
         "corridor_desc": "Sitabuldi Interchange & Wardha Road Tech Hub",
         "atm_ids": ["ATM-MAH-NAG-00501", "ATM-MAH-NAG-00502", "ATM-MAH-NAG-00503"],
     },
+    # JCCT Team 2: Gujarat / Ahmedabad Hub Clusters
+    {
+        "cluster_id": "CLUSTER-AHM-WEST",
+        "name": "Ahmedabad Financial & Tech Hub",
+        "city": "Ahmedabad",
+        "state": "Gujarat",
+        "jcct_team": "JCCT-Gujarat",
+        "center": [23.0300, 72.5695],
+        "radius_meters": 12000,
+        "corridor_desc": "SG Highway IT Corridor & Ashram Road Banking Axis",
+        "atm_ids": ["ATM-GUJ-AHM-00601", "ATM-GUJ-AHM-00602", "ATM-GUJ-AHM-00603"],
+    },
+    {
+        "cluster_id": "CLUSTER-SUR-TEXTILE",
+        "name": "Surat Diamond & Textile Belt",
+        "city": "Surat",
+        "state": "Gujarat",
+        "jcct_team": "JCCT-Gujarat",
+        "center": [21.1845, 72.8240],
+        "radius_meters": 10000,
+        "corridor_desc": "Ring Road Textile Market & Athwa Lines Commercial Axis",
+        "atm_ids": ["ATM-GUJ-SUR-00701", "ATM-GUJ-SUR-00702"],
+    },
+    {
+        "cluster_id": "CLUSTER-BRD-CENTRAL",
+        "name": "Vadodara Transit Corridor",
+        "city": "Vadodara",
+        "state": "Gujarat",
+        "jcct_team": "JCCT-Gujarat",
+        "center": [22.3107, 73.1812],
+        "radius_meters": 9000,
+        "corridor_desc": "Alkapuri Commercial Hub & Sayajigunj Junction",
+        "atm_ids": ["ATM-GUJ-BRD-00801", "ATM-GUJ-BRD-00802"],
+    },
 ]
+
+REGIONAL_CLUSTERS = MAHARASHTRA_CLUSTERS
+REGIONAL_ATMS = MAHARASHTRA_ATMS
 
 
 @dataclass
@@ -226,7 +282,7 @@ class SpatiotemporalEngine:
             composite = (h_int * 0.5) + (b_prob * 0.5) if not is_window_missed else 0.01
 
             patrol_advice = "URGENT DISPATCH - PHYSICAL INTERCEPTION RECOMMENDED" if composite > 0.40 else (
-                "MONITORING - STANDBY BEAT PATROL" if composite > 0.15 else "ROUTINE PATROL"
+                "MONITORING - STANDBY PATROL UNIT" if composite > 0.15 else "ROUTINE PATROL"
             )
             if is_window_missed:
                 patrol_advice = "GOLDEN WINDOW EXPIRED - FUNDS LIKELY CASHED OUT"

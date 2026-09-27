@@ -1,7 +1,7 @@
 @echo off
 echo ======================================================================
 echo           SENTINEL (SIH 26184) - Unified Single-Server Launcher
-echo   Autonomous Cyber Fraud Cash-Out Hotspot Forecaster & Preservation
+echo   Autonomous Cyber Fraud Cash-Out Hotspot Forecaster ^& Preservation
 echo ======================================================================
 echo.
 

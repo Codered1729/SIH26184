@@ -111,7 +111,7 @@ export default function CaseDetail({
               style={{ padding: '8px 14px', fontSize: '12.5px', fontWeight: '600' }}
             >
               <FileText size={14} color="var(--color-teal)" />
-              <span>{isDuplicate ? 'Review Held Notice Dossier' : 'Issue BNSS Lawful Notice'}</span>
+              <span>{isDuplicate ? 'Review Held Notice Dossier' : 'Open Complaint Ledger Notice'}</span>
             </button>
 
             {!isDispatched && !isDuplicate && (
@@ -121,7 +121,7 @@ export default function CaseDetail({
                 style={{ padding: '8px 14px', fontSize: '12.5px', fontWeight: '600' }}
               >
                 <Send size={14} />
-                <span>Dispatch Police Beat</span>
+                <span>Dispatch Patrol Unit</span>
               </button>
             )}
             {isDuplicate && (
@@ -179,7 +179,7 @@ export default function CaseDetail({
             Beneficiary Mule Layer
           </div>
           <div style={{ fontSize: '13px', fontWeight: '800', color: '#B45309', marginTop: '4px' }}>
-            HDFC Primary Mule Node
+            {details.leading_atm?.city ? `${details.leading_atm.city} Mule Node` : 'HDFC Primary Mule Node'}
           </div>
           <div style={{ fontSize: '11.5px', color: '#64748B', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
             {details.beneficiary_account || 'HDFC0001048:50100482910'}
@@ -192,10 +192,10 @@ export default function CaseDetail({
             Target Cash-Out Terminal
           </div>
           <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '4px' }}>
-            {details.leading_atm?.bank || 'HDFC'} — {details.leading_atm?.area || 'Hinjawadi Phase 1'}
+            {details.leading_atm?.bank || 'HDFC'} — {details.leading_atm?.area || 'Terminal Hub'} {details.leading_atm?.city ? `(${details.leading_atm.city})` : ''}
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--color-teal-dark)', fontWeight: '700', marginTop: '2px' }}>
-            Hawkes Priority Score: {((details.priority_score || 0.88) * 100).toFixed(0)}%
+          <div style={{ fontSize: '11.5px', color: details.status === 'EXPIRED' ? '#64748B' : 'var(--color-teal-dark)', fontWeight: '700', marginTop: '2px' }}>
+            {details.status === 'EXPIRED' ? 'Status: 45m Golden Window Expired' : `Hawkes Priority Score: ${((details.priority_score || 0.88) * 100).toFixed(0)}%`}
           </div>
         </div>
       </div>

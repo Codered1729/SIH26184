@@ -199,6 +199,15 @@ class Outbox:
                 delivered += 1
         return delivered
 
+    def clear_pending(self):
+        """Marks all pending outbox records as delivered, clearing the queue."""
+        with self._lock:
+            self._conn.execute(
+                "UPDATE outbox SET status = 'delivered' WHERE topic = ? AND status = 'pending'",
+                (self.topic,),
+            )
+            self._conn.commit()
+
 
 if __name__ == "__main__":
     import os

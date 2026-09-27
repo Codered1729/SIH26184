@@ -50,4 +50,16 @@ gsd-core/
 **/.antigravity/
 agent-artifacts/
 **/.system_generated/
+chat*
 chat_recovered.txt
+**/scratch/
+scratch/
+*.scratch
+slide_content.txt
+
+# Presentations & Slides (Excluded from Git)
+*.pptx
+*.ppt
+~$*.pptx
+~$*.ppt
+

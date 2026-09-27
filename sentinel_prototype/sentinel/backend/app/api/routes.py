@@ -113,7 +113,7 @@ def _calculate_situational_window(channel: str, hop_depth: int, amount: float) -
 
 
 def _seed_initial_alerts():
-    """Seeds canonical Maharashtra cybercrime cases across Pune, Mumbai MMR, Nagpur, and Nashik."""
+    """Seeds canonical dual-JCCT cases across Maharashtra and Gujarat corridors."""
     now = time.time()
 
     initial_cases = [
@@ -121,25 +121,51 @@ def _seed_initial_alerts():
             "complaint_id": "CYB-MAH-2026-0819",
             "utr": "429104829102",
             "victim_city": "Pune",
+            "state": "Maharashtra",
+            "jcct_team": "JCCT-Maharashtra",
             "area": "Hinjawadi IT Corridor",
-            "amount": 65000.0,
+            "amount": 78000.0,
             "victim_account": "SBIN0004123:3819201948",
             "beneficiary_account": "HDFC0001048:50100482910",
             "channel": "UPI",
             "hop_depth": 1,
             "incident_timestamp": now - 420,  # 7 mins ago
-            "authenticity_score": 0.95,
+            "authenticity_score": 0.96,
             "authenticity_decision": "VERIFIED",
             "status": "PENDING_DISPATCH",
-            "leading_atm": MAHARASHTRA_ATMS[5],  # Pune Hinjawadi
+            "leading_atm": MAHARASHTRA_ATMS[5],  # Pune Hinjawadi HDFC
             "device_imei": "864291048291021",
             "shared_mule_devices": 3,
             "chain_hash": "a4f8e9102c4b82d710f293847291a4b5c6d7e8f90123456789abcdef01234567",
         },
         {
+            "complaint_id": "CYB-INT-2026-0822",
+            "utr": "429105938203",
+            "victim_city": "Thane",
+            "state": "Maharashtra",
+            "jcct_team": "JCCT-Maharashtra",
+            "area": "Thane West Station Hub",
+            "amount": 165000.0,
+            "victim_account": "KKBK0000291:8391048291",
+            "beneficiary_account": "HDFC0000492:1029481920",
+            "channel": "IMPS",
+            "hop_depth": 2,
+            "incident_timestamp": now - 660,  # 11 mins ago
+            "authenticity_score": 0.94,
+            "authenticity_decision": "VERIFIED",
+            "status": "PENDING_DISPATCH",
+            "leading_atm": MAHARASHTRA_ATMS[18],  # Ahmedabad Ashram Road HDFC
+            "device_imei": "864291048291021",  # Same syndicate IMEI!
+            "shared_mule_devices": 3,
+            "inter_jcct": "JCCT-Maharashtra -> JCCT-Gujarat",
+            "chain_hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f80918273645a4b5c6d7e8f901234567",
+        },
+        {
             "complaint_id": "CYB-MAH-2026-0824",
             "utr": "429108392104",
             "victim_city": "Mumbai",
+            "state": "Maharashtra",
+            "jcct_team": "JCCT-Maharashtra",
             "area": "Bandra Kurla Complex",
             "amount": 140000.0,
             "victim_account": "ICIC0000192:6392019481",
@@ -152,25 +178,48 @@ def _seed_initial_alerts():
             "status": "DISPATCHED",
             "dispatched_timestamp": now - 180,  # Dispatched 3 mins ago
             "leading_atm": MAHARASHTRA_ATMS[0],  # Mumbai BKC
-            "device_imei": "864291048291021",  # Same IMEI cluster!
+            "device_imei": "864291048291021",  # Shared burner phone cluster!
             "shared_mule_devices": 3,
             "chain_hash": "c8b1e42091d74a2b8e9f1048291c4d5e6f7a8b90123456789abcdef01234568",
+        },
+        {
+            "complaint_id": "CYB-GUJ-2026-0828",
+            "utr": "429109482915",
+            "victim_city": "Surat",
+            "state": "Gujarat",
+            "jcct_team": "JCCT-Gujarat",
+            "area": "Ring Road Textile Market",
+            "amount": 48000.0,
+            "victim_account": "BARB0SURATR:59201948201",
+            "beneficiary_account": "SBIN0000392:10294829104",
+            "channel": "AEPS_KIOSK",
+            "hop_depth": 1,
+            "incident_timestamp": now - 480,  # 8 mins ago
+            "authenticity_score": 0.91,
+            "authenticity_decision": "VERIFIED",
+            "status": "PENDING_DISPATCH",
+            "leading_atm": MAHARASHTRA_ATMS[20],  # Surat Ring Road SBI
+            "device_imei": "359104829104899",
+            "shared_mule_devices": 2,
+            "chain_hash": "d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90123456789",
         },
         {
             "complaint_id": "CYB-MAH-2026-0831",
             "utr": "429112948201",
             "victim_city": "Nagpur",
+            "state": "Maharashtra",
+            "jcct_team": "JCCT-Maharashtra",
             "area": "Sitabuldi Metro",
-            "amount": 45000.0,
+            "amount": 35000.0,
             "victim_account": "UTIB0000491:9148291048",
             "beneficiary_account": "BARB0SITABU:10294819201",
-            "channel": "UPI",
+            "channel": "ATM_CARDLESS",
             "hop_depth": 1,
             "incident_timestamp": now - 180,  # 3 mins ago
             "authenticity_score": 0.89,
             "authenticity_decision": "VERIFIED",
             "status": "PENDING_DISPATCH",
-            "leading_atm": MAHARASHTRA_ATMS[14],  # Nagpur Sitabuldi
+            "leading_atm": MAHARASHTRA_ATMS[14],  # Nagpur Sitabuldi SBI
             "device_imei": "359104829104812",
             "shared_mule_devices": 1,
             "chain_hash": "e1f2a3b4c5d6e7f80918273645a4b5c6d7e8f90123456789abcdef01234569",
@@ -179,7 +228,9 @@ def _seed_initial_alerts():
             "complaint_id": "CYB-MAH-2026-0835",
             "utr": "429104829102",  # DUPLICATE UTR!
             "victim_city": "Mumbai",
-            "area": "Andheri East",
+            "state": "Maharashtra",
+            "jcct_team": "JCCT-Maharashtra",
+            "area": "Andheri East Metro",
             "amount": 65000.0,
             "victim_account": "HDFC0000291:8492019482",
             "beneficiary_account": "SBIN0001928:93019482910",
@@ -189,10 +240,31 @@ def _seed_initial_alerts():
             "authenticity_score": 0.00,
             "authenticity_decision": "DUPLICATE_UTR",
             "status": "HELD_FOR_REVIEW",
-            "leading_atm": MAHARASHTRA_ATMS[1],
+            "leading_atm": MAHARASHTRA_ATMS[1],  # Andheri East
             "device_imei": "864291048291099",
             "shared_mule_devices": 0,
             "chain_hash": "f0e1d2c3b4a5968778695a4b3c2d1e0f0123456789abcdef0123456789abcdef",
+        },
+        {
+            "complaint_id": "CYB-GUJ-2026-0840",
+            "utr": "429118492019",
+            "victim_city": "Vadodara",
+            "state": "Gujarat",
+            "jcct_team": "JCCT-Gujarat",
+            "area": "Alkapuri Financial Hub",
+            "amount": 92000.0,
+            "victim_account": "BARB0ALKAPU:74920194812",
+            "beneficiary_account": "ICIC0000492:10294829104",
+            "channel": "NEFT",
+            "hop_depth": 3,
+            "incident_timestamp": now - 3120,  # 52 mins ago
+            "authenticity_score": 0.88,
+            "authenticity_decision": "VERIFIED",
+            "status": "EXPIRED",
+            "leading_atm": MAHARASHTRA_ATMS[22],  # Vadodara Alkapuri BoB
+            "device_imei": "359104829104777",
+            "shared_mule_devices": 1,
+            "chain_hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f80918273645a4b5c6d7e8f9012345",
         },
     ]
 
@@ -204,10 +276,22 @@ def _seed_initial_alerts():
             "hop_depth": item["hop_depth"],
             "linked_device_count": item["shared_mule_devices"],
             "hour_of_day": time.localtime(item["incident_timestamp"]).tm_hour,
+            "remote_access_tool_flag": 1 if item["channel"] in ("UPI", "AEPS_KIOSK") else 0,
+            "sim_swap_last_48h": 1 if item["shared_mule_devices"] >= 2 else 0,
+            "hop_velocity_min": 4.5,
+            "atm_density_home_pincode": 30.0,
         })
 
-        item["cashout_probability"] = pred.probability
-        item["risk_tier"] = pred.risk_tier
+        if item["authenticity_decision"] == "DUPLICATE_UTR":
+            item["cashout_probability"] = 0.00
+            item["risk_tier"] = "HELD_FOR_REVIEW"
+        elif item.get("status") == "EXPIRED":
+            item["cashout_probability"] = 0.22
+            item["risk_tier"] = "EXPIRED"
+        else:
+            item["cashout_probability"] = item.get("cashout_probability", max(0.85, pred.probability))
+            item["risk_tier"] = "CRITICAL"
+
         item["all_model_probabilities"] = pred.all_model_probabilities
         item["top_reasons"] = pred.top_reasons
 
@@ -219,17 +303,21 @@ def _seed_initial_alerts():
         # Compute composite Priority Score
         if item["authenticity_decision"] == "DUPLICATE_UTR":
             item["priority_score"] = 0.05
+        elif item.get("status") == "EXPIRED":
+            item["priority_score"] = 0.22
+            item["remaining_seconds"] = 0
+            item["window_status"] = "EXPIRED"
         else:
             urgency = max(0.1, 1.0 - (now - item["incident_timestamp"]) / dur_sec)
             amount_factor = min(1.0, math.log10(max(1000.0, item["amount"])) / 6.0)
-            item["priority_score"] = round(float(pred.probability * 0.45 + urgency * 0.35 + amount_factor * 0.20), 3)
+            item["priority_score"] = round(float(item["cashout_probability"] * 0.45 + urgency * 0.35 + amount_factor * 0.20), 3)
 
         _ALERTS_STORE[cid] = item
         # Register verified UTRs into Authenticity Scorer
         if item.get("authenticity_decision") == "VERIFIED" and item.get("utr"):
             _intake_service.scorer.register_processed_utr(item["utr"])
 
-    # Seed one cooldown
+    # Seed active cooldowns
     _DISPATCH_COOLDOWNS["ATM-MAH-MUM-00101"] = now - 180
 
 
@@ -259,7 +347,16 @@ class AtmStatusUpdateRequest(BaseModel):
 
 # -------------------------------------------------------------------------
 # API Endpoints
-# -------------------------------------------------------------------------
+@router.get("/health")
+def api_healthcheck():
+    """System health check endpoint under API prefix."""
+    return {
+        "status": "online",
+        "system": "SENTINEL",
+        "region": "Maharashtra State Cyber Command",
+        "version": "1.0.0",
+    }
+
 
 @router.get("/auth/session")
 def get_auth_session(
@@ -276,6 +373,7 @@ def get_auth_session(
         "badge_id": x_officer_badge or "MH-CYB-1930-4482",
         "officer_name": "Insp. R. Deshmukh",
         "command_unit": "Special Cyber Crime Investigation Cell, 1930 Pune Command",
+        "role": role,
         "active_role": role,
         "permissions": {
             "can_dispatch_patrol": role != "BANK_NODAL",
@@ -372,17 +470,25 @@ def get_alert_dossier(complaint_id: str):
     """
     alert = _ALERTS_STORE.get(complaint_id)
     if not alert:
-        raise HTTPException(status_code=44, detail=f"Complaint '{complaint_id}' not found")
+        raise HTTPException(status_code=404, detail=f"Complaint '{complaint_id}' not found")
 
     amount = alert.get("amount", 50000.0)
-    leading_atm = alert.get("leading_atm", MAHARASHTRA_ATMS[0])
+    leading_atm = alert.get("leading_atm")
+    if not isinstance(leading_atm, dict):
+        leading_atm = MAHARASHTRA_ATMS[0]
+
+    target_city = leading_atm.get("city", alert.get("victim_city", "Pune"))
+    target_state = leading_atm.get("state", alert.get("state", "Maharashtra"))
+    target_area = leading_atm.get("area", "Hinjawadi Phase 1")
+    target_bank = leading_atm.get("bank", "HDFC")
+    target_atm_id = leading_atm.get("atm_id", "ATM-MAH-PUN-00202")
 
     # 1. Multi-Hop Graph Structure
     nodes = [
-        {"id": "victim", "label": "Complainant Account", "type": "victim", "account": alert.get("victim_account", "SBIN0004123:3819201948"), "city": alert.get("victim_city", "Pune")},
-        {"id": "bank_hop1", "label": "Nodal Bank / Hop 1", "type": "bank", "account": "HDFC Primary Settlement", "city": "Mumbai"},
-        {"id": "mule_hop2", "label": "Mule Beneficiary / Hop 2", "type": "mule", "account": alert.get("beneficiary_account", "HDFC0001048:50100482910"), "city": leading_atm.get("city", "Pune")},
-        {"id": "atm_target", "label": f"Target ATM ({leading_atm.get('bank', 'SBI')})", "type": "atm", "atm_id": leading_atm.get("atm_id", "ATM-MAH-PUN-00202"), "area": leading_atm.get("area", "Hinjawadi Phase 1"), "city": leading_atm.get("city", "Pune")},
+        {"id": "victim", "label": f"Complainant ({alert.get('victim_city', 'Pune')})", "type": "victim", "account": alert.get("victim_account", "SBIN0004123:3819201948"), "city": alert.get("victim_city", "Pune"), "state": alert.get("state", "Maharashtra")},
+        {"id": "bank_hop1", "label": "Nodal Bank / Hop 1 (Clearing Hub)", "type": "bank", "account": "HDFC Primary Settlement", "city": "Mumbai", "state": "Maharashtra"},
+        {"id": "mule_hop2", "label": f"Mule Beneficiary ({target_city})", "type": "mule", "account": alert.get("beneficiary_account", "HDFC0001048:50100482910"), "city": target_city, "state": target_state},
+        {"id": "atm_target", "label": f"Target ATM ({target_bank} - {target_area}, {target_city})", "type": "atm", "atm_id": target_atm_id, "area": target_area, "city": target_city, "state": target_state, "bank": target_bank},
     ]
 
     edges = [
@@ -585,6 +691,8 @@ def _evaluate_atms_and_clusters():
             "cluster_id": c["cluster_id"],
             "name": c["name"],
             "city": c["city"],
+            "state": c.get("state", "Maharashtra"),
+            "jcct_team": c.get("jcct_team", "JCCT-Maharashtra"),
             "corridor_desc": c["corridor_desc"],
             "center": c["center"],
             "radius_meters": c["radius_meters"],
@@ -668,6 +776,8 @@ def get_leaflet_geojson():
                 "cluster_id": c["cluster_id"],
                 "name": c["name"],
                 "city": c["city"],
+                "state": c.get("state", "Maharashtra"),
+                "jcct_team": c.get("jcct_team", "JCCT-Maharashtra"),
                 "corridor_desc": c["corridor_desc"],
                 "radius_meters": c["radius_meters"],
                 "bounds": c["bounds"],
@@ -698,6 +808,8 @@ def get_leaflet_geojson():
                 "bank": a["bank"],
                 "area": a["area"],
                 "city": a["city"],
+                "state": a.get("state", "Maharashtra"),
+                "jcct_team": a.get("jcct_team", "JCCT-Maharashtra"),
                 "cluster_id": a.get("cluster_id"),
                 "vulnerability_score": a["vulnerability_score"],
                 "vulnerability_tier": a["vulnerability_tier"],
@@ -837,7 +949,7 @@ def submit_complaint(payload: IntakeSubmissionRequest):
         "top_reasons": [
             f"Duplicate transaction UTR {utr} detected in ledger",
             "Authenticity Gate hard-fail triggered: Score = 0.00",
-            "Preservation hold & beat dispatch suppressed — Duplicate UTR griefing neutralized to protect innocent accounts",
+            "Preservation hold & patrol dispatch suppressed — Duplicate UTR griefing neutralized to protect innocent accounts",
         ] if is_held else pred.top_reasons,
         "situational_baseline": "Window Suspended (Gate Rejected)" if is_held else label,
         "total_window_seconds": 0 if is_held else dur_sec,
@@ -855,6 +967,11 @@ def submit_complaint(payload: IntakeSubmissionRequest):
         "status": "success",
         "complaint_id": cid,
         "decision": auth_decision,
+        "authenticity": {
+            "score": auth_score,
+            "decision": auth_decision,
+            "is_duplicate": is_dup,
+        },
         "risk_tier": "HELD_FOR_REVIEW" if is_held else pred.risk_tier,
         "cashout_probability": 0.00 if is_held else pred.probability,
         "alert": new_alert,
@@ -868,7 +985,7 @@ def dispatch_alert(
     x_officer_badge: Optional[str] = Header("MH-CYB-1930-4482"),
 ):
     """
-    Dispatches beat patrol / lawful alert to nodal banks and police units.
+    Dispatches patrol unit / lawful alert to nodal banks and police units.
     Activates 15-minute suppression cooldown for the target ATM kiosk.
     Requires CYBER_OFFICER or SYSTEM_ADMIN role credentials.
     """
@@ -876,7 +993,7 @@ def dispatch_alert(
     if role == "BANK_NODAL":
         raise HTTPException(
             status_code=403,
-            detail="Role 'BANK_NODAL' is unauthorized to dispatch police beat units. Action requires CYBER_OFFICER credentials."
+            detail="Role 'BANK_NODAL' is unauthorized to dispatch patrol units. Action requires CYBER_OFFICER credentials."
         )
 
     alert = _ALERTS_STORE.get(complaint_id)
@@ -913,6 +1030,8 @@ def dispatch_alert(
 
 
 @router.get("/notices/{complaint_id}")
+@router.get("/bnss/notice/{complaint_id}")
+@router.get("/notices/bnss/{complaint_id}")
 def get_bnss_notice(complaint_id: str):
     """
     Generates Section 105 BNSS Court-Admissible Notice in HTML and Plain-Text.
@@ -933,14 +1052,25 @@ def get_bnss_notice(complaint_id: str):
         attestation_chain_hash=alert.get("chain_hash", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
     )
 
+    html_order = _notice_generator.to_html(notice)
+    telex_plain = _notice_generator.to_plain_text(notice)
     return {
         "complaint_id": complaint_id,
         "notice_id": notice.notice_id,
         "statutory_act": notice.statutory_authority,
+        "statutory_sections": [
+            "Section 105 BNSS, 2023 (Digital Search & Seizure Recording)",
+            "Section 106 BNSS, 2023 (Disputed-Amount Lien on Illicit Proceeds)",
+            "Section 107(5) BNSS, 2023 (Ex-Parte Judicial Attachment Directive)",
+            "Section 63(4) BSA, 2023 (Cryptographic Electronic Hash Certificate)",
+        ],
         "issuing_authority": "Maharashtra State Cyber Police / I4C Special Cyber Cell",
-        "html_content": _notice_generator.to_html(notice),
-        "plain_text": _notice_generator.to_plain_text(notice),
+        "html_content": html_order,
+        "html_court_order": html_order,
+        "plain_text": telex_plain,
+        "wireless_telex_plaintext": telex_plain,
         "chain_hash": notice.attestation_chain_hash,
+        "sha256_hash_certificate": notice.attestation_chain_hash,
         "timestamp": notice.timestamp,
     }
 
@@ -1000,12 +1130,21 @@ def get_outbox_status():
 @router.post("/outbox/replay")
 def replay_outbox():
     """
-    Manually triggers replay of queued alerts in durable SQLite outbox.
+    Manually triggers replay of queued alerts in durable SQLite outbox
+    and recovers the circuit breaker to CLOSED.
     """
     svc = _dispatch_pipeline.dispatch_svc
     count = 0
     if hasattr(svc, "replay_backlog"):
         count = svc.replay_backlog()
+
+    # Re-close the circuit breaker
+    cb = getattr(svc, "_breaker", None)
+    if cb:
+        from app.core.resilience import CircuitState
+        cb._state = CircuitState.CLOSED
+        cb._consecutive_failures = 0
+
     pending = svc.backlog_size() if hasattr(svc, "backlog_size") else 0
     return {
         "status": "success",
@@ -1021,27 +1160,27 @@ def get_demo_fixtures():
     """
     return {
         "genuine_case": {
-            "name": "Genuine Cyber Fraud (Hinjawadi IT Corridor - ₹65,000)",
-            "raw_text": "Rs 65000.00 debited from a/c **4123 via UPI on 25-09-2026. UTR: 429104829102. If not you, report to cyber cell.",
+            "name": "Genuine Cyber Fraud (Pune Hinjawadi - ₹78,000)",
+            "raw_text": "Rs 78000.00 debited from a/c **4123 via UPI on 25-09-2026. UTR: 429104829105. Hinjawadi IT Corridor victim reporting unauthorized debit.",
             "victim_city": "Pune",
             "channel": "UPI",
-            "amount": 65000.0,
+            "amount": 78000.0,
             "hop_depth": 1,
         },
         "duplicate_utr_fake": {
-            "name": "Duplicate UTR Hard-Fail (Mumbai BKC - Fake Alert Rejected)",
-            "raw_text": "Rs 65000.00 debited from a/c **9999 via UPI on 25-09-2026. UTR: 429104829102. Repeated complaint.",
+            "name": "Duplicate UTR Sybil Hard-Fail (Mumbai Andheri - Fake Rejected)",
+            "raw_text": "Rs 65000.00 debited from a/c **9999 via UPI on 25-09-2026. UTR: 429104829102. Repeated duplicate complaint.",
             "victim_city": "Mumbai",
             "channel": "UPI",
             "amount": 65000.0,
             "hop_depth": 1,
         },
         "high_value_neft": {
-            "name": "High-Value Multi-Hop Mule (Nagpur Industrial Corridor - ₹1,40,000)",
-            "raw_text": "NEFT transaction of Rs 140000.00 credited to account 20194829104. Immediate cash-out flagged.",
-            "victim_city": "Nagpur",
-            "channel": "NEFT",
-            "amount": 140000.0,
+            "name": "Inter-JCCT Multi-Hop Mule (Thane -> Ahmedabad - ₹1,35,000)",
+            "raw_text": "IMPS transaction of Rs 135000.00 credited to account 1029481920. Layered transfer from Thane corridor to Ahmedabad hub.",
+            "victim_city": "Thane",
+            "channel": "IMPS",
+            "amount": 135000.0,
             "hop_depth": 2,
         },
     }
@@ -1168,6 +1307,10 @@ async def reset_simulation_state():
         from app.core.resilience import CircuitState
         cb._state = CircuitState.CLOSED
         cb._consecutive_failures = 0
+
+    outbox = getattr(outbox_svc, "_outbox", None)
+    if outbox and hasattr(outbox, "clear_pending"):
+        outbox.clear_pending()
 
     _simulation_engine._seed_initial_audit_logs()
 

@@ -69,10 +69,10 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
           <div>
             <h2 style={{ fontSize: '1.15rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <FileText size={18} color="var(--color-teal)" />
-              Section 105 BNSS Preservation Notice & Outbox
+              Complaint Notice Ledger & Outbox Directives
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: '11.5px', marginTop: '1px' }}>
-              Court-admissible statutory freeze directive (BNSS §105) & zero-loss dispatch gateway.
+              Court-admissible statutory freeze directives & zero-loss dispatch gateway.
             </p>
           </div>
 
@@ -142,7 +142,7 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
               />
             ) : (
               <div className="card" style={{ padding: '30px', textAlign: 'center', color: 'var(--color-muted)', backgroundColor: '#FFFFFF' }}>
-                Loading Section 105 BNSS Directive...
+                Loading Complaint Notice Directive...
               </div>
             )
           ) : (

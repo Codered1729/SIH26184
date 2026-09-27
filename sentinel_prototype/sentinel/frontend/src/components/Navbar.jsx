@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Shield, 
   Layers, 
@@ -9,8 +9,10 @@ import {
   Database, 
   Plus, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  RotateCw
 } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Navbar({ 
   activeTab, 
@@ -19,18 +21,34 @@ export default function Navbar({
   auditCount = 0,
   backendOnline = true, 
   outboxStatus = {}, 
-  onOpenIntake 
+  onOpenIntake,
+  onRefresh,
 }) {
   const tabs = [
     { id: 'queue', label: 'Active Alerts', icon: Shield, badge: alertsCount },
     { id: 'dossier', label: 'Incident Dossier', icon: Layers },
     { id: 'map', label: 'ATM Hotspots & Interception', icon: MapPin },
-    { id: 'bnss', label: 'Section 105 BNSS Notices', icon: FileText },
+    { id: 'bnss', label: 'Complaint Ledger', icon: FileText },
     { id: 'audit', label: 'Compliance Audit Ledger', icon: FileClock, badge: auditCount || undefined },
   ];
 
+  const [recovering, setRecovering] = useState(false);
+
   const circuitState = outboxStatus?.circuit_breaker?.state || 'CLOSED';
   const pendingCount = outboxStatus?.outbox?.pending_count || 0;
+
+  const handleRestoreGateway = async () => {
+    if (circuitState === 'CLOSED' || recovering) return;
+    setRecovering(true);
+    try {
+      await api.replayOutbox();
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error('Failed to replay outbox and restore gateway:', e);
+    } finally {
+      setRecovering(false);
+    }
+  };
 
   return (
     <header style={{
@@ -118,24 +136,40 @@ export default function Navbar({
           </div>
 
           {/* Circuit Breaker Status */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '3px 8px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'rgba(255, 255, 255, 0.06)',
-            fontSize: '11px',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-          }}>
+          <div 
+            onClick={circuitState !== 'CLOSED' ? handleRestoreGateway : undefined}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '3px 8px',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: circuitState === 'CLOSED' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(239, 68, 68, 0.18)',
+              fontSize: '11px',
+              border: circuitState === 'CLOSED' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(239, 68, 68, 0.45)',
+              cursor: circuitState === 'CLOSED' ? 'default' : 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            title={
+              circuitState === 'CLOSED'
+                ? 'CFCFRMS Bank Webhook Gateway: Normal Operational Baseline'
+                : 'Scenario 3: Bank Nodal Webhook Outage Simulated. Circuit Breaker tripped to OPEN to prevent message loss. Click here or Replay Buffer to restore normal gateway.'
+            }
+          >
             <span className={`indicator-dot ${circuitState === 'CLOSED' ? 'dot-teal' : 'dot-red'}`}></span>
             <span style={{ color: '#94A3B8' }}>Gateway:</span>
             <span style={{ 
               fontWeight: '700', 
-              color: circuitState === 'CLOSED' ? '#34D399' : '#F87171' 
+              color: circuitState === 'CLOSED' ? '#34D399' : '#F87171',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
             }}>
-              {circuitState === 'CLOSED' ? 'NORMAL' : 'ISOLATED'}
+              {circuitState === 'CLOSED' ? 'NORMAL' : (recovering ? 'RECONNECTING...' : 'ISOLATED (Click to Restore)')}
             </span>
+            {circuitState !== 'CLOSED' && (
+              <RotateCw size={11} className={recovering ? 'spin' : ''} style={{ color: '#F87171', marginLeft: '2px' }} />
+            )}
           </div>
 
           {/* Outbox Backlog */}

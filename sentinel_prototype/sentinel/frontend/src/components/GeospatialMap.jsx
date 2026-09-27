@@ -70,12 +70,51 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
   const [tileProvider, setTileProvider] = useState('osm');
 
   // Selection & Filter state
+  const [selectedJcct, setSelectedJcct] = useState('ALL'); // 'ALL' | 'JCCT-Maharashtra' | 'JCCT-Gujarat'
   const [selectedClusterId, setSelectedClusterId] = useState('ALL');
   const [selectedAtm, setSelectedAtm] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'THREAT' | 'PATROL' | 'CRITICAL'
   const [showClusterZones, setShowClusterZones] = useState(true);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
   const [actionFeedback, setActionFeedback] = useState(null);
+
+  // JCCT Switching Handler
+  const handleJcctChange = useCallback((team) => {
+    setSelectedJcct(team);
+    setSelectedClusterId('ALL');
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    if (team === 'JCCT-Maharashtra') {
+      map.flyTo([19.25, 74.0], 7, { duration: 1.0 });
+    } else if (team === 'JCCT-Gujarat') {
+      map.flyTo([22.40, 72.7], 7, { duration: 1.0 });
+    } else {
+      map.flyTo([20.85, 73.5], 6, { duration: 1.0 });
+    }
+  }, []);
+
+  // Cluster Selection & Camera Flying Handler
+  const handleSelectCluster = useCallback((clusterId) => {
+    setSelectedClusterId(clusterId);
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    if (clusterId === 'ALL') {
+      if (selectedJcct === 'JCCT-Maharashtra') {
+        map.flyTo([19.25, 74.0], 7, { duration: 0.8 });
+      } else if (selectedJcct === 'JCCT-Gujarat') {
+        map.flyTo([22.40, 72.7], 7, { duration: 0.8 });
+      } else {
+        map.flyTo([20.85, 73.5], 6, { duration: 0.8 });
+      }
+    } else {
+      const c = clusters.find((item) => item.cluster_id === clusterId);
+      if (c && c.bounds) {
+        map.flyToBounds(c.bounds, { padding: [50, 50], duration: 0.8 });
+      } else if (c && c.center) {
+        map.flyTo([c.center[0], c.center[1]], 11, { duration: 0.8 });
+      }
+    }
+  }, [clusters, selectedJcct]);
 
   // Helper to extract bank name from alert
   const getBankFromAlert = useCallback((a) => {
@@ -115,7 +154,13 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
         const allAtms = [];
         data.clusters.forEach((c) => {
           (c.atms || []).forEach((atm) => {
-            allAtms.push({ ...atm, cluster_name: c.name, cluster_id: c.cluster_id });
+            allAtms.push({
+              ...atm,
+              cluster_name: c.name,
+              cluster_id: c.cluster_id,
+              state: c.state || atm.state || 'Maharashtra',
+              jcct_team: c.jcct_team || atm.jcct_team || 'JCCT-Maharashtra',
+            });
           });
         });
         setAtms(allAtms);
@@ -153,9 +198,19 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
     return () => clearInterval(interval);
   }, []);
 
-  // Filtered ATMs based on Cluster and Status filter
+  // Filtered Clusters based on JCCT selection
+  const displayedClusters = useMemo(() => {
+    if (selectedJcct === 'ALL') return clusters;
+    return clusters.filter((c) => (c.jcct_team || 'JCCT-Maharashtra') === selectedJcct);
+  }, [clusters, selectedJcct]);
+
+  // Filtered ATMs based on JCCT Team, Cluster and Status filter
   const displayedAtms = useMemo(() => {
     return atms.filter((atm) => {
+      // JCCT filter
+      if (selectedJcct !== 'ALL' && (atm.jcct_team || 'JCCT-Maharashtra') !== selectedJcct) {
+        return false;
+      }
       // Cluster filter
       if (selectedClusterId !== 'ALL' && atm.cluster_id !== selectedClusterId) {
         return false;
@@ -166,7 +221,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
       if (statusFilter === 'CRITICAL' && (atm.vulnerability_score || atm.hawkes_intensity || 0) < 0.80) return false;
       return true;
     });
-  }, [atms, selectedClusterId, statusFilter]);
+  }, [atms, selectedJcct, selectedClusterId, statusFilter]);
 
   // Currently selected cluster object
   const selectedCluster = useMemo(() => {
@@ -337,7 +392,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
 
     if (!showClusterZones) return;
 
-    clusters.forEach((c) => {
+    displayedClusters.forEach((c) => {
       const isSelected = selectedClusterId === c.cluster_id;
       const isCritical = c.vulnerability_tier === 'CRITICAL';
       const isElevated = c.vulnerability_tier === 'ELEVATED';
@@ -404,7 +459,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
         }
       });
     });
-  }, [clusters, selectedClusterId, showClusterZones]);
+  }, [displayedClusters, selectedClusterId, showClusterZones]);
 
   // Render Leaflet ATM Markers & Rich Popups
   useEffect(() => {
@@ -560,7 +615,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
           <!-- Dispatch Quick Action -->
           ${isDispatched ? `
             <div style="font-size: 10.5px; color: #1D4ED8; font-weight: 700; text-align: center; padding: 4px; background: #EFF6FF; border-radius: 3px;">
-              🛡️ Beat Unit Dispatched (${Math.floor((atm.cooldown_remaining_sec || 900) / 60)}m suppression)
+              🛡️ Patrol Unit Dispatched (${Math.floor((atm.cooldown_remaining_sec || 900) / 60)}m suppression)
             </div>
           ` : `
             <button id="dispatch-leaflet-btn-${atm.atm_id}" style="
@@ -574,7 +629,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
               border-radius: 3px;
               cursor: pointer;
             ">
-              🚨 Dispatch Beat Patrol
+              🚨 Dispatch Patrol Unit
             </button>
           `}
         </div>
@@ -612,18 +667,6 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
     }
   };
 
-  // Zoom into a specific cluster
-  const handleSelectCluster = (clusterId) => {
-    setSelectedClusterId(clusterId);
-    if (clusterId === 'ALL') {
-      handleSnapToMaharashtra();
-      return;
-    }
-    const c = clusters.find((item) => item.cluster_id === clusterId);
-    if (c && mapInstanceRef.current && c.bounds) {
-      mapInstanceRef.current.flyToBounds(c.bounds, { padding: [50, 50], duration: 0.8 });
-    }
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -655,21 +698,21 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
               Leaflet Cartography: ATM Clusters & Real-Time Vulnerability
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: '11.5px', marginTop: '1px' }}>
-              Spatiotemporal Hawkes cluster intensity and cash-out vulnerability status across Maharashtra corridors.
+              Spatiotemporal Hawkes cluster intensity and cash-out vulnerability status across Western Regional Inter-JCCT corridors (Maharashtra & Gujarat).
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {/* Cluster Selector Tabs */}
+            {/* JCCT Regional Coordination Selector */}
             <div style={{
               display: 'flex',
-              backgroundColor: '#F1F5F9',
+              backgroundColor: '#EEF2F6',
               padding: '2px',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--border-medium)',
             }}>
               <button
-                onClick={() => handleSelectCluster('ALL')}
+                onClick={() => handleJcctChange('ALL')}
                 style={{
                   padding: '4px 8px',
                   borderRadius: '2px',
@@ -677,39 +720,89 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   fontWeight: '700',
                   border: 'none',
                   cursor: 'pointer',
-                  backgroundColor: selectedClusterId === 'ALL' ? 'var(--color-navy)' : 'transparent',
-                  color: selectedClusterId === 'ALL' ? '#FFFFFF' : 'var(--color-muted)',
+                  backgroundColor: selectedJcct === 'ALL' ? 'var(--color-navy)' : 'transparent',
+                  color: selectedJcct === 'ALL' ? '#FFFFFF' : 'var(--color-muted)',
                 }}
               >
-                All Clusters ({clusters.length})
+                🌐 Interstate Corridor ({clusters.length})
               </button>
-              {clusters.map((c) => (
-                <button
-                  key={c.cluster_id}
-                  onClick={() => handleSelectCluster(c.cluster_id)}
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '2px',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: selectedClusterId === c.cluster_id ? 'var(--color-navy)' : 'transparent',
-                    color: selectedClusterId === c.cluster_id ? '#FFFFFF' : 'var(--color-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                  }}
-                >
-                  <span style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: c.vulnerability_tier === 'CRITICAL' ? '#DC2626' : (c.vulnerability_tier === 'ELEVATED' ? '#D97706' : '#00A896'),
-                  }}></span>
-                  <span>{c.city}</span>
-                </button>
-              ))}
+              <button
+                onClick={() => handleJcctChange('JCCT-Maharashtra')}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '2px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: selectedJcct === 'JCCT-Maharashtra' ? 'var(--color-teal)' : 'transparent',
+                  color: selectedJcct === 'JCCT-Maharashtra' ? '#0B1F3A' : 'var(--color-muted)',
+                }}
+              >
+                🛡️ JCCT Maharashtra
+              </button>
+              <button
+                onClick={() => handleJcctChange('JCCT-Gujarat')}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '2px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: selectedJcct === 'JCCT-Gujarat' ? '#D97706' : 'transparent',
+                  color: selectedJcct === 'JCCT-Gujarat' ? '#FFFFFF' : 'var(--color-muted)',
+                }}
+              >
+                ⚡ JCCT Gujarat
+              </button>
+            </div>
+
+            {/* Cluster Location Selection Dropdown (Drop Box) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <label 
+                htmlFor="cluster-location-select"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: 'var(--color-navy)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <MapPin size={12} style={{ color: 'var(--color-teal)' }} />
+                <span>Cluster:</span>
+              </label>
+              <select
+                id="cluster-location-select"
+                value={selectedClusterId}
+                onChange={(e) => handleSelectCluster(e.target.value)}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '11.5px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-medium)',
+                  backgroundColor: '#FFFFFF',
+                  color: 'var(--color-navy)',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  maxWidth: '260px',
+                }}
+                title="Select geographical cash-out hotspot cluster to center camera"
+              >
+                <option value="ALL">📍 All Clusters ({displayedClusters.length} Hotspots)</option>
+                {displayedClusters.map((c) => {
+                  const stateCode = (c.state === 'Gujarat' || c.jcct_team === 'JCCT-Gujarat') ? 'GJ' : 'MH';
+                  const tierIcon = c.vulnerability_tier === 'CRITICAL' ? '🔴' : (c.vulnerability_tier === 'ELEVATED' ? '🟠' : '🟢');
+                  return (
+                    <option key={c.cluster_id} value={c.cluster_id}>
+                      {tierIcon} {c.name || c.city} ({c.city}, {stateCode})
+                    </option>
+                  );
+                })}
+              </select>
             </div>
 
             {/* Status Filter Toggle */}
@@ -868,7 +961,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
               <ShieldAlert size={16} color="var(--color-teal)" />
               <h3 style={{ fontSize: '13px', color: 'var(--color-navy)' }}>
-                Beat Patrol Tactical Directive
+                Patrol Unit Tactical Directive
               </h3>
             </div>
 
@@ -1116,7 +1209,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   }}
                 >
                   <Send size={12} />
-                  <span>{selectedAtm.is_in_cooldown ? 'Patrol En Route' : 'Alert Beat Patrol'}</span>
+                  <span>{selectedAtm.is_in_cooldown ? 'Patrol En Route' : 'Alert Patrol Unit'}</span>
                 </button>
 
                 {selectedAtm.is_in_cooldown && (

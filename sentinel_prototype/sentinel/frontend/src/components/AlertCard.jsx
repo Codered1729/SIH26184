@@ -132,6 +132,26 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
               </span>
             </div>
           </div>
+        ) : (alert.status === 'EXPIRED' || secondsLeft === 0) ? (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: '#F1F5F9',
+            border: '1px solid #CBD5E1',
+          }}>
+            <Clock size={12} color="#64748B" />
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+              <span style={{ fontSize: '10px', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                WINDOW CONCLUDED:
+              </span>
+              <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748B' }}>
+                {alert.total_window_seconds ? `${Math.round(alert.total_window_seconds / 60)}M ELAPSED` : '45M ELAPSED'} (BAYESIAN DECAYED)
+              </span>
+            </div>
+          </div>
         ) : (
           <div style={{
             display: 'flex',
@@ -240,7 +260,7 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
           {isDuplicate ? 'Authenticity Protection:' : 'Triage Basis:'}
         </strong>{' '}
         {isDuplicate
-          ? 'Duplicate transaction UTR detected by Authenticity Gate (Score: 0.00). Interception window deactivated and beat dispatch blocked to prevent wrongful citizen account freeze.'
+          ? 'Duplicate transaction UTR detected by Authenticity Gate (Score: 0.00). Interception window deactivated and patrol dispatch blocked to prevent wrongful citizen account freeze.'
           : (alert.top_reasons && alert.top_reasons.length > 0 ? alert.top_reasons[0] : 'High-risk velocity transaction pattern')}
       </div>
 
@@ -270,7 +290,7 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
               style={{ padding: '4px 10px', fontSize: '11.5px' }}
             >
               <Send size={12} />
-              <span>Alert Beat Unit</span>
+              <span>Alert Patrol Unit</span>
             </button>
           )}
         </div>

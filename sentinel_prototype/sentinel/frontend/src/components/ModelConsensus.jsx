@@ -172,7 +172,7 @@ export default function ModelConsensus({ consensusData, championModel }) {
           }}>
             <CheckCircle2 size={13} color="#16A34A" />
             <span>
-              <strong>{exceeds ? `+${(probPct - thresholdPct)}% above threshold` : 'Below risk threshold'}</strong>: Trigger lawful Section 105 BNSS hold order.
+              <strong>{exceeds ? `+${(probPct - thresholdPct)}% above threshold` : 'Below risk threshold'}</strong>: Trigger lawful complaint preservation notice.
             </span>
           </div>
         </div>

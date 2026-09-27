@@ -48,7 +48,7 @@ class LawfulNotice:
 
 
 class BNSSNoticeGenerator:
-    """Generates legally defensible hold orders and beat interception directives."""
+    """Generates legally defensible hold orders and patrol unit interception directives."""
 
     STATUTORY_SECTION = "Sections 106 & 107(5) read with Section 105, Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) & Section 63, Bharatiya Sakshya Adhiniyam, 2023 (BSA)"
     DEFAULT_ISSUING_AGENCY = "Maharashtra State Cyber Police (Special Cyber Cell 1930 / I4C)"
@@ -96,7 +96,7 @@ class BNSSNoticeGenerator:
             beneficiary_account=beneficiary_account,
             candidate_atms=candidate_atms,
             attestation_chain_hash=attestation_chain_hash or "PENDING",
-            recommended_action="IMMEDIATE BENEFICIARY HOLD & POLICE BEAT DISPATCH",
+            recommended_action="IMMEDIATE BENEFICIARY HOLD & PATROL UNIT DISPATCH",
             statutory_declaration=statutory_declaration,
         )
 
@@ -131,7 +131,7 @@ SUBJECT: STATUTORY ORDER FOR PROMPT HOLD & ATTACHMENT OF FRAUD PROCEEDS
    - Beneficiary Account:    {notice.beneficiary_account}
    - Mandatory Action:       {notice.recommended_action}
 
-3. PREDICTED PHYSICAL CASH-OUT ATMS (BEAT PATROL DIRECTIVE):
+3. PREDICTED PHYSICAL CASH-OUT ATMS (PATROL UNIT DIRECTIVE):
 {atm_lines or '    (No physical ATMs prioritized - digital hold only)\n'}
 4. STATUTORY MANDATE (SECTIONS 106 & 107(5) BNSS, 2023):
    "{notice.statutory_declaration}"

@@ -63,11 +63,11 @@ Follow this 5-screen operational walkthrough:
 1. Click **Geospatial Map & Hotspots** on the top navigation.
 2. Observe the Leaflet map centered on Maharashtra:
    - Pulsing red rings at **Hinjawadi Phase 1 HDFC ATM** (Hawkes self-exciting point-process intensity `0.94`).
-   - Interception guidance with nearest police beat unit ETA.
-3. Click the dispatch button — demonstrate the **15-minute suppression cooldown** preventing duplicate beat alerts.
+   - Interception guidance with nearest police patrol unit ETA.
+3. Click the dispatch button — demonstrate the **15-minute suppression cooldown** preventing duplicate patrol unit alerts.
 
-### Step 4: Verify Lawful Preservation (BNSS Notice Terminal & Outbox)
-1. Switch to **BNSS Notice Terminal**.
+### Step 4: Verify Lawful Preservation (Complaint Notice Ledger & Outbox)
+1. Switch to **Complaint Ledger** (4th tab in top navbar).
 2. Showcase the auto-generated **Sections 106 & 107(5) BNSS Lawful Disputed-Amount Hold Order**:
    - Contains statutory command, UTR, target bank, candidate ATMs, and strict disputed-amount lien (₹78,000 hold, prohibiting blanket account freeze).
    - Court-admissible SHA-256 certificate under Section 63(4) Bharatiya Sakshya Adhiniyam, 2023 (BSA).

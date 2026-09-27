@@ -131,28 +131,32 @@ export default function SyndicateGraph({ dossier }) {
               <text x="14" y="24" fontSize="10.5" fontWeight="700" fill={device.is_cluster_flagged ? '#DC2626' : '#D97706'}>
                 HOP 2: MULE ACCOUNT
               </text>
-              <text x="14" y="44" fontSize="13" fontWeight="800" fill="#0B1F3A">Beneficiary Layer</text>
+              <text x="14" y="44" fontSize="12.5" fontWeight="800" fill="#0B1F3A">
+                {details.leading_atm?.city ? `${details.leading_atm.city} Mule` : 'Beneficiary Layer'}
+              </text>
               <text x="14" y="62" fontSize="10.5" fill="#64748B" fontFamily="var(--font-mono)">
                 {(details.beneficiary_account || 'HDFC0001048:***').slice(0, 16)}
               </text>
               <text x="14" y="82" fontSize="10.5" fontWeight="700" fill={device.is_cluster_flagged ? '#B91C1C' : '#B45309'}>
-                {device.is_cluster_flagged ? 'Shared Hardware Flag' : 'Identified Mule'}
+                {device.is_cluster_flagged ? 'Shared Hardware Flag' : (details.inter_jcct ? 'Inter-JCCT Handoff' : 'Identified Mule')}
               </text>
             </g>
 
             {/* Node 4: Target ATM Hotspot (x: 935..1090, width: 155) */}
             <g transform="translate(935, 42)">
-              <rect width="155" height="96" rx="6" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
-              <rect width="155" height="4" rx="2" fill="#DC2626" />
-              <text x="14" y="24" fontSize="10.5" fontWeight="800" fill="#B91C1C">TARGET ATM</text>
-              <text x="14" y="44" fontSize="13" fontWeight="800" fill="#0B1F3A">
-                {details.leading_atm?.bank || 'HDFC'} Kiosk
+              <rect width="155" height="96" rx="6" fill={details.status === 'EXPIRED' ? '#F8FAFC' : '#FEF2F2'} stroke={details.status === 'EXPIRED' ? '#CBD5E1' : '#FCA5A5'} strokeWidth="1.5" />
+              <rect width="155" height="4" rx="2" fill={details.status === 'EXPIRED' ? '#64748B' : '#DC2626'} />
+              <text x="14" y="24" fontSize="10.5" fontWeight="800" fill={details.status === 'EXPIRED' ? '#64748B' : '#B91C1C'}>
+                {details.status === 'EXPIRED' ? 'EXPIRED TERMINAL' : 'TARGET ATM'}
               </text>
-              <text x="14" y="62" fontSize="10.5" fill="#64748B">
-                {(details.leading_atm?.area || 'Hinjawadi Phase 1').slice(0, 16)}
+              <text x="14" y="44" fontSize="12" fontWeight="800" fill="#0B1F3A">
+                {details.leading_atm?.bank || 'HDFC'} • {details.leading_atm?.city || 'Pune'}
               </text>
-              <text x="14" y="82" fontSize="10.5" fontWeight="700" fill="#B91C1C">
-                Forecasted Cash-Out
+              <text x="14" y="62" fontSize="10" fill="#64748B">
+                {(details.leading_atm?.area || 'Hinjawadi Phase 1').slice(0, 18)}
+              </text>
+              <text x="14" y="82" fontSize="10.5" fontWeight="700" fill={details.status === 'EXPIRED' ? '#64748B' : '#B91C1C'}>
+                {details.status === 'EXPIRED' ? '45m Window Expired' : 'Forecasted Cash-Out'}
               </text>
             </g>
           </svg>

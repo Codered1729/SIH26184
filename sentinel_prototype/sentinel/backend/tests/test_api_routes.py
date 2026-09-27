@@ -174,8 +174,8 @@ class TestSentinelAPIRoutes(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data["status"], "success")
-        self.assertEqual(data["total_clusters"], 5)
-        self.assertGreaterEqual(data["total_atms"], 17)
+        self.assertEqual(data["total_clusters"], 8)
+        self.assertEqual(data["total_atms"], 24)
         self.assertIn("statewide_vulnerability_index", data)
         self.assertIn("summary", data)
 
@@ -184,6 +184,8 @@ class TestSentinelAPIRoutes(unittest.TestCase):
         self.assertIn("cluster_id", c0)
         self.assertIn("name", c0)
         self.assertIn("city", c0)
+        self.assertIn("state", c0)
+        self.assertIn("jcct_team", c0)
         self.assertIn("vulnerability_score", c0)
         self.assertIn("vulnerability_tier", c0)
         self.assertIn("status", c0)
@@ -199,12 +201,12 @@ class TestSentinelAPIRoutes(unittest.TestCase):
         data = resp.json()
         self.assertEqual(data["type"], "FeatureCollection")
         self.assertIn("features", data)
-        self.assertGreaterEqual(len(data["features"]), 22)  # 17 ATMs + 5 Clusters
+        self.assertGreaterEqual(len(data["features"]), 32)  # 24 ATMs + 8 Clusters
 
         atm_features = [f for f in data["features"] if f["properties"]["feature_type"] == "atm"]
         cluster_features = [f for f in data["features"] if f["properties"]["feature_type"] == "cluster"]
-        self.assertEqual(len(atm_features), 17)
-        self.assertEqual(len(cluster_features), 5)
+        self.assertEqual(len(atm_features), 24)
+        self.assertEqual(len(cluster_features), 8)
 
         # Check GeoJSON Point coordinate structure [lon, lat]
         f0 = atm_features[0]
@@ -212,6 +214,7 @@ class TestSentinelAPIRoutes(unittest.TestCase):
         self.assertEqual(len(f0["geometry"]["coordinates"]), 2)
         self.assertIn("vulnerability_score", f0["properties"])
         self.assertIn("status", f0["properties"])
+        self.assertIn("jcct_team", f0["properties"])
 
     def test_13_leaflet_atm_status_and_dispatch(self):
         """Verify Leaflet ATM status update and dispatch patrol actions."""

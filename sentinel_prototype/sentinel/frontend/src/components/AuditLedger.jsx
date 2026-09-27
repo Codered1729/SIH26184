@@ -152,7 +152,7 @@ export default function AuditLedger({ onRefreshParent }) {
     { id: 'ALL', label: 'All Records' },
     { id: 'INTAKE', label: 'Intake Events' },
     { id: 'AUTHENTICITY', label: 'Authenticity Gate' },
-    { id: 'BNSS', label: 'Section 105 BNSS' },
+    { id: 'BNSS', label: 'Complaint Notices' },
     { id: 'MODEL', label: 'AI Forecaster' },
     { id: 'SYSTEM', label: 'System & Outbox' },
   ];
@@ -183,7 +183,7 @@ export default function AuditLedger({ onRefreshParent }) {
               </span>
             </div>
             <p style={{ fontSize: '12.5px', color: 'var(--color-muted)', marginTop: '6px', margin: 0, lineHeight: 1.4 }}>
-              Immutable chronological record of intake validations, Authenticity Gate scoring, Champion GBDT forecasts, Section 105 BNSS legal orders, and resilient outbox transitions.
+              Immutable chronological record of intake validations, Authenticity Gate scoring, Champion GBDT forecasts, complaint preservation orders, and resilient outbox transitions.
             </p>
           </div>
 
@@ -231,13 +231,13 @@ export default function AuditLedger({ onRefreshParent }) {
 
           <div style={{ padding: '14px 16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid var(--border-subtle)' }}>
             <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              BNSS Statutory Orders
+              Complaint Notices
             </div>
             <div style={{ fontSize: '22px', fontWeight: '800', color: '#2563EB', marginTop: '3px' }}>
               {stats.notices}
             </div>
             <div style={{ fontSize: '11px', color: 'var(--color-muted)', marginTop: '3px' }}>
-              Section 105 Courtroom Sealed
+              Complaint Notice Courtroom Sealed
             </div>
           </div>
 

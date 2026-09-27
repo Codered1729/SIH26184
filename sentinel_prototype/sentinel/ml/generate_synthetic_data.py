@@ -2,25 +2,27 @@
 Synthetic complaint + transaction data generator for SENTINEL.
 
 Produces three linked tables:
-  - synthetic_complaints.csv    (one row per complaint, 12,000 rows by default)
+  - synthetic_complaints.csv    (one row per complaint, 18,000 rows by default)
   - synthetic_transactions.csv  (one row per mule-chain hop, FK'd to complaint_id -
-    this is the table that feeds InMemoryGraphStore / Neo4jGraphStore and the
-    Hawkes ranker's WithdrawalEvent list)
+    42,412 hops across 18,000 complaints; feeds InMemoryGraphStore / Neo4jGraphStore
+    and the Hawkes ranker's WithdrawalEvent list)
   - synthetic_device_links.csv  (shared-device edges between mule accounts
     reused across different complaints - feeds mule_cluster_id())
 
 Calibration basis (documented, with honest caveats where exact figures
 aren't publicly published):
 
-  JCCT ZONES - real, not invented. I4C has constituted seven Joint Cyber
-  Coordination Teams (JCCTs) at the actual cyber-fraud hotspots reported to
-  Parliament: Mewat, Jamtara, Ahmedabad, Hyderabad, Chandigarh, Vishakhapatnam,
-  and Guwahati (MHA reply to Lok Sabha/Rajya Sabha, reported Dec 2024 / Mar
-  2025). Each hub's lat/lon below is the real city; per-JCCT complaint-share
-  weights are NOT an official published statistic (I4C hasn't released a
-  per-JCCT complaint breakdown) - they're directional, informed by which
-  hotspots are most frequently cited in reporting (Jamtara and Mewat lead),
-  and should be treated as illustrative, not authoritative.
+  JCCT ZONES & REGIONAL SCOPE:
+  At the national level, I4C operates seven Joint Cyber Coordination Teams
+  (JCCTs) covering chronic interstate hotspots: Mewat, Jamtara, Ahmedabad,
+  Hyderabad, Chandigarh, Vishakhapatnam, and Guwahati (MHA Parliamentary reports).
+  For the SENTINEL operational prototype, the primary deployment jurisdiction
+  is calibrated to the Maharashtra State Cyber Command clusters (Mumbai,
+  Pune, Nagpur, Nashik, Thane), where the prototype's high-density ATM coordinates,
+  Leaflet GIS layers, and live Hinjawadi/Naupada patrol unit response scenarios reside.
+  Interstate laundering jumps from Maharashtra into other state corridors are
+  simulated at a ~27.5% jump rate. Per-hub complaint weights are directional,
+  reflecting regional population and cyber complaint volume.
 
   ATM DENSITY - RBI's Q4-2022 data put the national ATM density at 19 per
   lakh population, with a pronounced south-high / north-low skew (Tamil Nadu
@@ -57,6 +59,7 @@ import pandas as pd
 class JCCT:
     name: str
     state: str
+    jcct_team: str
     lat: float
     lon: float
     atm_density_per_lakh: float   # illustrative placement on RBI's real 8-39 national gradient
@@ -64,11 +67,17 @@ class JCCT:
 
 
 JCCTS = [
-    JCCT("Mumbai", "Maharashtra", 19.0760, 72.8777, 34.0, 0.35),
-    JCCT("Pune", "Maharashtra", 18.5204, 73.8567, 28.0, 0.25),
-    JCCT("Nagpur", "Maharashtra", 21.1458, 79.0882, 20.0, 0.15),
-    JCCT("Nashik", "Maharashtra", 19.9975, 73.7898, 18.0, 0.13),
-    JCCT("Thane", "Maharashtra", 19.2183, 72.9781, 26.0, 0.12),
+    # JCCT Team 1: Maharashtra Cyber Command (Western Nodal Hub)
+    JCCT("Mumbai", "Maharashtra", "JCCT-Maharashtra", 19.0760, 72.8777, 34.0, 0.26),
+    JCCT("Pune", "Maharashtra", "JCCT-Maharashtra", 18.5204, 73.8567, 28.0, 0.20),
+    JCCT("Nagpur", "Maharashtra", "JCCT-Maharashtra", 21.1458, 79.0882, 20.0, 0.10),
+    JCCT("Nashik", "Maharashtra", "JCCT-Maharashtra", 19.9975, 73.7898, 18.0, 0.08),
+    JCCT("Thane", "Maharashtra", "JCCT-Maharashtra", 19.2183, 72.9781, 26.0, 0.08),
+
+    # JCCT Team 2: Gujarat / Ahmedabad Hub (Western Interstate Nodal)
+    JCCT("Ahmedabad", "Gujarat", "JCCT-Gujarat", 23.0225, 72.5714, 22.0, 0.14),
+    JCCT("Surat", "Gujarat", "JCCT-Gujarat", 21.1702, 72.8311, 24.0, 0.08),
+    JCCT("Vadodara", "Gujarat", "JCCT-Gujarat", 22.3072, 73.1812, 20.0, 0.06),
 ]
 JCCT_BY_NAME = {j.name: j for j in JCCTS}
 JCCT_NAMES = [j.name for j in JCCTS]
@@ -253,6 +262,9 @@ def generate_transactions(complaints: pd.DataFrame, rng) -> tuple[pd.DataFrame, 
                 "timestamp": t,
                 "jcct_source": prev_jcct,
                 "jcct_dest": current_jcct,
+                "jcct_team_source": JCCT_BY_NAME[prev_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[current_jcct].jcct_team,
+                "is_inter_jcct_jump": int(JCCT_BY_NAME[prev_jcct].jcct_team != JCCT_BY_NAME[current_jcct].jcct_team),
             })
             prev_jcct = current_jcct
 
@@ -284,7 +296,11 @@ def annotate_complaints_with_cashout(complaints: pd.DataFrame, tx_df: pd.DataFra
         complaints["jcct_cashout"] = complaints["complaint_id"].map(last_hops["jcct_dest"]).fillna(complaints["jcct_origin"])
     else:
         complaints["jcct_cashout"] = complaints["jcct_origin"]
-    complaints["is_interstate"] = (complaints["jcct_cashout"] != complaints["jcct_origin"]).astype(int)
+    
+    complaints["jcct_team_origin"] = complaints["jcct_origin"].map(lambda j: JCCT_BY_NAME[j].jcct_team)
+    complaints["jcct_team_cashout"] = complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].jcct_team)
+    complaints["is_interstate"] = (complaints["jcct_origin"].map(lambda j: JCCT_BY_NAME[j].state) != complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].state)).astype(int)
+    complaints["is_inter_jcct"] = (complaints["jcct_team_origin"] != complaints["jcct_team_cashout"]).astype(int)
 
     lat_jitter = rng.normal(0, 0.08, len(complaints))
     lon_jitter = rng.normal(0, 0.08, len(complaints))
@@ -292,7 +308,10 @@ def annotate_complaints_with_cashout(complaints: pd.DataFrame, tx_df: pd.DataFra
     hub_lon = complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].lon)
     complaints["final_atm_lat"] = hub_lat + lat_jitter
     complaints["final_atm_lon"] = hub_lon + lon_jitter
-    complaints["final_atm_id"] = [f"ATM-MAH-{j[:3].upper()}-{i:05d}" for i, j in enumerate(complaints["jcct_cashout"])]
+    complaints["final_atm_id"] = [
+        f"ATM-GUJ-{j[:3].upper()}-{i:05d}" if JCCT_BY_NAME[j].state == "Gujarat" else f"ATM-MAH-{j[:3].upper()}-{i:05d}"
+        for i, j in enumerate(complaints["jcct_cashout"])
+    ]
     return complaints
 
 
