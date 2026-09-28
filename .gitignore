@@ -65,3 +65,17 @@ slide_content.txt
 ~$*.pptx
 ~$*.ppt
 
+# Temporary, Backup & Verification Scratch Files
+*.bak
+**/*.bak
+*.tmp
+**/*.tmp
+*.log
+**/*.log
+*.pdf
+backups/
+**/backups/
+**/backups_pre_hierarchy/
+**/print_financial_breakdown.py
+**/verify_all_dynamic_graphs.py
+

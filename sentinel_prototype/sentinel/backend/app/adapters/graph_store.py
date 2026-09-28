@@ -28,6 +28,10 @@ class TransferEdge:
     utr: str
     timestamp: float
     hop_number: int
+    branch_id: str = "BRANCH_1"
+    tranche_type: str = "DIRECT"
+    flow_status: str = "CONFIRMED"
+    terminal_id: str = ""
 
 
 class GraphStore(ABC):
@@ -67,7 +71,9 @@ class InMemoryGraphStore(GraphStore):
 
     def add_transfer(self, edge: TransferEdge) -> None:
         self.g.add_edge(edge.source, edge.dest, amount=edge.amount, utr=edge.utr,
-                         timestamp=edge.timestamp, hop_number=edge.hop_number)
+                         timestamp=edge.timestamp, hop_number=edge.hop_number,
+                         branch_id=edge.branch_id, tranche_type=edge.tranche_type,
+                         flow_status=edge.flow_status, terminal_id=edge.terminal_id)
 
     def add_shared_device(self, account_a: str, account_b: str, device_hash: str) -> None:
         self.device_graph.add_edge(account_a, account_b, device_hash=device_hash)
@@ -87,6 +93,10 @@ class InMemoryGraphStore(GraphStore):
                     results.append(TransferEdge(
                         source=node, dest=dest, amount=data["amount"], utr=data["utr"],
                         timestamp=data["timestamp"], hop_number=hop,
+                        branch_id=data.get("branch_id", "BRANCH_1"),
+                        tranche_type=data.get("tranche_type", "DIRECT"),
+                        flow_status=data.get("flow_status", "CONFIRMED"),
+                        terminal_id=data.get("terminal_id", ""),
                     ))
                     if dest not in seen_nodes:
                         next_frontier.add(dest)

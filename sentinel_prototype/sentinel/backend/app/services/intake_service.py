@@ -235,7 +235,7 @@ class IntakePipelineService:
 
 
 if __name__ == "__main__":
-    service = IntakePipelineService()
+    service = IntakePipelineService(ledger=InMemoryHashChainLedger(storage_path=":memory:"))
 
     # 1. Run Real Demo Flow
     res_real = service.demo_real_flow()

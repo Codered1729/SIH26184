@@ -89,6 +89,33 @@ TIER_WEIGHTS = np.array([0.282, 0.288, 0.273, 0.157])  # derived from RBI region
 
 RNG_SEED = 42
 
+import sys
+_BACKEND_DIR = str(Path(__file__).resolve().parent.parent / "backend")
+if _BACKEND_DIR not in sys.path:
+    sys.path.insert(0, _BACKEND_DIR)
+
+try:
+    from app.services.spatiotemporal_engine import MAHARASHTRA_ATMS
+except ImportError:
+    MAHARASHTRA_ATMS = []
+
+CANONICAL_ATMS = MAHARASHTRA_ATMS
+ATMS_BY_JCCT: dict[str, list[dict]] = {}
+ATM_COORD_MAP: dict[str, tuple[float, float]] = {}
+
+for a in CANONICAL_ATMS:
+    ATMS_BY_JCCT.setdefault(a["city"], []).append(a)
+    ATM_COORD_MAP[a["atm_id"]] = (a["lat"], a["lon"])
+
+
+def _get_atms_for_city(city: str, state_code: str) -> list[dict]:
+    if city in ATMS_BY_JCCT and ATMS_BY_JCCT[city]:
+        return ATMS_BY_JCCT[city]
+    return [
+        {"atm_id": f"ATM-{state_code}-{city[:3].upper()}-{100 + i}", "city": city, "lat": JCCT_BY_NAME[city].lat, "lon": JCCT_BY_NAME[city].lon}
+        for i in range(1, 4)
+    ]
+
 
 def _haversine_km(lat1, lon1, lat2, lon2) -> float:
     R = 6371.0
@@ -217,11 +244,16 @@ def generate_complaints(n: int, rng) -> pd.DataFrame:
 
 def generate_transactions(complaints: pd.DataFrame, rng) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Walks each complaint's mule chain hop by hop, deciding at each hop whether
-    funds stay within the origin JCCT or jump to a different one (inter-JCCT
-    coordination scenario). Deeper hops are increasingly likely to cross JCCT
-    boundaries. Also emits shared-device links between mule accounts reused
-    across different complaints, simulating a mule ring.
+    Generates authentic hierarchical structuring transactions (smurfing / layered cash-out):
+    - Level 0 -> Level 1: Ingestion debit from Complainant to Gateway Mule
+    - Hop 1 Split:
+      * Fork 1 (BRANCH_1): Front-line cashout tranche (35-44%) -> Station ATM in origin city. Status: EXTRACTED
+      * Fork 2 (BRANCH_2): Layering relay transit (56-65%) -> Layering Mule. Status: IN_TRANSIT
+    - Hop 2 Sub-Split (Branch 2 Splits Again!):
+      * Sub-Fork 2A (BRANCH_2A): Active threat runway (~60%) -> Target ATM. Status: ACTIVE_THREAT / IN_FLIGHT
+      * Sub-Fork 2B (BRANCH_2B): Preserved disputed proceeds (~40%) -> Holding / AePS pool. Status: PRESERVED
+    
+    Mathematical Invariant: Fork 1 + Sub-Fork 2A + Sub-Fork 2B == Complaint Total Amount (0.00 discrepancy).
     """
     tx_rows = []
     device_pool = [f"DEV-{i:05d}" for i in range(400)]  # bounded pool -> reuse creates shared-device signal
@@ -229,58 +261,188 @@ def generate_transactions(complaints: pd.DataFrame, rng) -> tuple[pd.DataFrame, 
     SECONDS_PER_DAY = 86400
 
     for row in complaints.itertuples(index=False):
-        current_jcct = row.jcct_origin
+        origin_jcct = row.jcct_origin
         base_time = row.day * SECONDS_PER_DAY
-        prev_account = f"ACC-{row.complaint_id}-V"
-        remaining_amount = row.amount
-        t = base_time
+        total_amt = round(float(row.amount), 2)
+        origin_state = JCCT_BY_NAME[origin_jcct].state
+        state_code = "MAH" if origin_state == "Maharashtra" else "GUJ"
 
-        reuse_ring = rng.random() < 0.12
+        # Inter-JCCT flight routing decision
+        dest_jcct = origin_jcct
+        jump_prob = min(0.12 + 0.10 * row.hop_depth, 0.65)
+        if rng.random() < jump_prob:
+            weights = _jump_weights(origin_jcct)
+            dest_jcct = rng.choice(JCCT_NAMES, p=weights)
+        dest_state = JCCT_BY_NAME[dest_jcct].state
+        dest_state_code = "MAH" if dest_state == "Maharashtra" else "GUJ"
+
+        reuse_ring = rng.random() < 0.14
         ring_device = rng.choice(device_pool) if reuse_ring else None
-        prev_jcct = current_jcct
 
-        for hop in range(1, int(row.hop_depth) + 1):
-            jump_prob = min(0.08 + 0.09 * hop, 0.65)
-            if hop > 1 and rng.random() < jump_prob:
-                weights = _jump_weights(current_jcct)
-                current_jcct = rng.choice(JCCT_NAMES, p=weights)
+        # 1. Level 0 -> Level 1 Ingestion Debit
+        dt_debit = float(rng.exponential(scale=min(row.hop_velocity_min, 5)) + 0.5)
+        t_debit = base_time + dt_debit * 60
+        gateway_acc = f"ACC-{row.complaint_id}-M1_GATEWAY"
 
-            dest_account = f"ACC-{row.complaint_id}-H{hop}"
-            split_ratio = rng.uniform(0.55, 0.95)
-            hop_amount = round(remaining_amount * split_ratio, 2)
-            remaining_amount = max(remaining_amount - hop_amount, 0.0)
-            dt_min = float(rng.exponential(scale=row.hop_velocity_min) + 1)
-            t += dt_min * 60
+        tx_rows.append({
+            "complaint_id": row.complaint_id,
+            "hop_number": 1,
+            "branch_id": "INGESTION",
+            "source_account": f"ACC-{row.complaint_id}-V",
+            "dest_account": gateway_acc,
+            "amount": total_amt,
+            "channel": row.channel_type,
+            "tranche_type": "INITIAL_DEBIT",
+            "flow_status": "SETTLED",
+            "terminal_id": "",
+            "utr": f"UTR-{row.complaint_id}-00",
+            "timestamp": t_debit,
+            "jcct_source": origin_jcct,
+            "jcct_dest": origin_jcct,
+            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+            "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+            "is_inter_jcct_jump": 0,
+        })
 
-            tx_rows.append({
-                "complaint_id": row.complaint_id,
-                "hop_number": hop,
-                "source_account": prev_account,
-                "dest_account": dest_account,
-                "amount": hop_amount,
-                "utr": f"UTR-{row.complaint_id}-{hop:02d}",
-                "timestamp": t,
-                "jcct_source": prev_jcct,
-                "jcct_dest": current_jcct,
-                "jcct_team_source": JCCT_BY_NAME[prev_jcct].jcct_team,
-                "jcct_team_dest": JCCT_BY_NAME[current_jcct].jcct_team,
-                "is_inter_jcct_jump": int(JCCT_BY_NAME[prev_jcct].jcct_team != JCCT_BY_NAME[current_jcct].jcct_team),
-            })
-            prev_jcct = current_jcct
+        # 2. Hop 1: Gateway 2-Split
+        origin_atms = _get_atms_for_city(origin_jcct, state_code)
+        dest_atms = _get_atms_for_city(dest_jcct, dest_state_code)
 
-            if reuse_ring and hop == row.hop_depth:
-                mule_account_pool.setdefault(ring_device, []).append(dest_account)
+        # Fork 1 (Immediate Cash-out to meet ATM card daily limit)
+        if total_amt > 100000:
+            b1_ratio = float(rng.uniform(0.28, 0.35))
+        elif total_amt <= 40000:
+            b1_ratio = float(rng.uniform(0.40, 0.46))
+        else:
+            b1_ratio = float(rng.uniform(0.35, 0.44))
 
-            prev_account = dest_account
+        branch1_amt = round(total_amt * b1_ratio, 2)
+        branch2_total = round(total_amt - branch1_amt, 2)
+
+        mule1_cashout_acc = f"ACC-{row.complaint_id}-M1_CASHOUT"
+        term1_cand = rng.choice(origin_atms)
+        term1_id = term1_cand["atm_id"]
+        t_fork1 = t_debit + float(rng.uniform(1.0, 3.0)) * 60
+
+        tx_rows.append({
+            "complaint_id": row.complaint_id,
+            "hop_number": 2,
+            "branch_id": "BRANCH_1",
+            "source_account": gateway_acc,
+            "dest_account": mule1_cashout_acc,
+            "amount": branch1_amt,
+            "channel": "UPI",
+            "tranche_type": "DIRECT_CASHOUT",
+            "flow_status": "EXTRACTED",
+            "terminal_id": term1_id,
+            "utr": f"UTR-{row.complaint_id}-01A",
+            "timestamp": t_fork1,
+            "jcct_source": origin_jcct,
+            "jcct_dest": origin_jcct,
+            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+            "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+            "is_inter_jcct_jump": 0,
+        })
+
+        # Fork 2 (Layering Relay Transit)
+        layering_acc = f"ACC-{row.complaint_id}-M2_LAYERING"
+        t_fork2 = t_debit + float(rng.uniform(2.5, 5.0)) * 60
+        is_jump = int(JCCT_BY_NAME[origin_jcct].jcct_team != JCCT_BY_NAME[dest_jcct].jcct_team)
+
+        tx_rows.append({
+            "complaint_id": row.complaint_id,
+            "hop_number": 2,
+            "branch_id": "BRANCH_2",
+            "source_account": gateway_acc,
+            "dest_account": layering_acc,
+            "amount": branch2_total,
+            "channel": "IMPS",
+            "tranche_type": "LAYERING_RELAY",
+            "flow_status": "IN_TRANSIT",
+            "terminal_id": "",
+            "utr": f"UTR-{row.complaint_id}-01B",
+            "timestamp": t_fork2,
+            "jcct_source": origin_jcct,
+            "jcct_dest": dest_jcct,
+            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+            "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+            "is_inter_jcct_jump": is_jump,
+        })
+
+        # 3. Hop 2: Layering Mule Sub-Split (Branch 2 Splits Again!)
+        b2a_ratio = float(rng.uniform(0.56, 0.65))
+        branch2a_amt = round(branch2_total * b2a_ratio, 2)
+        branch2b_amt = round(branch2_total - branch2a_amt, 2)
+
+        # Invariant Assertion Check
+        assert abs((branch1_amt + branch2a_amt + branch2b_amt) - total_amt) < 1e-4
+
+        # Sub-Fork 2A (Active Cash-out Target Runway)
+        mule2a_runway_acc = f"ACC-{row.complaint_id}-M2A_RUNWAY"
+        term2_cand = rng.choice(dest_atms)
+        term2_id = term2_cand["atm_id"]
+        t_sub2a = t_fork2 + float(rng.uniform(3.0, 8.0)) * 60
+
+        tx_rows.append({
+            "complaint_id": row.complaint_id,
+            "hop_number": 3,
+            "branch_id": "BRANCH_2A",
+            "source_account": layering_acc,
+            "dest_account": mule2a_runway_acc,
+            "amount": branch2a_amt,
+            "channel": row.channel_type if row.channel_type != "NEFT" else "IMPS",
+            "tranche_type": "ACTIVE_THREAT",
+            "flow_status": "IN_FLIGHT",
+            "terminal_id": term2_id,
+            "utr": f"UTR-{row.complaint_id}-02A",
+            "timestamp": t_sub2a,
+            "jcct_source": origin_jcct,
+            "jcct_dest": dest_jcct,
+            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+            "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+            "is_inter_jcct_jump": is_jump,
+        })
+
+        # Sub-Fork 2B (Preserved Disputed Escrow / BNSS Lien)
+        mule2b_hold_acc = f"ACC-{row.complaint_id}-M2B_HOLD"
+        rem_dest_atms = [a for a in dest_atms if a["atm_id"] != term2_id] or dest_atms
+        term3_cand = rng.choice(rem_dest_atms)
+        term3_id = term3_cand["atm_id"]
+        t_sub2b = t_fork2 + float(rng.uniform(4.0, 10.0)) * 60
+
+        tx_rows.append({
+            "complaint_id": row.complaint_id,
+            "hop_number": 3,
+            "branch_id": "BRANCH_2B",
+            "source_account": layering_acc,
+            "dest_account": mule2b_hold_acc,
+            "amount": branch2b_amt,
+            "channel": "NEFT",
+            "tranche_type": "PRESERVED_LIEN",
+            "flow_status": "PRESERVED",
+            "terminal_id": term3_id,
+            "utr": f"UTR-{row.complaint_id}-02B",
+            "timestamp": t_sub2b,
+            "jcct_source": dest_jcct,
+            "jcct_dest": dest_jcct,
+            "jcct_team_source": JCCT_BY_NAME[dest_jcct].jcct_team,
+            "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+            "is_inter_jcct_jump": 0,
+        })
+
+        # Shared Device Ring Links
+        if reuse_ring:
+            mule_account_pool.setdefault(ring_device, []).extend([mule1_cashout_acc, layering_acc, mule2a_runway_acc])
 
     tx_df = pd.DataFrame(tx_rows)
 
     device_edges = []
     for device_hash, accounts in mule_account_pool.items():
-        if len(accounts) < 2:
+        unique_accs = list(dict.fromkeys(accounts))
+        if len(unique_accs) < 2:
             continue
-        for i in range(len(accounts) - 1):
-            device_edges.append({"account_a": accounts[i], "account_b": accounts[i + 1], "device_hash": device_hash})
+        for i in range(len(unique_accs) - 1):
+            device_edges.append({"account_a": unique_accs[i], "account_b": unique_accs[i + 1], "device_hash": device_hash})
     device_df = pd.DataFrame(device_edges) if device_edges else pd.DataFrame(
         columns=["account_a", "account_b", "device_hash"])
 
@@ -292,26 +454,47 @@ def annotate_complaints_with_cashout(complaints: pd.DataFrame, tx_df: pd.DataFra
     Hawkes ranker and priority scorer consume as the 'predicted' cash-out point."""
     complaints = complaints.copy()
     if len(tx_df):
-        last_hops = tx_df.sort_values("hop_number").groupby("complaint_id").tail(1).set_index("complaint_id")
-        complaints["jcct_cashout"] = complaints["complaint_id"].map(last_hops["jcct_dest"]).fillna(complaints["jcct_origin"])
+        active_threats = tx_df[tx_df["branch_id"] == "BRANCH_2A"]
+        if not active_threats.empty:
+            cashout_map = active_threats.set_index("complaint_id")["jcct_dest"].to_dict()
+            atm_map = active_threats.set_index("complaint_id")["terminal_id"].to_dict()
+            complaints["jcct_cashout"] = complaints["complaint_id"].map(cashout_map).fillna(complaints["jcct_origin"])
+            complaints["final_atm_id"] = complaints["complaint_id"].map(atm_map)
+        else:
+            last_hops = tx_df.sort_values("hop_number").groupby("complaint_id").tail(1).set_index("complaint_id")
+            complaints["jcct_cashout"] = complaints["complaint_id"].map(last_hops["jcct_dest"]).fillna(complaints["jcct_origin"])
+            complaints["final_atm_id"] = [
+                rng.choice(_get_atms_for_city(c, "MAH" if JCCT_BY_NAME[c].state == "Maharashtra" else "GUJ"))["atm_id"]
+                for c in complaints["jcct_cashout"]
+            ]
     else:
         complaints["jcct_cashout"] = complaints["jcct_origin"]
-    
+        complaints["final_atm_id"] = [
+            rng.choice(_get_atms_for_city(c, "MAH" if JCCT_BY_NAME[c].state == "Maharashtra" else "GUJ"))["atm_id"]
+            for c in complaints["jcct_cashout"]
+        ]
+
     complaints["jcct_team_origin"] = complaints["jcct_origin"].map(lambda j: JCCT_BY_NAME[j].jcct_team)
     complaints["jcct_team_cashout"] = complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].jcct_team)
     complaints["is_interstate"] = (complaints["jcct_origin"].map(lambda j: JCCT_BY_NAME[j].state) != complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].state)).astype(int)
     complaints["is_inter_jcct"] = (complaints["jcct_team_origin"] != complaints["jcct_team_cashout"]).astype(int)
 
-    lat_jitter = rng.normal(0, 0.08, len(complaints))
-    lon_jitter = rng.normal(0, 0.08, len(complaints))
-    hub_lat = complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].lat)
-    hub_lon = complaints["jcct_cashout"].map(lambda j: JCCT_BY_NAME[j].lon)
-    complaints["final_atm_lat"] = hub_lat + lat_jitter
-    complaints["final_atm_lon"] = hub_lon + lon_jitter
-    complaints["final_atm_id"] = [
-        f"ATM-GUJ-{j[:3].upper()}-{i:05d}" if JCCT_BY_NAME[j].state == "Gujarat" else f"ATM-MAH-{j[:3].upper()}-{i:05d}"
-        for i, j in enumerate(complaints["jcct_cashout"])
-    ]
+    # Physically anchor coordinates to the assigned canonical ATM with realistic urban jitter (~20-50m)
+    atm_lats = []
+    atm_lons = []
+    for atm_id, jcct in zip(complaints["final_atm_id"], complaints["jcct_cashout"]):
+        if atm_id in ATM_COORD_MAP:
+            base_lat, base_lon = ATM_COORD_MAP[atm_id]
+            atm_lats.append(base_lat + float(rng.normal(0, 0.0008)))
+            atm_lons.append(base_lon + float(rng.normal(0, 0.0008)))
+        else:
+            base_lat = JCCT_BY_NAME[jcct].lat
+            base_lon = JCCT_BY_NAME[jcct].lon
+            atm_lats.append(base_lat + float(rng.normal(0, 0.04)))
+            atm_lons.append(base_lon + float(rng.normal(0, 0.04)))
+    complaints["final_atm_lat"] = atm_lats
+    complaints["final_atm_lon"] = atm_lons
+
     return complaints
 
 

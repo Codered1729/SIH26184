@@ -18,10 +18,11 @@ const OFFLINE_FALLBACK = {
       amount: 78000.0,
       channel: "UPI",
       hop_depth: 1,
-      situational_baseline: "⚡ Instant UPI Single-Hop (20m Window)",
+      has_prior_cashout: false,
+      situational_baseline: "⚡ Fresh UPI Single-Hop (20m Window)",
       total_window_seconds: 1200,
-      elapsed_seconds: 420,
-      remaining_seconds: 780,
+      elapsed_seconds: 90,
+      remaining_seconds: 1110,
       window_status: "ACTIVE",
       priority_score: 0.91,
       risk_tier: "CRITICAL",
@@ -45,9 +46,9 @@ const OFFLINE_FALLBACK = {
       shared_mule_devices: 3,
       chain_hash: "a4f8e9102c4b82d710f293847291a4b5c6d7e8f90123456789abcdef01234567",
       top_reasons: [
-        "Instant UPI transaction with immediate runner cash-out trajectory",
+        "Fresh UPI incident logged 90s ago with zero ATM extraction dispensed",
+        "100% of disputed capital active in transit or lien-preservable under BNSS §106",
         "Target ATM exhibits high spatiotemporal Hawkes excitation (0.92)",
-        "Beneficiary device linked to 3 prior mule accounts across Western Corridor",
       ],
     },
     {
@@ -144,11 +145,12 @@ const OFFLINE_FALLBACK = {
       area: "Ring Road Textile Market",
       amount: 48000.0,
       channel: "AEPS_KIOSK",
-      hop_depth: 1,
-      situational_baseline: "⚡ AEPS Kiosk Fast-Cash (20m Window)",
-      total_window_seconds: 1200,
+      hop_depth: 2,
+      has_prior_cashout: true,
+      situational_baseline: "🔄 AEPS Layered Mule (Hop 2) (35m Window)",
+      total_window_seconds: 2100,
       elapsed_seconds: 480,
-      remaining_seconds: 720,
+      remaining_seconds: 1620,
       window_status: "ACTIVE",
       priority_score: 0.85,
       risk_tier: "CRITICAL",
@@ -187,10 +189,11 @@ const OFFLINE_FALLBACK = {
       amount: 35000.0,
       channel: "ATM_CARDLESS",
       hop_depth: 1,
-      situational_baseline: "⚡ Instant Cardless ATM (20m Window)",
+      has_prior_cashout: false,
+      situational_baseline: "⚡ Ultra-Fresh Cardless ATM (20m Window)",
       total_window_seconds: 1200,
-      elapsed_seconds: 180,
-      remaining_seconds: 1020,
+      elapsed_seconds: 60,
+      remaining_seconds: 1140,
       window_status: "ACTIVE",
       priority_score: 0.82,
       risk_tier: "CRITICAL",
@@ -214,7 +217,8 @@ const OFFLINE_FALLBACK = {
       shared_mule_devices: 1,
       chain_hash: "e1f2a3b4c5d6e7f80918273645a4b5c6d7e8f90123456789abcdef01234569",
       top_reasons: [
-        "Rapid debit notification received within 3 minutes of OTP compromise",
+        "Ultra-fresh complaint logged 60 seconds ago with zero ATM extraction dispensed",
+        "100% of disputed capital active in flight; prime police interdiction opportunity",
         "Beneficiary branch matched to known Vidarbha transit mule ring",
       ],
     },
@@ -302,6 +306,48 @@ const OFFLINE_FALLBACK = {
         "Case forwarded to Cyber Cell investigative ledger for follow-up asset recovery",
       ],
     },
+    {
+      complaint_id: "CYB-MAH-2026-0845",
+      utr: "429124810294",
+      victim_city: "Nashik",
+      state: "Maharashtra",
+      jcct_team: "JCCT-Maharashtra",
+      area: "CBS Old City Commercial Axis",
+      amount: 210000.0,
+      channel: "IMPS",
+      hop_depth: 4,
+      situational_baseline: "⚡ Multi-Hop Mule (Hop 4) (45m Window)",
+      total_window_seconds: 2700,
+      elapsed_seconds: 510,
+      remaining_seconds: 2190,
+      window_status: "ACTIVE",
+      priority_score: 0.94,
+      risk_tier: "CRITICAL",
+      cashout_probability: 0.94,
+      authenticity_score: 0.95,
+      authenticity_decision: "VERIFIED",
+      status: "PENDING_DISPATCH",
+      dispatch_cooldown_remaining: 0,
+      leading_atm: {
+        atm_id: "ATM-MAH-NAS-00401",
+        city: "Nashik",
+        state: "Maharashtra",
+        jcct_team: "JCCT-Maharashtra",
+        area: "CBS Old City Main",
+        bank: "SBI",
+        lat: 20.0063,
+        lon: 73.7902,
+        composite_score: 0.88,
+      },
+      device_imei: "864291048291021",
+      shared_mule_devices: 3,
+      chain_hash: "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f80918273645a4b5c6d7e8f90123456780",
+      top_reasons: [
+        "High-value structuring: 4 sequential smurfing hops across commercial ATM corridor",
+        "Syndicate device IMEI matched across 3 active mule accounts",
+        "Immediate cash extraction predicted at Nashik CBS Old City terminal",
+      ],
+    },
   ],
 };
 
@@ -380,24 +426,352 @@ export const api = {
         item = OFFLINE_FALLBACK.alerts[0];
       }
     }
-    const targetCity = item.leading_atm?.city || item.victim_city;
+    const targetCity = item.leading_atm?.city || item.victim_city || 'Pune';
     const targetBank = item.leading_atm?.bank || 'HDFC';
-    const targetArea = item.leading_atm?.area || 'Terminal Hub';
+    const targetArea = item.leading_atm?.area || 'Hinjawadi Phase 1';
+    const targetAtmId = item.leading_atm?.atm_id || 'ATM-MAH-PUN-00202';
+    const totalAmount = Number(item.amount || 78000.0);
+    const victimCity = item.victim_city || 'Pune';
+    const victimAccount = item.victim_account || 'SBIN0004123:3819201948';
+
+    // Dynamic Terminal 1 Resolution per Victim City
+    const cityTerminalMap = {
+      'Pune': { id: 'ATM-MAH-PUN-00201', name: 'SBI - Shivajinagar Station (Pune)', bank: 'SBI', area: 'Shivajinagar' },
+      'Mumbai': { id: 'ATM-MAH-MUM-00102', name: 'HDFC - Andheri East Metro (Mumbai)', bank: 'HDFC', area: 'Andheri East' },
+      'Thane': { id: 'ATM-MAH-THA-00301', name: 'SBI - Thane West Station (Thane)', bank: 'SBI', area: 'Thane West' },
+      'Nagpur': { id: 'ATM-MAH-NAG-00501', name: 'SBI - Sitabuldi Main Road (Nagpur)', bank: 'SBI', area: 'Sitabuldi' },
+      'Nashik': { id: 'ATM-MAH-NAS-00401', name: 'SBI - CBS Old City (Nashik)', bank: 'SBI', area: 'CBS Old City' },
+      'Surat': { id: 'ATM-GUJ-SUR-00701', name: 'SBI - Ring Road Textile Market (Surat)', bank: 'SBI', area: 'Ring Road' },
+      'Ahmedabad': { id: 'ATM-GUJ-AHM-00601', name: 'SBI - SG Highway Tech Park (Ahmedabad)', bank: 'SBI', area: 'SG Highway' },
+    };
+    const term1 = cityTerminalMap[victimCity] || { id: 'ATM-MAH-PUN-00201', name: `SBI - Station Hub (${victimCity})`, bank: 'SBI', area: 'Station Hub' };
+
+    // Dynamic N-Hop Hierarchical Structuring matching backend engine
+    const rawHop = item.hop_depth != null ? item.hop_depth : 1;
+    const N = Math.max(1, Number(rawHop));
+    const hasPriorCashout = item.has_prior_cashout !== undefined ? Boolean(item.has_prior_cashout) : (N > 1);
+    const isExpired = item.status === 'EXPIRED';
+    const isDuplicate = item.authenticity_decision === 'DUPLICATE_UTR';
+    const charCodeSum = (item.complaint_id || 'CYB-MAH-2026-0819').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+
+    const candidateAtms = [
+      { id: 'ATM-MAH-PUN-00201', name: 'SBI - Shivajinagar Station (Pune)', bank: 'SBI', area: 'Shivajinagar', city: 'Pune' },
+      { id: 'ATM-MAH-MUM-00102', name: 'HDFC - Andheri East Metro (Mumbai)', bank: 'HDFC', area: 'Andheri East', city: 'Mumbai' },
+      { id: 'ATM-MAH-THA-00301', name: 'SBI - Thane West Station (Thane)', bank: 'SBI', area: 'Thane West', city: 'Thane' },
+      { id: 'ATM-MAH-NAG-00501', name: 'SBI - Sitabuldi Main Road (Nagpur)', bank: 'SBI', area: 'Sitabuldi', city: 'Nagpur' },
+      { id: 'ATM-MAH-NAS-00401', name: 'SBI - CBS Old City (Nashik)', bank: 'SBI', area: 'CBS Old City', city: 'Nashik' },
+      { id: 'ATM-GUJ-SUR-00701', name: 'SBI - Ring Road Textile Market (Surat)', bank: 'SBI', area: 'Ring Road', city: 'Surat' },
+      { id: 'ATM-GUJ-AHM-00601', name: 'SBI - SG Highway Tech Park (Ahmedabad)', bank: 'SBI', area: 'SG Highway', city: 'Ahmedabad' },
+    ];
+
+    let rem = totalAmount;
+    const siphons = [];
+    const branches = [];
+    const nodes = [
+      { id: "victim", label: `Complainant (${victimCity})`, type: "victim", account: victimAccount, city: victimCity, hop_level: 0 }
+    ];
+    const edges = [];
+    const hopSplits = [];
+
+    if (isDuplicate) {
+      nodes.push({ id: "gate_blocked", label: "Ingestion Gate (Duplicate UTR Freeze)", type: "blocked_gateway", city: victimCity, status: "BLOCKED", hop_level: 0 });
+      edges.push({ source: "victim", target: "gate_blocked", amount: totalAmount, velocity_min: 0.0, channel: "BLOCKED_INGESTION" });
+      branches.push({
+        branch_id: "BRANCH_BLOCKED",
+        parent_id: "victim",
+        hop_level: 0,
+        tranche_name: "Ingestion Gate (Duplicate UTR Blocked)",
+        amount: totalAmount,
+        percentage: 100.0,
+        channel: item.channel || "UPI",
+        velocity_min: 0.0,
+        status: "BLOCKED",
+        status_label: "Blocked at Gateway",
+        status_color: "#64748B",
+        mule_account: "N/A - Intercepted Before Mule Inflow",
+        mule_city: victimCity,
+        terminal_id: "N/A",
+        terminal_name: "Ingestion Audit Freeze",
+        bank: "RBI Central Switch",
+        event_time: "Blocked at Intake",
+        hawkes_impact: "Zero spatiotemporal excitation (fraud thwarted at intake)",
+        lien_status: "Complete Intake Block - Non-Authentic Claim",
+        description: "Disputed UTR identified as duplicate or non-authentic during 3-tier gateway intake."
+      });
+    } else {
+      // Intermediate Hops 1 through N-1
+      for (let k = 1; k < N; k++) {
+        const remainingHops = N - k;
+        let s_k = 0;
+        let relayAmt = rem;
+        if (hasPriorCashout) {
+          const f_k = (1.0 / (remainingHops + 1.2)) * (0.85 + 0.3 * (((charCodeSum >> (k * 3)) % 10) / 10.0));
+          s_k = Math.round(Math.min(40000.0, Math.max(5000.0, rem * 0.45, rem * f_k)));
+          if (rem - s_k < 1500.0 * remainingHops) {
+            s_k = Math.round(rem * 0.3);
+          }
+          relayAmt = Math.round(rem - s_k);
+        }
+        siphons.push(s_k);
+
+        const siphonAtm = candidateAtms[(charCodeSum + k * 3) % candidateAtms.length];
+        const muleAcc = `${siphonAtm.bank.slice(0, 4).toUpperCase()}000${(charCodeSum + k * 17) % 899 + 100}:${((charCodeSum + k) * 3) % 8999999999 + 1000000000}`;
+        const hubAcc = `SBIN000${(charCodeSum + k * 13) % 899 + 100}:${((charCodeSum + k) * 7) % 8999999999 + 1000000000}`;
+
+        const hubNodeId = `mule_hop${k}`;
+        nodes.push({
+          id: hubNodeId,
+          label: k === 1 ? `Primary Gateway Mule (${victimCity})` : `Hop ${k}: Structuring Mule (${siphonAtm.city})`,
+          type: k === 1 ? "mule_gateway" : "mule_layering",
+          account: hubAcc,
+          city: k === 1 ? victimCity : siphonAtm.city,
+          hop_level: k
+        });
+
+        if (k === 1) {
+          edges.push({ source: "victim", target: hubNodeId, amount: totalAmount, velocity_min: 1.2, channel: item.channel || "UPI" });
+        } else {
+          edges.push({ source: `mule_hop${k-1}`, target: hubNodeId, amount: rem, velocity_min: Number((1.0 + k * 1.4).toFixed(1)), channel: "IMPS" });
+        }
+
+        if (s_k > 0) {
+          const siphonMuleId = `mule_siphon_h${k}`;
+          const siphonAtmId = `atm_siphon_h${k}`;
+          nodes.push({
+            id: siphonMuleId,
+            label: `Mule ${k} - Fast Exit (${siphonAtm.city})`,
+            type: "mule",
+            account: muleAcc,
+            city: siphonAtm.city,
+            bank: siphonAtm.bank,
+            hop_level: k
+          });
+          nodes.push({
+            id: siphonAtmId,
+            label: `Terminal ${k} (${siphonAtm.name})`,
+            type: "atm_extracted",
+            atm_id: siphonAtm.id,
+            area: siphonAtm.area,
+            city: siphonAtm.city,
+            bank: siphonAtm.bank,
+            hop_level: k
+          });
+
+          edges.push({ source: hubNodeId, target: siphonMuleId, amount: s_k, velocity_min: Number((1.0 + k * 1.2).toFixed(1)), channel: k === 1 ? "UPI" : "IMPS" });
+          edges.push({ source: siphonMuleId, target: siphonAtmId, amount: s_k, velocity_min: Number((1.5 + k * 1.2).toFixed(1)), channel: "CASH_EXTRACTION" });
+
+          branches.push({
+            branch_id: `BRANCH_${k}`,
+            parent_id: hubNodeId,
+            hop_level: k,
+            tranche_name: `Fork ${k} (Hop ${k} Direct Cash-Out)`,
+            amount: s_k,
+            percentage: Number(((s_k / totalAmount) * 100).toFixed(1)),
+            channel: k === 1 ? "UPI" : "IMPS",
+            velocity_min: Number((1.0 + k * 1.2).toFixed(1)),
+            status: "EXTRACTED",
+            status_label: "Confirmed Cash-Out",
+            status_color: "#DC2626",
+            mule_account: muleAcc,
+            mule_city: siphonAtm.city,
+            terminal_id: siphonAtm.id,
+            terminal_name: siphonAtm.name,
+            bank: siphonAtm.bank,
+            event_time: `Completed ${Math.max(1, Math.round(4 * k))}m ago`,
+            hawkes_impact: `Injected Hawkes excitation impulse (α=0.8) from ${siphonAtm.area} to ${targetArea}`,
+            lien_status: "Drained prior to report",
+            description: `Immediate partial ATM withdrawal executed at Hop ${k} mule kiosk.`
+          });
+        }
+
+        hopSplits.push({
+          node_id: hubNodeId,
+          hop_level: k,
+          name: `Hop ${k} Mule Hub (${siphonAtm.city})`,
+          inflow: rem,
+          outflow_extracted: s_k,
+          outflow_layering: relayAmt
+        });
+
+        rem = relayAmt;
+      }
+
+      // Terminal Hop N
+      const hubNId = `mule_hop${N}`;
+      const muleNAcc = item.beneficiary_account || `${targetBank.slice(0, 4).toUpperCase()}000${(charCodeSum + N * 19) % 899 + 100}:${((charCodeSum + N) * 5) % 8999999999 + 1000000000}`;
+      nodes.push({
+        id: hubNId,
+        label: N === 1 ? `Primary Gateway Mule (${victimCity})` : `Hop ${N}: Terminal Structuring Mule (${targetCity})`,
+        type: N === 1 ? "mule_gateway" : "mule_layering",
+        account: muleNAcc,
+        city: targetCity,
+        hop_level: N
+      });
+
+      if (N === 1) {
+        edges.push({ source: "victim", target: hubNId, amount: totalAmount, velocity_min: 1.2, channel: item.channel || "UPI" });
+      } else {
+        edges.push({ source: `mule_hop${N-1}`, target: hubNId, amount: rem, velocity_min: Number((1.0 + N * 1.4).toFixed(1)), channel: "IMPS" });
+      }
+
+      let activeThreatAmt = 0;
+      let drainedAmt = 0;
+      let preservedAmt = 0;
+
+      if (isExpired) {
+        drainedAmt = Math.round(rem * 0.65);
+        preservedAmt = Math.round(rem - drainedAmt);
+      } else {
+        const activeRatio = 0.58 + (((charCodeSum >> 6) % 15) / 100.0);
+        activeThreatAmt = Math.round(rem * activeRatio);
+        preservedAmt = Math.round(rem - activeThreatAmt);
+      }
+      const targetAmt = isExpired ? drainedAmt : activeThreatAmt;
+
+      const muleNAId = `mule_h${N}a`;
+      const atmTargetId = "atm_target";
+      nodes.push({
+        id: muleNAId,
+        label: `Mule ${N}A - ${isExpired ? 'Expired Target' : 'Active Target'} (${targetCity})`,
+        type: "mule",
+        account: muleNAcc,
+        city: targetCity,
+        bank: targetBank,
+        hop_level: N
+      });
+      nodes.push({
+        id: atmTargetId,
+        label: `Target ATM (${targetBank} - ${targetArea}, ${targetCity})`,
+        type: "atm",
+        atm_id: targetAtmId,
+        area: targetArea,
+        city: targetCity,
+        bank: targetBank,
+        hop_level: N
+      });
+
+      edges.push({ source: hubNId, target: muleNAId, amount: targetAmt, velocity_min: Number((1.2 + N * 1.8).toFixed(1)), channel: item.channel || "IMPS" });
+      edges.push({ source: muleNAId, target: atmTargetId, amount: targetAmt, velocity_min: Number((1.5 + N * 1.8).toFixed(1)), channel: isExpired ? "DRAINED_PRE_REPORT" : "ACTIVE_RUNWAY" });
+
+      const muleNBId = `mule_h${N}b`;
+      const kioskPreservedId = "kiosk_preserved";
+      const muleNBAcc = `BARB000${(charCodeSum % 499) + 100}:${((charCodeSum * 11) % 8999999999) + 1000000000}`;
+      const term3Id = `ATM-MAH-${targetCity.slice(0, 3).toUpperCase()}-00203`;
+      const term3Name = `AePS Micro-ATM Hub (${targetCity})`;
+
+      nodes.push({
+        id: muleNBId,
+        label: `Mule ${N}B - Holding (${targetCity})`,
+        type: "mule_holding",
+        account: muleNBAcc,
+        city: targetCity,
+        bank: "Bank of Baroda",
+        hop_level: N
+      });
+      nodes.push({
+        id: kioskPreservedId,
+        label: `Terminal 3 (${term3Name})`,
+        type: "kiosk_preserved",
+        atm_id: term3Id,
+        city: targetCity,
+        bank: "Bank of Baroda",
+        hop_level: N
+      });
+
+      edges.push({ source: hubNId, target: muleNBId, amount: preservedAmt, velocity_min: Number((2.5 + N * 2.0).toFixed(1)), channel: "NEFT" });
+      edges.push({ source: muleNBId, target: kioskPreservedId, amount: preservedAmt, velocity_min: Number((2.8 + N * 2.0).toFixed(1)), channel: "BNSS_SEC106_LIEN" });
+
+      branches.push({
+        branch_id: `BRANCH_${N}A`,
+        parent_id: hubNId,
+        hop_level: N,
+        tranche_name: `Sub-Fork ${N}A (Hop ${N}: ${isExpired ? 'Drained Pre-Report' : (N > 1 ? 'Active Runway Target' : 'Direct Withdrawal Attempt')})`,
+        amount: targetAmt,
+        percentage: Number(((targetAmt / totalAmount) * 100).toFixed(1)),
+        channel: item.channel || "IMPS",
+        velocity_min: Number((1.2 + N * 1.8).toFixed(1)),
+        status: isExpired ? "EXTRACTED" : "ACTIVE_THREAT",
+        status_label: isExpired ? "Drained Pre-Report (Expired)" : (!hasPriorCashout ? "Active Interception Target (0% Cashed Out)" : "Active Interception Target"),
+        status_color: isExpired ? "#DC2626" : "#B91C1C",
+        mule_account: muleNAcc,
+        mule_city: targetCity,
+        terminal_id: targetAtmId,
+        terminal_name: `${targetBank} - ${targetArea} (${targetCity})`,
+        bank: targetBank,
+        event_time: isExpired ? "Extracted Prior to Ingestion" : "In Flight (~5.5m remaining)",
+        hawkes_impact: `Hawkes Intensity: 0.94` + (N > 1 && hasPriorCashout ? ` (Excited by Hop 1 extraction)` : ' (High risk runner hotspot)'),
+        lien_status: isExpired ? "Drained prior to report" : "Immediate Police Patrol Interception",
+        description: isExpired ? "45m Golden Window depleted prior to citizen complaint." : (!hasPriorCashout ? "Fresh complaint with zero cashout. Full disputed capital active in flight / prime police intercept opportunity." : "Layered smurfing tranche in flight inside 15-45m Golden Window.")
+      });
+
+      branches.push({
+        branch_id: `BRANCH_${N}B`,
+        parent_id: hubNId,
+        hop_level: N,
+        tranche_name: `Sub-Fork ${N}B (Hop ${N}: Preserved Lien)`,
+        amount: preservedAmt,
+        percentage: Number(((preservedAmt / totalAmount) * 100).toFixed(1)),
+        channel: "NEFT",
+        velocity_min: Number((2.5 + N * 2.0).toFixed(1)),
+        status: "PRESERVED",
+        status_label: "BNSS §106 Lien Applied",
+        status_color: "#059669",
+        mule_account: muleNBAcc,
+        mule_city: targetCity,
+        terminal_id: term3Id,
+        terminal_name: term3Name,
+        bank: "Bank of Baroda",
+        event_time: "Preserved in Transit",
+        hawkes_impact: "Suppression cooldown active",
+        lien_status: "Section 106 & 107(5) Disputed Hold Order Confirmed",
+        description: "Targeted disputed-amount hold order placed; account balance preserved."
+      });
+
+      hopSplits.push({
+        node_id: hubNId,
+        hop_level: N,
+        name: `Hop ${N} Terminal Mule (${targetCity})`,
+        inflow: rem,
+        outflow_active_threat: isExpired ? 0 : targetAmt,
+        outflow_extracted: isExpired ? drainedAmt : 0,
+        outflow_preserved_lien: preservedAmt,
+        outflow_layering: rem
+      });
+    }
+
+    const totalCashedOut = siphons.reduce((a, b) => a + b, 0) + (isExpired ? (branches.find(b => b.branch_id.endsWith('A'))?.amount || 0) : 0);
+    const totalActiveThreat = isExpired ? 0 : (branches.find(b => b.branch_id.endsWith('A'))?.amount || 0);
+    const preservedLienAmt = branches.find(b => b.branch_id.endsWith('B'))?.amount || 0;
+
+    const multiSplitData = {
+      is_multi_split: N > 1 || (!isExpired && totalActiveThreat > 0),
+      topology: isDuplicate ? "BLOCKED_AT_INGESTION" : `HIERARCHICAL_${N}_HOP_STRUCTURING`,
+      hop_depth: isDuplicate ? 0 : N,
+      total_disputed_amount: totalAmount,
+      flow_balanced: true,
+      cashed_out_amount: totalCashedOut,
+      active_threat_amount: totalActiveThreat,
+      preserved_lien_amount: preservedLienAmt,
+      residual_quantum: totalActiveThreat + preservedLienAmt,
+      hop_splits: hopSplits,
+      branches: branches,
+      conservation_audit: {
+        discrepancy: Math.round(Math.abs(totalAmount - branches.reduce((sum, b) => sum + (b.amount || 0), 0)) * 100) / 100,
+        status: Math.round(Math.abs(totalAmount - branches.reduce((sum, b) => sum + (b.amount || 0), 0)) * 100) / 100 === 0 ? "EXACT_CONSERVATION" : "DISCREPANCY_DETECTED",
+        allocated_sum: branches.reduce((sum, b) => sum + (b.amount || 0), 0),
+        total_disputed: totalAmount
+      },
+      hop1_split: hopSplits[0] || { inflow: totalAmount, outflow_extracted: totalCashedOut, outflow_layering: totalAmount - totalCashedOut },
+      hop2_split: hopSplits[1] || hopSplits[0] || { inflow: totalAmount, outflow_active_threat: totalActiveThreat, outflow_preserved_lien: preservedLienAmt }
+    };
+
     return {
       complaint_id: item.complaint_id,
       details: item,
       syndicate_graph: {
-        nodes: [
-          { id: "victim", label: `Complainant (${item.victim_city})`, type: "victim", account: item.victim_account || "SBIN0004123:3819201948", city: item.victim_city },
-          { id: "bank_hop1", label: "Nodal Bank / Hop 1 (Clearing Hub)", type: "bank", account: "HDFC Primary Settlement", city: "Mumbai" },
-          { id: "mule_hop2", label: `Mule Beneficiary (${targetCity})`, type: "mule", account: item.beneficiary_account || "HDFC0001048:50100482910", city: targetCity },
-          { id: "atm_target", label: `Target ATM (${targetBank} - ${targetArea}, ${targetCity})`, type: "atm", atm_id: item.leading_atm?.atm_id, area: targetArea, city: targetCity, bank: targetBank },
-        ],
-        edges: [
-          { source: "victim", target: "bank_hop1", amount: item.amount, velocity_min: 1.2, channel: item.channel },
-          { source: "bank_hop1", target: "mule_hop2", amount: item.amount, velocity_min: 2.8, channel: "IMPS" },
-          { source: "mule_hop2", target: "atm_target", amount: Math.min(item.amount, 40000.0), velocity_min: 4.5, channel: "CASH_EXTRACTION" },
-        ],
+        nodes: nodes,
+        edges: edges,
+        multi_split_subgraph: multiSplitData,
       },
       device_fingerprint: {
         imei: item.device_imei,

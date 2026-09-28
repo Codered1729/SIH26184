@@ -27,8 +27,12 @@
 > * **Operational Reality:** Real-world field accuracy is subject to LEA/Nodal Bank pilot validation. This documentation presents honest out-of-sample holdout metrics rather than claiming unverified production efficacy.
 
 > [!TIP]
-> **Enterprise Hardening & Technical Audit Report:**  
-> A dedicated technical summary of all production hardening fixes, algorithmic scaling optimizations, database uniqueness constraints, SQLite WAL/DLQ guarantees, and the Scenario 4 patrol dispatch resolution is documented in [ENTERPRISE_HARDENING_README.md](ENTERPRISE_HARDENING_README.md).
+> **Specialized Engineering & Legal Documentation:**  
+> - **[Architectural Design Decisions & Metrics (docs/DESIGN_DECISIONS_AND_METRICS.md)](docs/DESIGN_DECISIONS_AND_METRICS.md):** Deep-dive on Hawkes vs. DBSCAN, CatBoost oblivious trees, F1-optimal threshold (0.197), Hierarchical N-hop structuring, and exact Rupee conservation ($\Delta = ₹0.00$).
+> - **[Research Foundations, Statutory Frameworks & Sources (docs/RESEARCH_AND_SOURCES.md)](docs/RESEARCH_AND_SOURCES.md):** Legal analysis under BNSS §§ 105–107, BSA § 63(4), DPDP Act 2023, RBI Master Directions, I4C/1930 SOPs, and academic point-process literature.
+> - **[Production Hosting & Deployment Guide (docs/HOSTING_AND_DEPLOYMENT_GUIDE.md)](docs/HOSTING_AND_DEPLOYMENT_GUIDE.md):** Comprehensive instructions for Local, On-Premise LAN, Docker, Cloud VPS, and Government NIC/MeitY Cloud deployment.
+> - **[Demo Runbook & Presenter Cheat Sheet (docs/DEMO_RUNBOOK.md)](docs/DEMO_RUNBOOK.md):** Rapid 3-minute operational presentation flow for hackathon evaluation.
+> - **[Enterprise Hardening & Resilience Report (ENTERPRISE_HARDENING_README.md)](ENTERPRISE_HARDENING_README.md):** Detailed technical audit of database uniqueness constraints, SQLite WAL/DLQ guarantees, and error handling.
 
 ---
 

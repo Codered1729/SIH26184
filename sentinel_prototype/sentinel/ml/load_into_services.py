@@ -34,6 +34,10 @@ def load_transactions_into_graph(limit_complaints: int = 2000) -> InMemoryGraphS
         store.add_transfer(TransferEdge(
             source=row.source_account, dest=row.dest_account, amount=row.amount,
             utr=row.utr, timestamp=row.timestamp, hop_number=row.hop_number,
+            branch_id=getattr(row, "branch_id", "BRANCH_1"),
+            tranche_type=getattr(row, "tranche_type", "DIRECT"),
+            flow_status=getattr(row, "flow_status", "CONFIRMED"),
+            terminal_id=getattr(row, "terminal_id", ""),
         ))
     for row in device_df.itertuples(index=False):
         store.add_shared_device(row.account_a, row.account_b, row.device_hash)
@@ -64,7 +68,7 @@ if __name__ == "__main__":
     subgraph = store.k_hop_subgraph(victim, incident_time=t0, max_hops=5)
     print(f"\nk-hop subgraph for {victim} (real generated chain):")
     for e in subgraph:
-        print(f"  hop {e.hop_number}: {e.source} -> {e.dest} (Rs.{e.amount:,.0f})")
+        print(f"  hop {e.hop_number} [{e.branch_id} - {e.flow_status}]: {e.source} -> {e.dest} (Rs.{e.amount:,.2f})")
 
     # Mule-cluster lookup on a device-linked account
     device_df = pd.read_csv(HERE / "synthetic_device_links.csv")
