@@ -26,6 +26,10 @@
 > * **Validation Status:** **Stage 3 Algorithmic Simulation & Synthetic Benchmark (100% Offline Verified)**.
 > * **Operational Reality:** Real-world field accuracy is subject to LEA/Nodal Bank pilot validation. This documentation presents honest out-of-sample holdout metrics rather than claiming unverified production efficacy.
 
+> [!TIP]
+> **Enterprise Hardening & Technical Audit Report:**  
+> A dedicated technical summary of all production hardening fixes, algorithmic scaling optimizations, database uniqueness constraints, SQLite WAL/DLQ guarantees, and the Scenario 4 patrol dispatch resolution is documented in [ENTERPRISE_HARDENING_README.md](ENTERPRISE_HARDENING_README.md).
+
 ---
 
 ## Table of Contents
@@ -68,6 +72,7 @@
 9. [Data Governance & Statutory Legal Grounding](#9-data-governance--statutory-legal-grounding)
 10. [Cross-Platform Installation & Execution Guide](#10-cross-platform-installation--execution-guide)
 11. [Presenter Runbook & Judging Cheat Sheet](#11-presenter-runbook--judging-cheat-sheet)
+12. [Enterprise Hardening, Algorithmic Scaling & Resilience Engineering](#12-enterprise-hardening-algorithmic-scaling--resilience-engineering)
 
 ---
 
