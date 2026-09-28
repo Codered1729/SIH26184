@@ -489,6 +489,10 @@ def get_alerts(filter_tab: Optional[str] = Query("all")):
 
 
 @router.get("/alerts/{complaint_id}")
+@router.get("/alerts/{complaint_id}/dossier")
+@router.get("/dossier/{complaint_id}")
+@router.get("/cases/{complaint_id}")
+@router.get("/cases/{complaint_id}/dossier")
 def get_alert_dossier(complaint_id: str):
     """
     Returns complete forensic case dossier for a selected complaint:
@@ -496,10 +500,25 @@ def get_alert_dossier(complaint_id: str):
     - Device Fingerprint linkages
     - 3-Party Cryptographic Attestation Ledger
     - 7-Model Consensus comparison
+    Accessible via:
+    - GET /api/v1/alerts/{complaint_id}
+    - GET /api/v1/dossier/{complaint_id}
+    - GET /api/v1/cases/{complaint_id}
     """
-    alert = _ALERTS_STORE.get(complaint_id)
+    cid_clean = complaint_id.strip() if complaint_id else ""
+    alert = _ALERTS_STORE.get(cid_clean)
     if not alert:
-        raise HTTPException(status_code=404, detail=f"Complaint '{complaint_id}' not found")
+        # Case-insensitive lookup fallback
+        for key, val in _ALERTS_STORE.items():
+            if key.lower() == cid_clean.lower():
+                alert = val
+                complaint_id = key
+                break
+    if not alert:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Complaint '{complaint_id}' not found. Active complaints available: {list(_ALERTS_STORE.keys())}"
+        )
 
     amount = alert.get("amount", 50000.0)
     leading_atm = alert.get("leading_atm")

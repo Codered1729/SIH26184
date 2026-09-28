@@ -237,6 +237,7 @@ export default function CaseDetail({
       <ModelConsensus 
         consensusData={dossier.model_consensus} 
         championModel={dossier.champion_model || dossier.details?.champion_model} 
+        caseDetails={dossier.details}
       />
     </div>
   );
