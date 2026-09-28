@@ -4,10 +4,10 @@ Walk-forward validation, 4 temporal folds, synthetic calibrated dataset (`ml/syn
 
 | Model | Source | Opt. threshold | Precision | Recall | F1 | PR-AUC | Brier | Latency (ms/sample) |
 |---|---|---|---|---|---|---|---|---|
-| RandomForest (baseline) | real | 0.275 | 0.432 | 0.691 | 0.529 | 0.526 | 0.1762 | 0.0112 |
-| CatBoost | real | 0.269 | 0.430 | 0.680 | 0.524 | 0.518 | 0.1745 | 0.0006 |
-| LightGBM | real | 0.249 | 0.412 | 0.683 | 0.513 | 0.495 | 0.1805 | 0.0018 |
-| XGBoost | real | 0.243 | 0.407 | 0.694 | 0.510 | 0.492 | 0.1812 | 0.0034 |
+| RandomForest (baseline) | real | 0.275 | 0.432 | 0.691 | 0.529 | 0.526 | 0.1762 | 0.0327 |
+| CatBoost | real | 0.269 | 0.430 | 0.680 | 0.524 | 0.518 | 0.1745 | 0.0010 |
+| LightGBM | real | 0.249 | 0.412 | 0.683 | 0.513 | 0.495 | 0.1805 | 0.0056 |
+| XGBoost | real | 0.243 | 0.407 | 0.694 | 0.510 | 0.492 | 0.1812 | 0.0061 |
 
 **Selected model: RandomForest (baseline)** (highest PR-AUC = 0.526).
 

@@ -13,8 +13,14 @@ losing writes, and both are worse than a demo-mode adapter answering
 queries for a few minutes.
 """
 
+import sys
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
+
+_BACKEND_ROOT = str(Path(__file__).resolve().parents[2])
+if _BACKEND_ROOT not in sys.path:
+    sys.path.insert(0, _BACKEND_ROOT)
 
 from app.adapters.graph_store import GraphStore, InMemoryGraphStore, TransferEdge
 from app.adapters.ledger import Attestation, AttestorRole, InMemoryHashChainLedger, Ledger
@@ -96,9 +102,9 @@ class ResilientGraphStore(GraphStore):
 
 
 class ResilientLedger(Ledger):
-    def __init__(self, primary: Ledger, breaker_name: str = "fabric"):
+    def __init__(self, primary: Ledger, fallback: Ledger | None = None, breaker_name: str = "fabric"):
         self.primary = primary
-        self.fallback = InMemoryHashChainLedger()
+        self.fallback = fallback or InMemoryHashChainLedger(storage_path=":memory:")
         self._breaker = CircuitBreaker(name=breaker_name, failure_threshold=2, recovery_timeout_seconds=20)
         self._pending_attestations: list[tuple[str, AttestorRole, str]] = []
         self.degraded_events: list[DegradedModeEvent] = []

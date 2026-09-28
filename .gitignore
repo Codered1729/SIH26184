@@ -8,6 +8,8 @@ __pycache__/
 # Databases
 *.db
 !sentinel_prototype/sentinel/data/*.db
+*.ledger.jsonl
+**/.ledger.jsonl
 
 # Builds & Artifacts
 dist/

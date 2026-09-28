@@ -27,6 +27,99 @@ from app.services.bnss_notice import BNSSNoticeGenerator, LawfulNotice
 from app.services.dispatch import DispatchPayload, DispatchService
 
 
+IFSC_BANK_MAPPING: Dict[str, str] = {
+    "HDFC": "HDFC Bank",
+    "ICIC": "ICICI Bank",
+    "SBIN": "State Bank of India",
+    "UTIB": "Axis Bank",
+    "AXIS": "Axis Bank",
+    "PUNB": "Punjab National Bank",
+    "BARB": "Bank of Baroda",
+    "CNRB": "Canara Bank",
+    "UBIN": "Union Bank of India",
+    "IDIB": "Indian Bank",
+    "IOBA": "Indian Overseas Bank",
+    "KKBK": "Kotak Mahindra Bank",
+    "YESB": "Yes Bank",
+    "IDFB": "IDFC First Bank",
+    "INDB": "IndusInd Bank",
+    "MAHB": "Bank of Maharashtra",
+    "CBIN": "Central Bank of India",
+    "BKDN": "Dena Bank",
+    "FEDR": "Federal Bank",
+    "CITI": "Citibank",
+    "SCBL": "Standard Chartered Bank",
+    "HSBC": "HSBC Bank",
+    "PYTM": "Paytm Payments Bank",
+    "AIRP": "Airtel Payments Bank",
+}
+
+
+def resolve_target_bank(
+    complaint_data: Dict[str, Any],
+    explicit_bank: Optional[str] = None,
+    beneficiary_account: Optional[str] = None,
+    fallback_bank: Optional[str] = None,
+) -> str:
+    """
+    Dynamically identifies the target bank from IFSC prefixes, beneficiary accounts,
+    extracted complaint data, or UPI handles to prevent invalid legal warrants.
+    """
+    chosen_fallback = explicit_bank or fallback_bank
+    # 1. Explicit bank in complaint_data takes priority if not generic default
+    data_bank = complaint_data.get("target_bank") or complaint_data.get("bank_name") or complaint_data.get("bank")
+    if data_bank and str(data_bank).strip():
+        return str(data_bank).strip()
+
+    # 2. Check beneficiary_account string (e.g. "HDFC0001234:9876543210" or "ICIC0002222")
+    beneficiary = str(beneficiary_account or complaint_data.get("beneficiary_account") or "")
+    if beneficiary:
+        prefix = beneficiary[:4].upper()
+        if prefix in IFSC_BANK_MAPPING:
+            return IFSC_BANK_MAPPING[prefix]
+
+    # 3. Check explicit IFSC in complaint data
+    ifsc = str(complaint_data.get("ifsc") or "").strip().upper()
+    if ifsc:
+        prefix = ifsc[:4]
+        if prefix in IFSC_BANK_MAPPING:
+            return IFSC_BANK_MAPPING[prefix]
+
+    # 4. Search raw text or complaint details for bank names or UPI handle domains
+    raw_text = str(complaint_data.get("raw_text") or complaint_data.get("complaint_text") or "")
+    combined_search = f"{beneficiary} {raw_text}".upper()
+    
+    if "@OKHDFCBANK" in combined_search or "HDFC" in combined_search:
+        return "HDFC Bank"
+    if "@OKICICI" in combined_search or "ICICI" in combined_search:
+        return "ICICI Bank"
+    if "@OKSBI" in combined_search or "SBIN" in combined_search or "STATE BANK OF INDIA" in combined_search or "SBI" in combined_search:
+        return "State Bank of India"
+    if "@OKAXIS" in combined_search or "AXIS" in combined_search or "UTIB" in combined_search:
+        return "Axis Bank"
+    if "@PAYTM" in combined_search or "PAYTM" in combined_search:
+        return "Paytm Payments Bank"
+    if "KOTAK" in combined_search or "KKBK" in combined_search:
+        return "Kotak Mahindra Bank"
+    if "PUNJAB NATIONAL" in combined_search or "PNB" in combined_search or "PUNB" in combined_search:
+        return "Punjab National Bank"
+    if "BANK OF BARODA" in combined_search or "BOB" in combined_search or "BARB" in combined_search:
+        return "Bank of Baroda"
+
+    # 5. Check if victim account has IFSC
+    victim = str(complaint_data.get("victim_account") or "")
+    if victim:
+        prefix = victim[:4].upper()
+        if prefix in IFSC_BANK_MAPPING:
+            return IFSC_BANK_MAPPING[prefix]
+
+    # 6. Fallback to explicit bank if provided and not generic default, else State Bank of India
+    if chosen_fallback and chosen_fallback != "State Bank of India":
+        return chosen_fallback
+
+    return chosen_fallback or "State Bank of India"
+
+
 @dataclass
 class DispatchReceipt:
     alert_id: str
@@ -62,15 +155,22 @@ class DispatchPipelineService:
         predicted_probability: float = 0.85,
         ranked_atms: Optional[List[Any]] = None,
         attestation_chain_hash: Optional[str] = None,
-        target_bank: str = "State Bank of India",
+        target_bank: Optional[str] = None,
         beneficiary_account: Optional[str] = None,
     ) -> DispatchReceipt:
         """Generates Section 105 BNSS notice and dispatches alert through the resilient outbox."""
         complaint_id = complaint_data.get("complaint_id", f"C-GEN-{int(time.time())}")
         utr = complaint_data.get("utr", "UTR-UNKNOWN")
         amount = float(complaint_data.get("amount", 50000.0))
-        beneficiary = beneficiary_account or complaint_data.get("victim_account", "ACC-MULE-UNKNOWN")
+        beneficiary = beneficiary_account or complaint_data.get("beneficiary_account") or complaint_data.get("victim_account", "ACC-MULE-UNKNOWN")
         chain_hash = attestation_chain_hash or complaint_data.get("chain_hash", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+
+        # Dynamically resolve target bank from IFSC prefix, beneficiary account, or text
+        resolved_bank = resolve_target_bank(
+            complaint_data=complaint_data,
+            explicit_bank=target_bank,
+            beneficiary_account=beneficiary,
+        )
 
         # Convert ranked ATMs to dict format
         atm_dicts = []
@@ -87,7 +187,7 @@ class DispatchPipelineService:
             utr=utr,
             amount_inr=amount,
             beneficiary_account=beneficiary,
-            target_bank=target_bank,
+            target_bank=resolved_bank,
             victim_account=complaint_data.get("victim_account", "ACC-VICTIM-XX"),
             candidate_atms=atm_dicts,
             attestation_chain_hash=chain_hash,
@@ -120,7 +220,7 @@ class DispatchPipelineService:
             status=dispatch_status,
             is_durable_outbox=is_queued,
             notice_id=notice.notice_id,
-            target_bank=target_bank,
+            target_bank=resolved_bank,
             beneficiary_account=beneficiary,
             plain_text_notice=plain_text,
             candidate_atms_count=len(atm_dicts),

@@ -9,6 +9,7 @@ import {
   MapPin, 
   Building, 
   ShieldAlert, 
+  ShieldCheck,
   AlertTriangle 
 } from 'lucide-react';
 
@@ -116,13 +117,44 @@ export default function CaseDetail({
 
             {!isDispatched && !isDuplicate && (
               <button
-                onClick={() => onDispatch(details)}
+                onClick={async () => {
+                  if (onDispatch) await onDispatch(details);
+                  setDossier((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          details: {
+                            ...prev.details,
+                            status: 'DISPATCHED',
+                            dispatch_cooldown_remaining: 900,
+                          },
+                        }
+                      : prev
+                  );
+                }}
                 className="btn btn-primary"
                 style={{ padding: '8px 14px', fontSize: '12.5px', fontWeight: '600' }}
               >
                 <Send size={14} />
                 <span>Dispatch Patrol Unit</span>
               </button>
+            )}
+            {isDispatched && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 12px',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: '#ECFDF5',
+                border: '1px solid #A7F3D0',
+                color: '#065F46',
+                fontSize: '11.5px',
+                fontWeight: '700',
+              }}>
+                <ShieldCheck size={14} color="#059669" />
+                <span>Patrol Dispatched (Active Cooldown)</span>
+              </div>
             )}
             {isDuplicate && (
               <div style={{

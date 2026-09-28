@@ -66,5 +66,10 @@ else:
 
 
 if __name__ == "__main__":
+    import os
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    # Disabled reload by default for demo stability: prevents catastrophic RAM state wipe
+    # (in-memory graph, alert queue, ledgers) if any file is touched during judging.
+    # Can be enabled explicitly for dev via: set SENTINEL_RELOAD=true
+    should_reload = os.environ.get("SENTINEL_RELOAD", "false").lower() == "true"
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=should_reload)

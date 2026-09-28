@@ -27,9 +27,17 @@ echo - REST API Docs:         http://localhost:8000/docs
 echo - System Health:         http://localhost:8000/health
 echo - Presenter Runbook:     docs\DEMO_RUNBOOK.md
 echo.
-echo Press CTRL+C to terminate the server.
+echo NOTE: Avoid clicking inside this terminal window (QuickEdit can freeze output).
+echo Press CTRL+C to stop or restart the server.
 echo ======================================================================
 
-cd backend
+:server_loop
+cd /d "%~dp0\backend"
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+echo.
+echo [*] SENTINEL server process stopped.
+choice /C YN /M "Restart server now"
+if errorlevel 2 goto end
+if errorlevel 1 goto server_loop
+:end
 pause

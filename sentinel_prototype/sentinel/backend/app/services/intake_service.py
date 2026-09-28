@@ -60,6 +60,8 @@ class ProcessedIntakeResult:
     chain_hash: str
     is_hard_fail: bool
     status: str  # "FORWARDED", "FLAGGED", "HELD"
+    ifsc: Optional[str] = None
+    target_bank: Optional[str] = None
 
     def __getitem__(self, item: str) -> Any:
         return getattr(self, item)
@@ -140,6 +142,13 @@ class IntakePipelineService:
             "FLAGGED" if scoring_res.decision == Decision.FORWARD_FLAGGED else "HELD"
         )
 
+        from app.services.dispatch_pipeline import resolve_target_bank
+        resolved_bank = resolve_target_bank({
+            "raw_text": raw_text,
+            "ifsc": extracted.ifsc,
+            "victim_account": extracted.victim_account,
+        })
+
         result = ProcessedIntakeResult(
             complaint_id=complaint_id,
             utr=utr,
@@ -153,6 +162,8 @@ class IntakePipelineService:
             chain_hash=chain_hash,
             is_hard_fail=is_duplicate,
             status=status,
+            ifsc=extracted.ifsc,
+            target_bank=resolved_bank,
         )
 
         self.complaint_registry[complaint_id] = asdict(result)

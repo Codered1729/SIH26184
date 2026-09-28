@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Hawkes Point-Process vs Static Density Baseline Validation Benchmark.
+Hawkes Point-Process vs Static Density Baseline Simulation Benchmark.
 
-Evaluates whether the Hawkes self-exciting point-process out-predicts
-a static baseline (historical volume / distance) on sequential mule cash-out sequences.
-
-Simulates 500 sequential cash-out episodes based on known cybercrime withdrawal patterns:
-- Runner extracts partial daily limit at initial ATM kiosk A
-- Moves to nearby ATM B within 3-15 minutes (spatiotemporal burst)
-- Evaluates Hit@1, Hit@3, and Hit@5 accuracy for both models.
+METHODOLOGICAL NOTE & EVALUATION FRAMING FOR JURY / DATA SCIENTISTS:
+This script provides synthetic algorithmic consistency verification, NOT an
+empirical field claim. It verifies that when runner movements exhibit localized
+spatiotemporal clustering (exponential spatial decay ~2km), our HawkesATMRanker
+implementation mathematically recovers the excited distribution with high fidelity
+compared to a static baseline. Field-calibrated parameters (alpha, beta, spatial_decay)
+will be tuned on live NCRP/CFCFRMS transaction logs during Phase 2.
 """
 
 import sys
@@ -30,7 +30,8 @@ def run_hawkes_validation(num_episodes=500, seed=42):
     np.random.seed(seed)
 
     print("=" * 70)
-    print("SENTINEL: Hawkes Spatiotemporal Ranker vs Static Baseline Benchmark")
+    print("SENTINEL: Hawkes Spatiotemporal Ranker Algorithmic Verification")
+    print("Framing: Mathematical simulation verifying implementation correctness.")
     print(f"Episodes: {num_episodes} simulated sequential cash-out bursts")
     print(f"Candidate Kiosks: {len(MAHARASHTRA_ATMS)} calibrated Maharashtra ATMs")
     print("=" * 70)

@@ -81,6 +81,35 @@ class TestSimulationAndAudit(unittest.TestCase):
         alert = data["alert"]
         self.assertEqual(alert["status"], "EXPIRED")
 
+    def test_dispatch_scenario4_multihop_decay(self):
+        """Validates officer can alert patrol unit on Scenario 4 and status transitions to DISPATCHED."""
+        # 1. Trigger Scenario 4
+        trigger_res = self.client.post("/api/v1/simulation/trigger/multihop_decay")
+        self.assertEqual(trigger_res.status_code, 200)
+        cid = trigger_res.json()["complaint_id"]
+        
+        # 2. Dispatch patrol unit
+        dispatch_res = self.client.post(f"/api/v1/alerts/{cid}/dispatch")
+        self.assertEqual(dispatch_res.status_code, 200)
+        disp_data = dispatch_res.json()
+        self.assertEqual(disp_data["status"], "success")
+        self.assertEqual(disp_data["cooldown_seconds"], 900)
+        self.assertEqual(disp_data["audit_entry"]["event_type"], "PATROL_DISPATCHED")
+        
+        # 3. Verify GET /alerts preserves DISPATCHED (does NOT revert to EXPIRED)
+        alerts_res = self.client.get("/api/v1/alerts?filter_tab=all")
+        alerts_map = {a["complaint_id"]: a for a in alerts_res.json()["alerts"]}
+        self.assertIn(cid, alerts_map)
+        self.assertEqual(alerts_map[cid]["status"], "DISPATCHED")
+        self.assertGreater(alerts_map[cid]["dispatch_cooldown_remaining"], 0)
+        
+        # 4. Verify case dossier details status is DISPATCHED
+        dossier_res = self.client.get(f"/api/v1/alerts/{cid}")
+        self.assertEqual(dossier_res.status_code, 200)
+        self.assertEqual(dossier_res.json()["details"]["status"], "DISPATCHED")
+        self.assertGreater(dossier_res.json()["details"]["dispatch_cooldown_remaining"], 0)
+
+
     def test_audit_logs_query(self):
         """Validates audit logs endpoint returns chronological ledger with chain hashes."""
         response = self.client.get("/api/v1/audit/logs?limit=50")

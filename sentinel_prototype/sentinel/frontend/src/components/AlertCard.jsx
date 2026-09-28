@@ -176,7 +176,7 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
       </div>
 
       {/* Dispatch Cooldown Notification Banner if Active */}
-      {isDispatched && cooldownLeft > 0 && (
+      {isDispatched && (
         <div style={{
           padding: '4px 10px',
           marginBottom: '8px',
@@ -194,7 +194,7 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
             <span>Patrol unit alerted. 15-minute suppression cooldown in effect.</span>
           </div>
           <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '700' }}>
-            {formatTime(cooldownLeft)} remaining
+            {cooldownLeft > 0 ? `${formatTime(cooldownLeft)} remaining` : 'PATROL EN ROUTE'}
           </span>
         </div>
       )}

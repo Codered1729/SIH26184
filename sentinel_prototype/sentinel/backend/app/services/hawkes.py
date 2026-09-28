@@ -64,7 +64,20 @@ class HawkesATMRanker:
             if ev.timestamp >= t:
                 continue
             dt = t - ev.timestamp
+            # 1. Temporal short-circuit: events older than 1 hour have decayed to near zero (exp(-6) < 0.0025)
+            if dt > 3600:
+                continue
+
+            # 2. Fast spatial bounding-box check before expensive Haversine trigonometric math
+            # ~0.10 deg lat ≈ 11.1 km; ~0.15 deg lon ≈ 15.5 km at ~19°N latitude
+            if abs(atm_lat - ev.lat) > 0.10 or abs(atm_lon - ev.lon) > 0.15:
+                continue
+
             dist = _haversine_km(atm_lat, atm_lon, ev.lat, ev.lon)
+            # 3. Distance cutoff: skip ATMs > 10km away (spatial decay exp(-5) < 0.007)
+            if dist > 10.0:
+                continue
+
             excitation += self.alpha * math.exp(-self.beta * dt) * self._spatial_kernel(dist)
         return mu + excitation
 

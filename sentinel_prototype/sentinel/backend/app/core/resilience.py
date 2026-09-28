@@ -17,7 +17,9 @@ failure-injection test at the bottom of the file and by
 backend/app/services/dispatch.py.
 """
 
+import asyncio
 import functools
+import inspect
 import json
 import random
 import sqlite3
@@ -89,33 +91,50 @@ class CircuitBreaker:
 
 
 # ---------------------------------------------------------------------------
-# Retry with exponential backoff + jitter
+# Retry with exponential backoff + jitter (sync and async compatible)
 # ---------------------------------------------------------------------------
 def retry_with_backoff(max_attempts: int = 3, base_delay: float = 0.2,
                         max_delay: float = 5.0, exceptions: tuple = (Exception,)):
     def decorator(fn):
-        @functools.wraps(fn)
-        def wrapper(*args, **kwargs):
-            last_exc = None
-            for attempt in range(1, max_attempts + 1):
-                try:
-                    return fn(*args, **kwargs)
-                except exceptions as exc:
-                    last_exc = exc
-                    if attempt == max_attempts:
-                        break
-                    delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
-                    delay += random.uniform(0, delay * 0.1)  # jitter, avoid thundering herd
-                    time.sleep(delay)
-            raise last_exc
-        return wrapper
+        if inspect.iscoroutinefunction(fn):
+            @functools.wraps(fn)
+            async def async_wrapper(*args, **kwargs):
+                last_exc = None
+                for attempt in range(1, max_attempts + 1):
+                    try:
+                        return await fn(*args, **kwargs)
+                    except exceptions as exc:
+                        last_exc = exc
+                        if attempt == max_attempts:
+                            break
+                        delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
+                        delay += random.uniform(0, delay * 0.1)  # jitter, avoid thundering herd
+                        await asyncio.sleep(delay)  # Non-blocking async sleep
+                raise last_exc
+            return async_wrapper
+        else:
+            @functools.wraps(fn)
+            def sync_wrapper(*args, **kwargs):
+                last_exc = None
+                for attempt in range(1, max_attempts + 1):
+                    try:
+                        return fn(*args, **kwargs)
+                    except exceptions as exc:
+                        last_exc = exc
+                        if attempt == max_attempts:
+                            break
+                        delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
+                        delay += random.uniform(0, delay * 0.1)  # jitter, avoid thundering herd
+                        time.sleep(delay)
+                raise last_exc
+            return sync_wrapper
     return decorator
 
 
 # ---------------------------------------------------------------------------
-# Durable outbox - SQLite-backed, survives a process restart. This is the
-# actual "backup" mechanism: anything that can't be delivered right now is
-# written here first, then replayed once the dependency recovers.
+# Durable outbox - SQLite-backed with WAL mode, survives a process restart.
+# This is the actual "backup" mechanism: anything that can't be delivered
+# right now is written here first, then replayed once the dependency recovers.
 # ---------------------------------------------------------------------------
 _DEFAULT_OUTBOX_PATH = str(Path(__file__).resolve().parents[2] / ".outbox.db")
 
@@ -125,8 +144,12 @@ class Outbox:
         self.topic = topic
         self._db_path = db_path
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-        self._conn = sqlite3.connect(db_path, check_same_thread=False)
+        self._conn = sqlite3.connect(db_path, check_same_thread=False, timeout=15.0)
         self._lock = threading.Lock()
+        # Enable Write-Ahead Logging (WAL) mode for multi-worker concurrency
+        # Prevents sqlite3.OperationalError: database is locked during high volume
+        self._conn.execute("PRAGMA journal_mode=WAL;")
+        self._conn.execute("PRAGMA synchronous=NORMAL;")
         self._conn.execute("""
             CREATE TABLE IF NOT EXISTS outbox (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -175,6 +198,11 @@ class Outbox:
             self._conn.execute(
                 "UPDATE outbox SET attempts = attempts + 1 WHERE id = ?", (row_id,),
             )
+            # Dead Letter Queue (DLQ): If attempts reach 10, mark status as 'dead'
+            # so the system stops infinitely hammering unroutable endpoints
+            self._conn.execute(
+                "UPDATE outbox SET status = 'dead' WHERE id = ? AND attempts >= 10", (row_id,),
+            )
             self._conn.commit()
 
     def pending_count(self) -> int:
@@ -182,6 +210,34 @@ class Outbox:
             return self._conn.execute(
                 "SELECT COUNT(*) FROM outbox WHERE topic = ? AND status = 'pending'", (self.topic,),
             ).fetchone()[0]
+
+    def dead_letter_count(self) -> int:
+        """Returns the number of unroutable alerts placed in the Dead Letter Queue (DLQ)."""
+        with self._lock:
+            return self._conn.execute(
+                "SELECT COUNT(*) FROM outbox WHERE topic = ? AND status = 'dead'", (self.topic,),
+            ).fetchone()[0]
+
+    def dead_letters(self, limit: int = 100) -> list[tuple[int, dict]]:
+        """Retrieves dead-letter items for administrative or forensic review."""
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT id, payload FROM outbox WHERE topic = ? AND status = 'dead' "
+                "ORDER BY id ASC LIMIT ?",
+                (self.topic, limit),
+            ).fetchall()
+        return [(row_id, json.loads(payload)) for row_id, payload in rows]
+
+    def purge_delivered(self) -> int:
+        """Physically deletes delivered records to prevent unbounded table growth."""
+        with self._lock:
+            cur = self._conn.execute(
+                "DELETE FROM outbox WHERE topic = ? AND status = 'delivered'",
+                (self.topic,),
+            )
+            deleted = cur.rowcount
+            self._conn.commit()
+            return deleted
 
     def drain_and_replay(self, deliver_fn: Callable[[dict], None], limit: int = 100) -> int:
         """Attempts to deliver every pending row via deliver_fn. Stops at the

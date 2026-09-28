@@ -57,9 +57,47 @@ class Ledger(ABC):
         ...
 
 
+from pathlib import Path
+
+
 class InMemoryHashChainLedger(Ledger):
-    def __init__(self):
+    """
+    Append-only, tamper-evident cryptographic ledger backed by disk serialization (.ledger.jsonl).
+    Survives container/process restarts so audit chains remain verifiable during live pitch presentations.
+    """
+
+    def __init__(self, storage_path: str | Path | None = None):
         self._chain: list[Attestation] = []
+        if storage_path is None:
+            self._storage_path = Path(__file__).resolve().parents[2] / ".ledger.jsonl"
+        elif str(storage_path) == ":memory:":
+            self._storage_path = None
+        else:
+            self._storage_path = Path(storage_path)
+
+        if self._storage_path and self._storage_path.exists():
+            self._rehydrate()
+
+    def _rehydrate(self) -> None:
+        """Rehydrates the in-memory hash chain from local disk append log."""
+        try:
+            with open(self._storage_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    item = json.loads(line)
+                    record = Attestation(
+                        complaint_id=item["complaint_id"],
+                        role=AttestorRole(item["role"]),
+                        signature=item["signature"],
+                        timestamp=item["timestamp"],
+                        prev_hash=item.get("prev_hash", ""),
+                        record_hash=item.get("record_hash", ""),
+                    )
+                    self._chain.append(record)
+        except Exception:
+            pass
 
     def _hash_record(self, complaint_id: str, role: AttestorRole, signature: str,
                       timestamp: float, prev_hash: str) -> str:
@@ -82,7 +120,26 @@ class InMemoryHashChainLedger(Ledger):
         record = Attestation(complaint_id=complaint_id, role=role, signature=signature,
                               timestamp=timestamp, prev_hash=prev_hash, record_hash=record_hash)
         self._chain.append(record)
+
+        # Durably append record to disk log (survives reboot/crash)
+        if self._storage_path:
+            try:
+                self._storage_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(self._storage_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(asdict(record)) + "\n")
+            except Exception:
+                pass
+
         return record
+
+    def clear(self) -> None:
+        """Clears memory chain and wipes disk persistence file."""
+        self._chain = []
+        if self._storage_path and self._storage_path.exists():
+            try:
+                self._storage_path.unlink()
+            except Exception:
+                pass
 
     def attestation_count(self, complaint_id: str) -> int:
         return len({a.role for a in self._chain if a.complaint_id == complaint_id})
@@ -135,7 +192,7 @@ class FabricLedger(Ledger):
 
 
 if __name__ == "__main__":
-    ledger = InMemoryHashChainLedger()
+    ledger = InMemoryHashChainLedger(storage_path=":memory:")
     ledger.attest("C-001", AttestorRole.COMPLAINANT, "otp_verified:9876543210")
     ledger.attest("C-001", AttestorRole.BANK, "utr_matched:UTR001")
     print(f"Attestation count for C-001: {ledger.attestation_count('C-001')}")

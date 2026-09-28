@@ -121,9 +121,30 @@ class Neo4jGraphStore(GraphStore):
     schema and Cypher in infra/neo4j/schema.cypher exactly.
     """
 
-    def __init__(self, uri: str, user: str, password: str):
+    def __init__(self, uri: str, user: str, password: str, auto_init_schema: bool = True):
         from neo4j import GraphDatabase  # pip install neo4j
         self._driver = GraphDatabase.driver(uri, auth=(user, password))
+        if auto_init_schema:
+            try:
+                self.init_schema()
+            except Exception:
+                pass
+
+    def init_schema(self) -> None:
+        """
+        Creates uniqueness constraints and indexes (see infra/neo4j/schema.cypher).
+        Guarantees that MERGE (a:Account {account_id: $source}) does not degrade into
+        an O(N) full node-table scan during high-throughput transaction ingestion.
+        """
+        queries = [
+            "CREATE CONSTRAINT account_id_unique IF NOT EXISTS FOR (a:Account) REQUIRE a.account_id IS UNIQUE;",
+            "CREATE CONSTRAINT atm_id_unique IF NOT EXISTS FOR (k:ATM) REQUIRE k.atm_id IS UNIQUE;",
+            "CREATE INDEX transfer_timestamp_idx IF NOT EXISTS FOR ()-[r:TRANSFERRED]-() ON (r.timestamp);",
+            "CREATE INDEX shared_device_hash_idx IF NOT EXISTS FOR ()-[r:SHARES_DEVICE]-() ON (r.device_hash);",
+        ]
+        with self._driver.session() as session:
+            for q in queries:
+                session.run(q)
 
     def add_transfer(self, edge: TransferEdge) -> None:
         with self._driver.session() as session:

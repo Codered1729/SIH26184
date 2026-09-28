@@ -83,7 +83,13 @@ class DispatchService:
         delivered = self._outbox.drain_and_replay(_deliver, limit=limit)
         if delivered:
             self.delivery_log.append({"status": "replayed", "count": delivered})
+            # Purge physically delivered records to avoid infinite table growth
+            self._outbox.purge_delivered()
         return delivered
+
+    def purge_delivered(self) -> int:
+        """Physically deletes delivered records from SQLite outbox."""
+        return self._outbox.purge_delivered()
 
     def backlog_size(self) -> int:
         return self._outbox.pending_count()

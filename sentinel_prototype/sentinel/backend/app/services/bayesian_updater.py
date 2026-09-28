@@ -82,6 +82,9 @@ class BayesianUpdater:
         decayed = self.apply_time_decay(posterior, now=evidence.timestamp)
         unnormalized = {}
         for cluster, prior_p in decayed.probabilities.items():
+            # Laplace smoothing (0.05 floor): Ensures no cluster probability collapses permanently to 0,
+            # allowing the system to dynamically recover if a mule ring pivots transit direction.
+            # Upstream affinity vector is computed by the graph engine mapping bank hop destinations to JCCT clusters.
             likelihood = evidence.affinity.get(cluster, 0.05 if cluster != "_missed" else 0.0)
             unnormalized[cluster] = prior_p * likelihood
         total = sum(unnormalized.values())
