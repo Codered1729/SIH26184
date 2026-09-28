@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: sentinel-sih26184
+    runtime: docker
+    dockerfilePath: sentinel_prototype/sentinel/Dockerfile
+    dockerContext: sentinel_prototype/sentinel
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
