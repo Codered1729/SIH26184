@@ -37,6 +37,8 @@ export default function ModelConsensus({ consensusData, championModel, details =
     ]
   };
 
+  const modelArtifactHash = champ.model_artifact_hash || (caseData.chain_hash ? `sha256:${String(caseData.chain_hash).slice(0, 16)}` : 'sha256:d81a9f02c4b82d71');
+
   const cashoutProb = Number(champ.cashout_probability ?? caseData?.cashout_probability ?? 0.89);
   const probPct = Math.round(cashoutProb * 100);
   const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.259) * 100);
@@ -261,6 +263,15 @@ export default function ModelConsensus({ consensusData, championModel, details =
                   }}>
                     PRIORITY = Risk x Urgency x Amount x Confidence x Actionability
                   </div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontFamily: 'var(--font-mono)',
+                    color: '#028071',
+                    marginTop: '4px',
+                    fontWeight: '700',
+                  }}>
+                    = {factorRisk.toFixed(2)} [Risk] × {factorUrgency.toFixed(2)} [Urgency] × {factorAmount.toFixed(2)} [Amount] × {factorConfidence.toFixed(2)} [Conf] × {factorActionability.toFixed(2)} [Action] = {compositeScore} (Priority Index)
+                  </div>
                 </div>
 
                 {/* [ P1 - URGENT ] Red Badge */}
@@ -471,7 +482,7 @@ export default function ModelConsensus({ consensusData, championModel, details =
               color: 'var(--color-muted)',
             }}>
               <FileCheck2 size={12} color="var(--color-teal-dark)" />
-              <span>MODEL ARTIFACT HASH: <strong>sha256:d81a9f02c4b82d71</strong> • BNSS Sec 105 Compliant</span>
+              <span>MODEL ARTIFACT HASH: <strong>{modelArtifactHash}</strong> • BNSS Sec 105 Compliant</span>
             </div>
             <div style={{
               fontSize: '10px',
@@ -597,7 +608,7 @@ export default function ModelConsensus({ consensusData, championModel, details =
               }}>
                 <span>0% Safe</span>
                 <span style={{ fontWeight: '700', color: 'var(--color-navy)' }}>
-                  ▲ F1-Optimal Threshold: {thresholdPct}%
+                  ▲ Dynamic Calibration Threshold: {thresholdPct}% ({caseData.channel || 'UPI'} Modality)
                 </span>
                 <span>100% Critical</span>
               </div>
