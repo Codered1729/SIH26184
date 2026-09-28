@@ -109,6 +109,8 @@ class BNSSNoticeGenerator:
             bank = atm.get("bank", "N/A")
             atm_lines += f"    {i}. {atm_id} ({area} - {bank})\n"
 
+        atm_display = atm_lines if atm_lines else "    (No physical ATMs prioritized - digital hold only)\n"
+
         return f"""================================================================================
 OFFICIAL NOTICE UNDER {notice.statutory_authority.upper()}
 GOVERNMENT OF MAHARASHTRA - POLICE DEPARTMENT
@@ -117,7 +119,7 @@ NOTICE REFERENCE:   {notice.notice_id}
 DATE & TIME:        {notice.formatted_date}
 ISSUING AUTHORITY:  {notice.issuing_authority}
 RECIPIENT:          Nodal Officer, {notice.target_bank}
-================================================================================
+===============================================================================
 SUBJECT: STATUTORY ORDER FOR PROMPT HOLD & ATTACHMENT OF FRAUD PROCEEDS
 
 1. INCIDENT DETAILS:
@@ -132,8 +134,7 @@ SUBJECT: STATUTORY ORDER FOR PROMPT HOLD & ATTACHMENT OF FRAUD PROCEEDS
    - Mandatory Action:       {notice.recommended_action}
 
 3. PREDICTED PHYSICAL CASH-OUT ATMS (PATROL UNIT DIRECTIVE):
-{atm_lines or '    (No physical ATMs prioritized - digital hold only)\n'}
-4. STATUTORY MANDATE (SECTIONS 106 & 107(5) BNSS, 2023):
+{atm_display}4. STATUTORY MANDATE (SECTIONS 106 & 107(5) BNSS, 2023):
    "{notice.statutory_declaration}"
 
 5. CRYPTOGRAPHIC INTEGRITY CERTIFICATION:
