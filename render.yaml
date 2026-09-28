@@ -2,8 +2,8 @@ services:
   - type: web
     name: sentinel-sih26184
     runtime: docker
-    dockerfilePath: sentinel_prototype/sentinel/Dockerfile
-    dockerContext: sentinel_prototype/sentinel
+    dockerfilePath: Dockerfile
+    dockerContext: .
     plan: free
     autoDeploy: true
     healthCheckPath: /health
