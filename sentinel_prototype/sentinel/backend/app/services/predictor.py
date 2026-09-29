@@ -70,15 +70,27 @@ class CashoutPredictor:
             self.bundle = None
             return
 
-        with open(self.model_path, "rb") as f:
-            self.bundle = pickle.load(f)
+        try:
+            # Map legacy Cython _loss module alias if required by scikit-learn pickle
+            try:
+                import sklearn._loss._loss
+                sys.modules.setdefault("_loss", sklearn._loss._loss)
+            except Exception:
+                pass
 
-        # Set n_jobs=1 for low-overhead single-sample inference on Windows
-        for m in self.bundle.get("models", {}).values():
-            if hasattr(m, "n_jobs"):
-                m.n_jobs = 1
+            with open(self.model_path, "rb") as f:
+                self.bundle = pickle.load(f)
 
-        self.active_model_name = self.bundle.get("primary_model_name", "LightGBM")
+            # Set n_jobs=1 for low-overhead single-sample inference on Windows
+            for m in self.bundle.get("models", {}).values():
+                if hasattr(m, "n_jobs"):
+                    m.n_jobs = 1
+
+            self.active_model_name = self.bundle.get("primary_model_name", "LightGBM")
+        except Exception as exc:
+            import logging
+            logging.getLogger("uvicorn.error").warning(f"Could not load ML bundle ({exc}), using heuristic fallback.")
+            self.bundle = None
 
     @property
     def available_models(self) -> List[str]:
