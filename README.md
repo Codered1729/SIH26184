@@ -11,8 +11,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React 18](https://img.shields.io/badge/React-18.0-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Production Champion](https://img.shields.io/badge/Production%20Model-CatBoost%20(Oblivious%20Trees)-green?style=flat)](https://catboost.ai/)
-[![Baseline Champion](https://img.shields.io/badge/Ranking%20Baseline-RandomForest%20(PR--AUC%200.526)-blue?style=flat)]()
+[![Production ](https://img.shields.io/badge/Production%20Model-CatBoost%20(Oblivious%20Trees)-green?style=flat)](https://catboost.ai/)
+[![Baseline ](https://img.shields.io/badge/Ranking%20Baseline-RandomForest%20(PR--AUC%200.526)-blue?style=flat)]()
 [![Spatiotemporal](https://img.shields.io/badge/Point%20Process-Hawkes%20Process%20(74.6%25%20Hit%403)-9467BD?style=flat)]()
 [![Statutory Law](https://img.shields.io/badge/Statutory%20Law-BNSS%20%26%20BSA%202023-1A5276?style=flat)]()
 [![Data Governance](https://img.shields.io/badge/Privacy-DPDP%20Act%202023%20(Zero%20Raw%20PII)-27AE60?style=flat)]()
@@ -62,7 +62,7 @@
    - [Feature 13: Live Event Simulator & Sub-500ms Canonical State Reset](#feature-13-live-event-simulator--sub-500ms-canonical-state-reset)
 5. [In-Depth Machine Learning Analysis & Model Evaluation](#5-in-depth-machine-learning-analysis--model-evaluation)
    - [7-Model Comparative Benchmark Matrix (Real Native Libraries)](#7-model-comparative-benchmark-matrix-real-native-libraries)
-   - [Why CatBoost is the Production Champion (Brier Score & Calibration)](#why-catboost-is-the-production-champion-brier-score--calibration)
+   - [Why CatBoost is the Production Champion (Brier Score & Calibration)](#why-catboost-is-the-production--brier-score--calibration)
    - [Deep Dive: Symmetrical (Oblivious) Trees — Advantage or Disadvantage?](#deep-dive-symmetrical-oblivious-trees--advantage-or-disadvantage)
    - [Why Other Models (LightGBM, XGBoost) Lag Behind](#why-other-models-lightgbm-xgboost-lag-behind)
    - [Empirical Dataset Bias & Fairness Audit](#empirical-dataset-bias--fairness-audit)
@@ -485,7 +485,7 @@ The benchmark was executed using the actual native production libraries (**CatBo
 
 ### Why CatBoost is the Production Champion (Brier Score & Calibration)
 
-While RandomForest edges out CatBoost on raw PR-AUC (0.526 vs 0.518), **CatBoost is unequivocally the champion model for the SENTINEL production deployment**:
+While RandomForest edges out CatBoost on raw PR-AUC (0.526 vs 0.518), **CatBoost is unequivocally the  model for the SENTINEL production deployment**:
 
 1. **The Downstream Bayesian Dependency (Brier Score = 0.1745):**
    SENTINEL does not just output a static risk flag; its predictions feed directly into the **Dynamic Bayesian Spatial Belief Updater**. The Bayesian formula multiplies prior cluster probabilities by the classifier's predicted likelihood:
