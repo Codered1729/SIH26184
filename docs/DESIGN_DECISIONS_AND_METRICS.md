@@ -118,7 +118,7 @@ The cashout prediction engine was benchmarked across 7 distinct algorithm archit
 
 | Model Architecture | Precision | Recall | F1 Score | PR-AUC | ROC-AUC | Brier Score | Latency ($\mu\text{s}$) | Memory | Rank |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **CatBoost (Oblivious Trees)** | **0.8841** | **0.7812** | **0.8295** | **0.8812** | **0.9142** | **0.1745** | **0.6** | 35 KB | 🏆 **Production Champion** |
+| **CatBoost (Oblivious Trees)** | **0.8841** | **0.7812** | **0.8295** | **0.8812** | **0.9142** | **0.1745** | **0.6** | 35 KB | 🏆 **Production Model** |
 | **LightGBM (GBDT)** | 0.8624 | 0.7705 | 0.8138 | 0.8690 | 0.9081 | 0.1812 | 1.2 | 48 KB | **Runner-Up** |
 | **XGBoost (Depth-Wise)** | 0.8519 | 0.7640 | 0.8055 | 0.8584 | 0.9015 | 0.1865 | 1.8 | 62 KB | **3rd Place** |
 | **Random Forest (100 Trees)** | 0.8210 | 0.7240 | 0.7694 | 0.5260 | 0.8540 | 0.2045 | 14.5 | 4.2 MB | Baseline |

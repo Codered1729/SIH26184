@@ -11,7 +11,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React 18](https://img.shields.io/badge/React-18.0-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Production Champion](https://img.shields.io/badge/Production%20Model-CatBoost%20(Oblivious%20Trees)-green?style=flat)](https://catboost.ai/)
+[![Production Model](https://img.shields.io/badge/Production%20Model-CatBoost%20(Oblivious%20Trees)-green?style=flat)](https://catboost.ai/)
 [![Baseline Champion](https://img.shields.io/badge/Ranking%20Baseline-RandomForest%20(PR--AUC%200.526)-blue?style=flat)]()
 [![Spatiotemporal](https://img.shields.io/badge/Point%20Process-Hawkes%20Process%20(74.6%25%20Hit%403)-9467BD?style=flat)]()
 [![Statutory Law](https://img.shields.io/badge/Statutory%20Law-BNSS%20%26%20BSA%202023-1A5276?style=flat)]()
@@ -54,7 +54,7 @@
    - [Feature 13: Live Event Simulator & Sub-500ms Canonical State Reset](#feature-13-live-event-simulator--sub-500ms-canonical-state-reset)
 5. [In-Depth Machine Learning Analysis & Model Evaluation](#5-in-depth-machine-learning-analysis--model-evaluation)
    - [7-Model Comparative Benchmark Matrix (Real Native Libraries)](#7-model-comparative-benchmark-matrix-real-native-libraries)
-   - [Why CatBoost is the Production Champion (Brier Score & Calibration)](#why-catboost-is-the-production-champion-brier-score--calibration)
+   - [Why CatBoost is the Production Model (Brier Score & Calibration)](#why-catboost-is-the-production-model-brier-score--calibration)
    - [Deep Dive: Symmetrical (Oblivious) Trees — Advantage or Disadvantage?](#deep-dive-symmetrical-oblivious-trees--advantage-or-disadvantage)
    - [Why Other Models (LightGBM, XGBoost) Lag Behind](#why-other-models-lightgbm-xgboost-lag-behind)
    - [Empirical Dataset Bias & Fairness Audit](#empirical-dataset-bias--fairness-audit)
@@ -267,7 +267,7 @@ Under Indian jurisprudence, police and intelligence systems cannot harvest finan
 +---------------------------------------------------------------------------------------------------+
 | 3. PREDICTIVE SPATIOTEMPORAL CORE (ML & Point Processes)                                          |
 |    +------------------------------------+  +----------------------------------------------------+ |
-|    | Production Champion: CatBoost      |  | Hawkes Self-Exciting Point-Process Ranker          | |
+|    | Production Model: CatBoost         |  | Hawkes Self-Exciting Point-Process Ranker          | |
 |    | - Oblivious Trees (depth=6)        |  | - Spatiotemporal intensity kernel:                 | |
 |    | - PR-AUC: 0.518 (OHE) / 0.536 (Nat)|  |   lambda(atm, t) = mu + sum alpha * exp(-dt)*K(d)  | |
 |    | - Brier Score: 0.1745 (Best Calib) |  | - Empirical lift: 74.6% Hit@3 vs 24.6% baseline    | |
@@ -341,7 +341,7 @@ Under Indian jurisprudence, police and intelligence systems cannot harvest finan
 * **Artifact:** `ml/models/cashout_model.pkl`
 * **How It Works:** Evaluates cash-out probability using gradient boosted decision trees across 32 engineered features (18 numerical, 14 one-hot categoricals).
 * **Dual-Model Strategy:**
-  - **Production Runtime Champion (CatBoost):** Uses symmetric (oblivious) trees of depth 6. Delivers the **lowest Brier score (0.1745)**—meaning its probability predictions are the most accurately calibrated. This calibration is strictly required by the downstream Bayesian updater. Executes at **0.0006 ms/sample** (~1,600,000 samples/sec on CPU).
+  - **Production Model (CatBoost):** Uses symmetric (oblivious) trees of depth 6. Delivers the **lowest Brier score (0.1745)**—meaning its probability predictions are the most accurately calibrated. This calibration is strictly required by the downstream Bayesian updater. Executes at **0.0006 ms/sample** (~1,600,000 samples/sec on CPU).
   - **Ranking Baseline (RandomForest):** Delivers the highest raw PR-AUC (**0.526**) via bagging across 200 trees, serving as an out-of-fold discriminative benchmark.
 * **Calibrated Decision Cutoff (0.269):** Under 1:2.56 class imbalance, a naive 0.50 cutoff misses ~73% of cash-outs. Calibrating at 0.269 captures **68.0% recall** out-of-sample.
 * **Top-3 Explainability Drivers:** Automatically extracts human-readable risk factors for LEA investigators (e.g., *"Beneficiary SIM-swap detected within 48h"*, *"Multi-hop velocity elevated at 15.6 min/hop"*, *"Destination ATM Hawkes intensity in top 5th percentile"*).
@@ -463,7 +463,7 @@ The benchmark was executed using the actual native production libraries (**CatBo
 | Model Architecture | Implementation | Opt. Threshold | Precision @ Opt | Recall @ Opt | F1 @ Opt | PR-AUC (Holdout) | Brier Score ↓ | Latency (ms/sample) |
 |---|---|---|---|---|---|---|---|---|
 | **RandomForest (Baseline Champion)** | Native (n=200, d=8) | **0.275** | 0.432 | 0.691 | **0.529** | **0.526** | 0.1762 | 0.0112 ms |
-| **CatBoost (Production Champion)** | Native (Oblivious, d=6)| **0.269** | 0.430 | 0.680 | **0.524** | **0.518** *(0.536 Nat)* | **0.1745** | **0.0006 ms** |
+| **CatBoost (Production Model)** | Native (Oblivious, d=6)| **0.269** | 0.430 | 0.680 | **0.524** | **0.518** *(0.536 Nat)* | **0.1745** | **0.0006 ms** |
 | **LightGBM** | Native (Leaf-wise) | 0.249 | 0.412 | 0.683 | 0.513 | 0.495 | 0.1805 | 0.0018 ms |
 | **XGBoost** | Native (Depth-wise) | 0.243 | 0.407 | **0.694** | 0.510 | 0.492 | 0.1812 | 0.0034 ms |
 | **GradientBoosting** | Fallback baseline | 0.296 | 0.527 | 0.701 | 0.602 | 0.672* | 0.1690 | 0.0420 ms |
@@ -474,9 +474,9 @@ The benchmark was executed using the actual native production libraries (**CatBo
 
 ---
 
-### Why CatBoost is the Production Champion (Brier Score & Calibration)
+### Why CatBoost is the Production Model (Brier Score & Calibration)
 
-While RandomForest edges out CatBoost on raw PR-AUC (0.526 vs 0.518), **CatBoost is unequivocally the champion model for the SENTINEL production deployment**:
+While RandomForest edges out CatBoost on raw PR-AUC (0.526 vs 0.518), **CatBoost is unequivocally the production model for the SENTINEL deployment**:
 
 1. **The Downstream Bayesian Dependency (Brier Score = 0.1745):**
    SENTINEL does not just output a static risk flag; its predictions feed directly into the **Dynamic Bayesian Spatial Belief Updater**. The Bayesian formula multiplies prior cluster probabilities by the classifier's predicted likelihood:
@@ -792,7 +792,7 @@ Access the application on `http://localhost:8000/`.
 
 ### Key Figures to Memorize for Technical Q&A
 
-* **Production Champion Model:** **CatBoost** (Depth 6 Oblivious Trees, PR-AUC `0.518` [0.536 native], Brier Score `0.1745`, Latency `0.0006 ms`). Chosen because its ordered boosting delivers optimal probability calibration strictly required by the Bayesian spatial belief updater.
+* **Production Model:** **CatBoost** (Depth 6 Oblivious Trees, PR-AUC `0.518` [0.536 native], Brier Score `0.1745`, Latency `0.0006 ms`). Chosen because its ordered boosting delivers optimal probability calibration strictly required by the Bayesian spatial belief updater.
 * **Ranking Baseline Model:** **RandomForest** (PR-AUC `0.526`, F1 `0.529`, Latency `0.0112 ms`).
 * **Data Provenance:** Calibrated synthetic dataset of 18,000 complaints, 42,412 hops, and 400 device IMEIs modeled on published RBI ATM density reports, MHA/I4C JCCT parliamentary statistics, and NPCI volume distributions.
 * **Class Imbalance Ratio:** **1:2.56 (28.1% positive class)**, accurately reflecting triage queues.
