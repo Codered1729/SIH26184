@@ -1,0 +1,22 @@
+name: Keepalive Auto Pinger
+
+on:
+  schedule:
+    # Runs every 10 minutes (Render free tier spins down after 15 minutes of inactivity)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  ping-render:
+    name: Ping Render Service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health Endpoint
+        run: |
+          echo "Pinging SENTINEL Render service..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://sentinel-sih26184.onrender.com/health)
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Unexpected status $STATUS, pinging root URL..."
+            curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://sentinel-sih26184.onrender.com/
+          fi

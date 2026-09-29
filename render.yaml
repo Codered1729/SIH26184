@@ -10,3 +10,12 @@ services:
     envVars:
       - key: PORT
         value: 8000
+
+  - type: cron
+    name: sentinel-keepalive-pinger
+    runtime: image
+    image:
+      url: curlimages/curl:latest
+    schedule: "*/10 * * * *"
+    plan: free
+    startCommand: "curl -fsS --max-time 25 https://sentinel-sih26184.onrender.com/health"
