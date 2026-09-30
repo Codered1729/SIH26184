@@ -53,35 +53,49 @@ This document provides complete, cross-platform installation, configuration, and
 
 ```
 SIH26184/
+├── Dockerfile                          # Multi-stage production container build (Root context)
+├── render.yaml                         # Render Infrastructure-as-Code Blueprint
+├── .github/
+│   └── workflows/
+│       └── keepalive.yml               # Automated 10-minute cron keepalive auto-pinger
 ├── README.md                           # Master System Specification & Architecture
-├── INSTALLATION.md                     # This installation & deployment guide
-├── SENTINEL_build_brief.md             # SIH 26184 Technical Build Brief
+├── README_COMPREHENSIVE.md             # Comprehensive Architecture & Empirical Evaluation
+├── INSTALLATION.md                     # Cross-platform installation & deployment guide
+├── ENTERPRISE_HARDENING_README.md      # Enterprise hardening & resilience report
+├── docs/
+│   ├── PREVIOUS_VS_CURRENT_IMPLEMENTATION.md # 8-dimension comparative evolution deep-dive
+│   ├── DESIGN_DECISIONS_AND_METRICS.md       # Quantitative metrics & mathematical choices
+│   ├── HOSTING_AND_DEPLOYMENT_GUIDE.md       # Cloud, On-Premise, and GovCloud runbook
+│   ├── DEMO_RUNBOOK.md                       # 3-minute operational presentation cheat sheet
+│   ├── ERROR_CATALOG.md                      # Failure modes, mitigation, and reverification log
+│   └── RESEARCH_AND_SOURCES.md               # Legal grounding (BNSS/BSA 2023) and empirical citations
 ├── sentinel_prototype/
 │   └── sentinel/
-│       ├── Dockerfile                  # Multi-stage production container build
+│       ├── Dockerfile                  # Prototype-scoped container build
 │       ├── docker-compose.yml          # Container orchestration configuration
-│       ├── requirements.txt            # Unified Python dependencies
+│       ├── requirements.txt            # Unified Python dependencies (CatBoost, XGBoost, SHAP, Scipy)
 │       ├── start_sentinel.bat          # Windows one-click automated launcher
 │       ├── start_sentinel.sh           # Linux / macOS automated shell launcher
-│       ├── verify_phase4.py            # Master 22-module test harness
+│       ├── verify_phase4.py            # Master system reverification harness
+│       ├── run_all_tests.py            # 22-module offline verification runner
 │       ├── backend/                    # FastAPI ASGI Application
-│       │   ├── requirements.txt        # Backend-specific package list
+│       │   ├── requirements.txt        # Backend dependencies
 │       │   └── app/
 │       │       ├── main.py             # Server entrypoint & SPA static asset mount
-│       │       ├── api/routes.py       # REST API endpoints & WebSockets
-│       │       ├── core/resilience.py  # Circuit breaker & SQLite transactional outbox
-│       │       ├── services/           # Predictive GBDT, Hawkes, BNSS notice engine
-│       │       └── adapters/           # In-memory graph store and hash ledger
+│       │       ├── routers/            # 6 Modular sub-routers (alerts, notices, hotspots, simulation, graph, health)
+│       │       ├── schemas/            # Strict Pydantic v2 data contracts
+│       │       ├── core/               # Resilience, SQLite outbox & global state
+│       │       ├── services/           # CatBoost predictor, TreeSHAP, Hawkes ranker, BNSS notices
+│       │       └── adapters/           # Graph store & SHA-256 hash ledger
 │       ├── frontend/                   # React 18 + Vite GovTech Dashboard
 │       │   ├── package.json            # Frontend dependencies
 │       │   ├── vite.config.js          # Build & proxy configuration
-│       │   └── src/                    # Screens, map, terminal, and dossier components
-│       ├── ml/                         # Machine Learning Pipeline
-│       │   ├── generate_synthetic_data.py # RBI/NPCI-calibrated data generator
-│       │   ├── train_and_serialize.py     # 32-feature LightGBM/GBDT model trainer
-│       │   ├── benchmark_models.py        # 7-model comparative benchmark suite
-│       │   └── models/cashout_model.pkl   # Serialized champion model bundle
-│       └── docs/                       # Runbooks, Error Catalogs & Evaluation Guides
+│       │   └── src/                    # Screens, Leaflet map, terminal, and dossier components
+│       └── ml/                         # Machine Learning Pipeline
+│           ├── generate_synthetic_data.py # 18,000 complaints, PMLA structuring, real OSM ATMs
+│           ├── train_and_serialize.py     # CatBoost & ensemble pipeline trainer
+│           ├── benchmark_models.py        # 7-model comparative benchmark suite
+│           └── models/cashout_model.pkl   # Serialized champion model bundle
 ```
 
 ---
@@ -142,7 +156,7 @@ pip install -r requirements.txt
 ```powershell
 python ml\train_and_serialize.py
 ```
-*Expected Output: Fits 32-feature pipeline, calibrates the 0.259 F1-optimal threshold, and bundles `ml\models\cashout_model.pkl`.*
+*Expected Output: Fits 32-feature pipeline, calibrates the 0.444 F1-optimal threshold (CatBoost Champion, out-of-sample PR-AUC 0.875, ROC-AUC 0.906), and bundles `ml\models\cashout_model.pkl`.*
 
 ### Step 4.5: Install Frontend Dependencies & Compile Bundle
 ```powershell
@@ -367,7 +381,9 @@ This script exercises:
 - SQLite transactional outbox & circuit breaker state machine
 - REST API endpoint integration tests
 
-### Health Check Endpoint:
+### Health & Diagnostic Check Endpoints:
+
+1. **System Liveness Check:**
 ```bash
 curl -s http://localhost:8000/health
 ```
@@ -381,6 +397,23 @@ Expected JSON response:
 }
 ```
 
+2. **ML Model Diagnostic Probe (Fail-Closed Architecture):**
+```bash
+curl -s http://localhost:8000/health/model
+```
+Expected JSON response when bundle is healthy:
+```json
+{
+  "status": "HEALTHY",
+  "primary_model": "CatBoost (Primary Operational Engine)",
+  "features_count": 32,
+  "bundle_sha256": "472bc0e386...",
+  "training_timestamp": "...",
+  "calibrated": true
+}
+```
+*(Returns `503 Service Unavailable` if the ML model artifact is missing or corrupted).*
+
 ---
 
 ## 10. Port Allocations & Endpoints
@@ -389,9 +422,11 @@ Expected JSON response:
 |---|---|---|---|
 | **`8000`** | Unified Server | Web Command Center, REST API & WebSockets | `http://localhost:8000/` |
 | **`8000`** | Swagger Docs | Interactive OpenAPI Specification | `http://localhost:8000/docs` |
-| **`8000`** | Health Probe | Liveness and readiness indicator | `http://localhost:8000/health` |
+| **`8000`** | Health Probe | System liveness probe | `http://localhost:8000/health` |
+| **`8000`** | Model Probe | Fail-closed ML model integrity probe | `http://localhost:8000/health/model` |
 | **`8000`** | Officer Auth | Session context (`Insp. R. Deshmukh #4482`) | `http://localhost:8000/api/v1/auth/session` |
 | **`5173`** | Vite Dev Server | Development mode hot-reloading | `http://localhost:5173/` |
+| **Cloud** | Hosted Demo | Render Production Container (Auto-Keepalive) | `https://sentinel-sih26184.onrender.com` |
 
 ---
 

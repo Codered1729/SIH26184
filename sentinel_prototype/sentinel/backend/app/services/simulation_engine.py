@@ -48,7 +48,7 @@ class SimulationEngine:
             ("SYSTEM_INIT", "SYS-MAH-0001", "SENTINEL core initialized with Maharashtra Regional Calibrator (RBI ATM density calibrated)", now - 1800),
             ("INTAKE_INGESTED", "CYB-MAH-2026-0819", "Raw UPI complaint ingested for Pune Hinjawadi (₹65,000.00)", now - 420),
             ("AUTHENTICITY_VERIFIED", "CYB-MAH-2026-0819", "Authenticity Gate verified OTP & bank corroboration (Score: 0.95)", now - 418),
-            ("CHAMPION_MODEL_PREDICTION", "CYB-MAH-2026-0819", "Champion GBDT (LightGBM) predicted cash-out probability 0.89 at F1-optimal 0.197", now - 415),
+            ("CHAMPION_MODEL_PREDICTION", "CYB-MAH-2026-0819", "Champion GBDT (CatBoost) predicted cash-out probability 0.91 at F1-optimal 0.444", now - 415),
             ("HAWKES_RANKING", "CYB-MAH-2026-0819", "Hawkes ATM Ranker excited cluster: ATM-MAH-PUN-00202 (HDFC Hinjawadi Phase 1)", now - 414),
             ("BNSS_NOTICE_GENERATED", "CYB-MAH-2026-0819", "Section 105 BNSS Lawful Preservation Notice issued with SHA-256 seal", now - 412),
             ("INTAKE_INGESTED", "CYB-MAH-2026-0835", "Duplicate UTR 429104829102 flagged at intake parser", now - 300),

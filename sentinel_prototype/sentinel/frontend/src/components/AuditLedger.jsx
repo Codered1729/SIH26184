@@ -249,7 +249,7 @@ export default function AuditLedger({ onRefreshParent }) {
               {stats.predictions}
             </div>
             <div style={{ fontSize: '11px', color: 'var(--color-muted)', marginTop: '3px' }}>
-              GBDT Threshold 0.197 • Sub-ms Latency
+              CatBoost Threshold 0.444 • Sub-ms Latency
             </div>
           </div>
         </div>

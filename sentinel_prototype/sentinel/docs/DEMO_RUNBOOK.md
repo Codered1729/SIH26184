@@ -57,7 +57,7 @@ Follow this 5-screen operational walkthrough:
    - Cash-Out Probability: **91%** (`CRITICAL RISK`).
    - Top-3 Plain-Language Risk Drivers: Malicious Remote Access Tool, Transaction Velocity, ATM Hawkes Intensity.
 3. Expand **Evaluated Model Comparison** to show how CatBoost compares to HistGB, XGBoost, and Random Forest.
-4. Show the interactive **Syndicate Topology Graph** (Victim $\rightarrow$ Mule 1 $\rightarrow$ Cash-Out ATM).
+4. Show the interactive **Syndicate Topology Graph** (Victim $\rightarrow$ Mule 1 $\rightarrow$ Cash-Out ATM) demonstrating exact Rupee conservation ($\Delta = ₹0.00$).
 
 ### Step 3: Localize Withdrawal Threat (Geospatial Map & Hawkes Hotspots)
 1. Click **Geospatial Map & Hotspots** on the top navigation.
@@ -90,14 +90,16 @@ Follow this 5-screen operational walkthrough:
 
 ---
 
-## 4. Emergency Recovery & Presenter Hotkeys
+## 4. Live Cloud Deployment & Presenter Hotkeys
 
-If anything unexpected occurs during live judging:
+If presenting live or unexpected local issues occur during judging:
 
+* **Live Cloud Deployment URL**: [https://sentinel-sih26184.onrender.com](https://sentinel-sih26184.onrender.com) (Deployed via multi-stage Docker container on Render, kept active by automated 10-minute GitHub Actions keepalive cron).
 * **Instant Demo Reset**: Click the **`↺ Reset Demo State`** button on the top right of the command bar. This resets all alerts, cooldowns, outbox state, and restores pristine canonical seeds in `< 500ms`.
 * **Browser Hard Refresh**: Press `Ctrl + F5` (Windows) to reload cached assets.
-* **Server Health Probe**: Open `http://localhost:8000/health` to verify FastAPI backend status (`{"status":"online"}`).
-* **Swagger Documentation**: Live interactive OpenAPI docs are accessible at `http://localhost:8000/docs`.
+* **Server Health Probe**: Open `http://localhost:8000/health` (or `https://sentinel-sih26184.onrender.com/health`) to verify FastAPI backend status (`{"status":"online"}`).
+* **Model Diagnostic Probe**: Open `http://localhost:8000/health/model` (or `https://sentinel-sih26184.onrender.com/health/model`) to verify fail-closed model readiness, bundle SHA-256 hash, and active feature count.
+* **Swagger Documentation**: Live interactive OpenAPI docs are accessible at `http://localhost:8000/docs` (or `https://sentinel-sih26184.onrender.com/docs`).
 * **Re-run Offline Verification**:
   ```bash
   python sentinel_prototype/sentinel/verify_phase4.py

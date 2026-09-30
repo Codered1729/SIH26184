@@ -198,7 +198,7 @@ def verify_phase2() -> bool:
         pass
 
     print(f"{GREEN}[PASS]{RESET} Phase 2: Champion GBDT Engine & Hawkes ATM Spatiotemporal Ranker")
-    print(f"       * Champion GBDT: Loaded from ml/models/cashout_model.pkl (threshold ~0.197-0.296)")
+    print(f"       * Champion GBDT: Loaded from ml/models/cashout_model.pkl (CatBoost calibrated threshold 0.444)")
     print(f"       * Inference Latency: {vectorized_latency_ms:.4f} ms (Vectorized benchmark < 0.03ms nominal)")
     print(f"       * Hawkes Ranker: Spatiotemporal decay kernel mathematically verified")
     print(f"       * Section 105 BNSS: Statutory hold notices & SHA-256 attestation verified")
@@ -286,9 +286,9 @@ def verify_phase4() -> bool:
     alert1 = data1["alert"]
     assert alert1["victim_city"] == "Pune"
     assert alert1["cashout_probability"] >= 0.85
-    assert alert1["champion_model"]["model_name"] == "LightGBM / GBDT (Champion)"
-    assert alert1["champion_model"]["f1_optimal_threshold"] == 0.259
-    assert alert1["champion_model"]["pr_auc"] == 0.497
+    assert alert1["champion_model"]["model_name"] == "CatBoost (Primary Operational Engine)"
+    assert alert1["champion_model"]["f1_optimal_threshold"] == 0.444
+    assert alert1["champion_model"]["pr_auc"] == 0.875
 
     # 3. Test Scenario 2: Duplicate UTR Hard-Fail
     r2 = client.post("/api/v1/simulation/trigger/duplicate_utr_fail")

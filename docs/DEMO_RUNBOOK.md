@@ -22,11 +22,11 @@ Use this lookup matrix during live judging. Trigger the scenario from the top co
 
 Keep these exact figures top of mind for technical and domain questions:
 
-* **Champion ML Model**: CatBoost / LightGBM (calibrated on 18,000 synthetic complaints calibrated to RBI/NCRP baselines)
-* **F1-Optimal Decision Cutoff**: `0.197` (optimized for recall-prioritized cyber fraud triage)
-* **Out-of-Sample PR-AUC**: `0.881` (CatBoost) | `0.497` (LightGBM baseline)
-* **Precision / Recall @ Cutoff**: Precision `88.4%` | Recall `91.8%` (deliberately captures 9 out of 10 cash-out attempts; raw ML false alarms filtered downstream by Authenticity Gate, Hawkes spatial correlation, and Human Officer review)
-* **Inference Latency**: `0.0006 ms` ($0.6\ \mu\text{s}$) vectorized CPU throughput
+* **Champion ML Model**: CatBoost (Primary Operational Engine, calibrated on 18,000 Maharashtra synthetic complaints)
+* **F1-Optimal Decision Cutoff**: `0.444` (calibrated for recall-prioritized cyber fraud triage)
+* **Out-of-Sample PR-AUC**: `0.875` (5-fold temporal walk-forward holdout validation; ROC-AUC: `0.906`)
+* **Precision / Recall @ Cutoff**: Precision `77.5%` | Recall `80.6% – 85.8%` (deliberately captures 4 out of 5 cash-out attempts; raw ML false alarms filtered downstream by Authenticity Gate, Hawkes spatial correlation, and Human Officer review)
+* **Inference Latency**: `0.0006 ms` (`0.6 µs`) CPU oblivious tree inference | Hawkes 1,000 ATM vector ranking: `0.76 ms – 1.54 ms`
 * **Situational Dynamic Golden Windows**:
   * **UPI Single-Hop**: `18 – 25 minutes`
   * **Multi-Hop Mule Chains**: `35 – 45 minutes`
@@ -47,25 +47,22 @@ Follow this 5-screen operational walkthrough:
 
 ### Step 1: Ingest Live Fraud (Priority Queue)
 1. Click **`⚡ Pune Genuine UPI`** on the top command bar.
-2. The UI automatically switches to **Priority Queue** and highlights `CYB-MAH-2026-0819` with an active pulsing border.
-3. Point out the **Fresh Single-Hop (90s ago)**, **20m Dynamic Golden Window** countdown timer, and **₹78,000** amount.
-4. Highlight that **₹0 cashout has occurred yet**, meaning 100% of the stolen capital is intact and recoverable.
+2. The UI automatically switches to **Priority Queue** and highlights `CYB-MAH-2026-0901` with an active pulsing border.
+3. Point out the **20m Dynamic Golden Window** countdown timer and **₹78,000** amount.
 
-### Step 2: Investigate Risk Drivers (Case Dossier & Hierarchical Graph)
+### Step 2: Investigate Risk Drivers (Case Dossier & Champion Model)
 1. Click on the alert card to open the **Case Dossier**.
 2. Point to the **Primary AI Forecaster Card**:
-   - Primary Engine: **CatBoost / LightGBM** (F1-optimal threshold 0.197, PR-AUC 0.881, 0.6 $\mu\text{s}$ latency).
+   - Primary Engine: **CatBoost** (F1-optimal threshold 0.444, Out-of-Sample PR-AUC 0.875, ROC-AUC 0.906, 0.0006ms latency).
    - Cash-Out Probability: **91%** (`CRITICAL RISK`).
-   - Top-3 Plain-Language Risk Drivers: Fresh UPI transaction, High Hawkes Excitation, Shared Mule Device Cluster.
-3. Show the interactive **Hierarchical Structuring Subgraph**:
-   - Single-Hop direct transfer with exact Rupee conservation ($\Delta = ₹0.00$).
-   - Shows ₹51,480 Active Threat runway and ₹26,520 BNSS §106 Preservation Lien.
-4. Toggle to **Linear Trajectory** to show the 4-node velocity flow.
+   - Top-3 Plain-Language Risk Drivers: Malicious Remote Access Tool, Transaction Velocity, ATM Hawkes Intensity.
+3. Expand **Evaluated Model Comparison** to show how CatBoost compares to HistGB, XGBoost, and Random Forest.
+4. Show the interactive **Syndicate Topology Graph** (Victim $\rightarrow$ Mule 1 $\rightarrow$ Cash-Out ATM) demonstrating exact Rupee conservation ($\Delta = ₹0.00$).
 
 ### Step 3: Localize Withdrawal Threat (Geospatial Map & Hawkes Hotspots)
 1. Click **Geospatial Map & Hotspots** on the top navigation.
 2. Observe the Leaflet map centered on Maharashtra:
-   - Pulsing red rings at **Hinjawadi Phase 1 HDFC ATM** (Hawkes self-exciting point-process intensity `0.92`).
+   - Pulsing red rings at **Hinjawadi Phase 1 HDFC ATM** (Hawkes self-exciting point-process intensity `0.94`).
    - Interception guidance with nearest police patrol unit ETA.
 3. Click the dispatch button — demonstrate the **15-minute suppression cooldown** preventing duplicate patrol unit alerts.
 
@@ -84,7 +81,7 @@ Follow this 5-screen operational walkthrough:
    - Click **Inspect** on any log entry to view the raw SHA-256 hash verification modal.
 
 ### Step 6: Direct Objection Buster (Sybil Attack / Fake Complaint)
-1. Click **`🛡️ Duplicate UTR`** on the top bar (`CYB-MAH-2026-0835`).
+1. Click **`🛡️ Duplicate UTR`** on the top bar.
 2. Show the Priority Queue `Held for Review` tab:
    - Authenticity score drops instantly to **0.00**.
    - Status: `HELD_FOR_REVIEW`.
@@ -93,15 +90,17 @@ Follow this 5-screen operational walkthrough:
 
 ---
 
-## 4. Emergency Recovery & Presenter Hotkeys
+## 4. Live Cloud Deployment & Presenter Hotkeys
 
-If anything unexpected occurs during live judging:
+If presenting live or unexpected local issues occur during judging:
 
+* **Live Cloud Deployment URL**: [https://sentinel-sih26184.onrender.com](https://sentinel-sih26184.onrender.com) (Deployed via multi-stage Docker container on Render, kept active by automated 10-minute GitHub Actions keepalive cron).
 * **Instant Demo Reset**: Click the **`↺ Reset Demo State`** button on the top right of the command bar. This resets all alerts, cooldowns, outbox state, and restores pristine canonical seeds in `< 500ms`.
 * **Browser Hard Refresh**: Press `Ctrl + F5` (Windows) to reload cached assets.
-* **Server Health Probe**: Open `http://localhost:8000/health` to verify FastAPI backend status (`{"status":"online"}`).
-* **Swagger Documentation**: Live interactive OpenAPI docs are accessible at `http://localhost:8000/docs`.
+* **Server Health Probe**: Open `http://localhost:8000/health` (or `https://sentinel-sih26184.onrender.com/health`) to verify FastAPI backend status (`{"status":"online"}`).
+* **Model Diagnostic Probe**: Open `http://localhost:8000/health/model` (or `https://sentinel-sih26184.onrender.com/health/model`) to verify fail-closed model readiness, bundle SHA-256 hash, and active feature count.
+* **Swagger Documentation**: Live interactive OpenAPI docs are accessible at `http://localhost:8000/docs` (or `https://sentinel-sih26184.onrender.com/docs`).
 * **Re-run Offline Verification**:
   ```bash
-  python sentinel_prototype/sentinel/run_all_tests.py
+  python sentinel_prototype/sentinel/verify_phase4.py
   ```

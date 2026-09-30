@@ -9,6 +9,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React 18](https://img.shields.io/badge/React-18.0-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 This document provides complete, cross-platform installation, configuration, and execution instructions for the **SENTINEL** prototype across **Windows**, **Linux**, **macOS**, and **Docker**.
 
@@ -16,15 +17,16 @@ This document provides complete, cross-platform installation, configuration, and
 
 ## Table of Contents
 1. [System Prerequisites & Requirements](#1-system-prerequisites--requirements)
-2. [Quick Start (One-Click Launchers)](#2-quick-start-one-click-launchers)
-3. [Windows Installation Guide (Manual Step-by-Step)](#3-windows-installation-guide-manual-step-by-step)
-4. [Linux Installation Guide (Ubuntu / Debian / RHEL / Arch)](#4-linux-installation-guide-ubuntu--debian--rhel--arch)
-5. [macOS Installation Guide (Apple Silicon & Intel)](#5-macos-installation-guide-apple-silicon--intel)
-6. [Docker & Containerized Deployment](#6-docker--containerized-deployment)
-7. [Dual Execution Modes (Production vs. Development)](#7-dual-execution-modes-production-vs-development)
-8. [Verification Suite & Health Checks](#8-verification-suite--health-checks)
-9. [Port Allocations & Endpoints](#9-port-allocations--endpoints)
-10. [Troubleshooting & Common Questions](#10-troubleshooting--common-questions)
+2. [Project Architecture & Directory Layout](#2-project-architecture--directory-layout)
+3. [Quick Start (One-Click Launchers)](#3-quick-start-one-click-launchers)
+4. [Windows Installation Guide (Manual Step-by-Step)](#4-windows-installation-guide-manual-step-by-step)
+5. [Linux Installation Guide (Ubuntu / Debian / RHEL / Arch)](#5-linux-installation-guide-ubuntu--debian--rhel--arch)
+6. [macOS Installation Guide (Apple Silicon & Intel)](#6-macos-installation-guide-apple-silicon--intel)
+7. [Docker & Containerized Deployment](#7-docker--containerized-deployment)
+8. [Dual Execution Modes (Production vs. Development)](#8-dual-execution-modes-production-vs-development)
+9. [Verification Suite & Health Checks](#9-verification-suite--health-checks)
+10. [Port Allocations & Endpoints](#10-port-allocations--endpoints)
+11. [Troubleshooting & Common Questions](#11-troubleshooting--common-questions)
 
 ---
 
@@ -47,7 +49,58 @@ This document provides complete, cross-platform installation, configuration, and
 
 ---
 
-## 2. Quick Start (One-Click Launchers)
+## 2. Project Architecture & Directory Layout
+
+```
+SIH26184/
+├── Dockerfile                          # Multi-stage production container build (Root context)
+├── render.yaml                         # Render Infrastructure-as-Code Blueprint
+├── .github/
+│   └── workflows/
+│       └── keepalive.yml               # Automated 10-minute cron keepalive auto-pinger
+├── README.md                           # Master System Specification & Architecture
+├── README_COMPREHENSIVE.md             # Comprehensive Architecture & Empirical Evaluation
+├── INSTALLATION.md                     # Cross-platform installation & deployment guide
+├── ENTERPRISE_HARDENING_README.md      # Enterprise hardening & resilience report
+├── docs/
+│   ├── PREVIOUS_VS_CURRENT_IMPLEMENTATION.md # 8-dimension comparative evolution deep-dive
+│   ├── DESIGN_DECISIONS_AND_METRICS.md       # Quantitative metrics & mathematical choices
+│   ├── HOSTING_AND_DEPLOYMENT_GUIDE.md       # Cloud, On-Premise, and GovCloud runbook
+│   ├── DEMO_RUNBOOK.md                       # 3-minute operational presentation cheat sheet
+│   ├── ERROR_CATALOG.md                      # Failure modes, mitigation, and reverification log
+│   └── RESEARCH_AND_SOURCES.md               # Legal grounding (BNSS/BSA 2023) and empirical citations
+├── sentinel_prototype/
+│   └── sentinel/
+│       ├── Dockerfile                  # Prototype-scoped container build
+│       ├── docker-compose.yml          # Container orchestration configuration
+│       ├── requirements.txt            # Unified Python dependencies (CatBoost, XGBoost, SHAP, Scipy)
+│       ├── start_sentinel.bat          # Windows one-click automated launcher
+│       ├── start_sentinel.sh           # Linux / macOS automated shell launcher
+│       ├── verify_phase4.py            # Master system reverification harness
+│       ├── run_all_tests.py            # 22-module offline verification runner
+│       ├── backend/                    # FastAPI ASGI Application
+│       │   ├── requirements.txt        # Backend dependencies
+│       │   └── app/
+│       │       ├── main.py             # Server entrypoint & SPA static asset mount
+│       │       ├── routers/            # 6 Modular sub-routers (alerts, notices, hotspots, simulation, graph, health)
+│       │       ├── schemas/            # Strict Pydantic v2 data contracts
+│       │       ├── core/               # Resilience, SQLite outbox & global state
+│       │       ├── services/           # CatBoost predictor, TreeSHAP, Hawkes ranker, BNSS notices
+│       │       └── adapters/           # Graph store & SHA-256 hash ledger
+│       ├── frontend/                   # React 18 + Vite GovTech Dashboard
+│       │   ├── package.json            # Frontend dependencies
+│       │   ├── vite.config.js          # Build & proxy configuration
+│       │   └── src/                    # Screens, Leaflet map, terminal, and dossier components
+│       └── ml/                         # Machine Learning Pipeline
+│           ├── generate_synthetic_data.py # 18,000 complaints, PMLA structuring, real OSM ATMs
+│           ├── train_and_serialize.py     # CatBoost & ensemble pipeline trainer
+│           ├── benchmark_models.py        # 7-model comparative benchmark suite
+│           └── models/cashout_model.pkl   # Serialized champion model bundle
+```
+
+---
+
+## 3. Quick Start (One-Click Launchers)
 
 For rapid evaluation and hackathon live judging, automated single-server launchers are provided:
 
@@ -73,98 +126,174 @@ chmod +x start_sentinel.sh
 
 ---
 
-## 3. Windows Installation Guide (Manual Step-by-Step)
+## 4. Windows Installation Guide (Manual Step-by-Step)
 
-### Step 3.1: Setup Python Virtual Environment
-Open PowerShell in this directory:
+### Step 4.1: Clone the Repository
+Open PowerShell or Windows Terminal:
+```powershell
+git clone https://github.com/Codered1729/SIH26184.git
+cd SIH26184\sentinel_prototype\sentinel
+```
+
+### Step 4.2: Setup Python Virtual Environment
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
-> **Note on PowerShell Execution Policy:** If you receive an error stating `running scripts is disabled on this system`, run:
+> **Note on PowerShell Execution Policy:** If you receive an error stating `running scripts is disabled on this system`, allow script execution for your session by running:
 > ```powershell
 > Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 > .\venv\Scripts\Activate.ps1
 > ```
 
-### Step 3.2: Install Python Dependencies
+### Step 4.3: Install Python Dependencies
 ```powershell
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Step 3.3: Verify or Train ML Model Bundle
+### Step 4.4: Verify or Train ML Model Bundle
 ```powershell
 python ml\train_and_serialize.py
 ```
+*Expected Output: Fits 32-feature pipeline, calibrates the 0.444 F1-optimal threshold (CatBoost Champion, out-of-sample PR-AUC 0.875, ROC-AUC 0.906), and bundles `ml\models\cashout_model.pkl`.*
 
-### Step 3.4: Install Frontend Dependencies & Compile Bundle
+### Step 4.5: Install Frontend Dependencies & Compile Bundle
 ```powershell
 cd frontend
 npm install
 npm run build
 cd ..
 ```
+*The compiled single-page application will be placed into `frontend\dist\`.*
 
-### Step 3.5: Run the Offline Master Test Suite
+### Step 4.6: Run the Offline Master Test Suite
 ```powershell
 python verify_phase4.py
 ```
+*All 22 test modules should pass in under 4 seconds.*
 
-### Step 3.6: Launch the Server
+### Step 4.7: Launch the Server
 ```powershell
 cd backend
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
-Open browser to: **`http://localhost:8000/`**
+Open your browser and navigate to: **`http://localhost:8000/`**
 
 ---
 
-## 4. Linux Installation Guide (Ubuntu / Debian / RHEL / Arch)
+## 5. Linux Installation Guide (Ubuntu / Debian / RHEL / Arch)
 
-### Step 4.1: Install System Packages
+### Step 5.1: Install System Packages
+
+**Ubuntu / Debian:**
 ```bash
-# Ubuntu / Debian:
-sudo apt-get update && sudo apt-get install -y python3 python3-pip python3-venv nodejs npm git curl
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip python3-venv nodejs npm git curl
+```
 
-# Fedora / RHEL:
+**Fedora / RHEL / CentOS Stream:**
+```bash
 sudo dnf install -y python3 python3-pip nodejs npm git curl
+```
 
-# Arch Linux:
+**Arch Linux:**
+```bash
 sudo pacman -Syu python python-pip nodejs npm git curl
 ```
 
-### Step 4.2: Setup Virtual Environment & Install Dependencies
+### Step 5.2: Clone & Enter Directory
+```bash
+git clone https://github.com/Codered1729/SIH26184.git
+cd SIH26184/sentinel_prototype/sentinel
+```
+
+### Step 5.3: Create and Activate Virtual Environment
 ```bash
 python3 -m venv venv
 source venv/bin/activate
+```
+
+### Step 5.4: Install Python Dependencies
+```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Step 4.3: Train Model & Build Frontend
+### Step 5.5: Train Model & Build Frontend
 ```bash
+# Train ML Model
 python3 ml/train_and_serialize.py
-cd frontend && npm install && npm run build && cd ..
+
+# Build Frontend Bundle
+cd frontend
+npm install
+npm run build
+cd ..
 ```
 
-### Step 4.4: Verify & Launch
+### Step 5.6: Verify System Health
 ```bash
 python3 verify_phase4.py
-cd backend && python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### Step 5.7: Run Server
+```bash
+cd backend
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### Optional: Running as a Persistent Systemd Daemon
+To run SENTINEL automatically in the background on a Linux server:
+
+1. Create a service file `/etc/systemd/system/sentinel.service`:
+```ini
+[Unit]
+Description=SENTINEL Cyber Fraud ATM Forecaster
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/SIH26184/sentinel_prototype/sentinel/backend
+ExecStart=/home/ubuntu/SIH26184/sentinel_prototype/sentinel/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+2. Reload systemd and start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now sentinel
+sudo systemctl status sentinel
 ```
 
 ---
 
-## 5. macOS Installation Guide (Apple Silicon & Intel)
+## 6. macOS Installation Guide (Apple Silicon & Intel)
 
+### Step 6.1: Prerequisites via Homebrew
+If you do not have Homebrew installed, install it from [brew.sh](https://brew.sh):
 ```bash
-# Install Homebrew dependencies
 brew install python@3.11 node git
+```
 
+### Step 6.2: Clone & Navigate
+```bash
+git clone https://github.com/Codered1729/SIH26184.git
+cd SIH26184/sentinel_prototype/sentinel
+```
+
+### Step 6.3: Environment Setup & Execution
+```bash
 # Setup virtualenv
 python3 -m venv venv
 source venv/bin/activate
+
+# Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 
@@ -175,52 +304,179 @@ cd frontend && npm install && npm run build && cd ..
 # Verify system
 python3 verify_phase4.py
 
-# Launch server
+# Launch
 cd backend
 python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
+Open **`http://localhost:8000/`** in Safari, Chrome, or Firefox.
 
 ---
 
-## 6. Docker & Containerized Deployment
+## 7. Docker & Containerized Deployment
 
+SENTINEL contains a multi-stage Docker build that compiles the frontend and packages the Python FastAPI backend in a single lightweight container.
+
+### Prerequisites
+- Docker Engine `20.10+` and Docker Compose `v2+` installed.
+
+### Step 7.1: Build & Run
+From `sentinel_prototype/sentinel/`:
 ```bash
-# Single command to build and run containerized SENTINEL:
 docker compose up --build
 ```
-Access at `http://localhost:8000/`.
+Or build the image directly:
+```bash
+docker build -t sentinel-sih:latest .
+docker run -p 8000:8000 --name sentinel-app sentinel-sih:latest
+```
+
+### Step 7.2: Access
+- Open **`http://localhost:8000/`** in your browser.
+- All dependencies, static builds, and model artifacts are bundled inside the container.
 
 ---
 
-## 7. Dual Execution Modes (Production vs. Development)
+## 8. Dual Execution Modes (Production vs. Development)
 
-- **Production Mode (Port 8000):** FastAPI serves compiled React frontend and REST API simultaneously.
-- **Development Mode (Ports 8000 & 5173):** Run `uvicorn app.main:app --reload --port 8000` in `backend/` and `npm run dev` in `frontend/` for instant hot module reloading.
+### Mode A: Production / Judging Mode (Single Port: `8000`)
+- **FastAPI ASGI Server** serves both the compiled React frontend from `frontend/dist/` and the `/api/v1` endpoints.
+- Recommended for demonstrations, judging, and field deployment.
+- **URL:** `http://localhost:8000/`
+
+### Mode B: Active Development Mode (Hot-Reloading)
+For developing UI components with Vite hot module replacement (HMR):
+
+1. **Terminal 1 (Backend ASGI):**
+   ```bash
+   cd sentinel_prototype/sentinel/backend
+   uvicorn app.main:app --reload --port 8000
+   ```
+2. **Terminal 2 (Frontend Vite Server):**
+   ```bash
+   cd sentinel_prototype/sentinel/frontend
+   npm run dev
+   ```
+   *Vite will start on `http://localhost:5173/` and automatically proxy API calls to port `8000`.*
 
 ---
 
-## 8. Verification Suite & Health Checks
+## 9. Verification Suite & Health Checks
 
-- **Full Verification Suite:** `python verify_phase4.py` (verifies all 22 components in ~4s).
-- **Health Check Endpoint:** `curl -s http://localhost:8000/health`
-- **Interactive Swagger Docs:** `http://localhost:8000/docs`
+Verify that all algorithmic components and sub-systems are operating at 100% capacity:
+
+### Run Full Test Harness:
+```bash
+python verify_phase4.py
+```
+This script exercises:
+- Synthetic data generation and calibrated RBI distributions
+- 4-fold walk-forward cross-validation
+- 32-feature LightGBM/GBDT model serialization
+- NLP intake entity extraction (precision & recall)
+- 4-layer defense-in-depth authenticity gate (duplicate UTR blocking)
+- Hawkes self-exciting point-process ranking
+- Dynamic Bayesian silence decay (45m window)
+- Composite priority scoring engine
+- Statutory BNSS 2023 lawful notice generator & BSA 2023 SHA-256 hash seal
+- SQLite transactional outbox & circuit breaker state machine
+- REST API endpoint integration tests
+
+### Health & Diagnostic Check Endpoints:
+
+1. **System Liveness Check:**
+```bash
+curl -s http://localhost:8000/health
+```
+Expected JSON response:
+```json
+{
+  "status": "online",
+  "system": "SENTINEL",
+  "region": "Maharashtra State Cyber Command",
+  "version": "1.0.0"
+}
+```
+
+2. **ML Model Diagnostic Probe (Fail-Closed Architecture):**
+```bash
+curl -s http://localhost:8000/health/model
+```
+Expected JSON response when bundle is healthy:
+```json
+{
+  "status": "HEALTHY",
+  "primary_model": "CatBoost (Primary Operational Engine)",
+  "features_count": 32,
+  "bundle_sha256": "472bc0e386...",
+  "training_timestamp": "...",
+  "calibrated": true
+}
+```
+*(Returns `503 Service Unavailable` if the ML model artifact is missing or corrupted).*
 
 ---
 
-## 9. Port Allocations & Endpoints
+## 10. Port Allocations & Endpoints
 
 | Port | Service | Purpose | URL |
 |---|---|---|---|
 | **`8000`** | Unified Server | Web Command Center, REST API & WebSockets | `http://localhost:8000/` |
 | **`8000`** | Swagger Docs | Interactive OpenAPI Specification | `http://localhost:8000/docs` |
-| **`8000`** | Health Probe | Liveness and readiness indicator | `http://localhost:8000/health` |
+| **`8000`** | Health Probe | System liveness probe | `http://localhost:8000/health` |
+| **`8000`** | Model Probe | Fail-closed ML model integrity probe | `http://localhost:8000/health/model` |
+| **`8000`** | Officer Auth | Session context (`Insp. R. Deshmukh #4482`) | `http://localhost:8000/api/v1/auth/session` |
 | **`5173`** | Vite Dev Server | Development mode hot-reloading | `http://localhost:5173/` |
+| **Cloud** | Hosted Demo | Render Production Container (Auto-Keepalive) | `https://sentinel-sih26184.onrender.com` |
 
 ---
 
-## 10. Troubleshooting & Common Questions
+## 11. Troubleshooting & Common Questions
 
-1. **Port 8000 busy:** Use `uvicorn app.main:app --host 0.0.0.0 --port 8080` or kill the existing process.
-2. **Missing `cashout_model.pkl`:** Run `python ml/train_and_serialize.py`.
-3. **Blank screen on localhost:8000:** Run `npm run build` in `frontend/` to generate `dist/`.
-4. **PowerShell execution policy:** Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`.
+### Q1: Port 8000 is already in use
+**Symptoms:** `ERROR: [Errno 10048] error while attempting to bind on address ('0.0.0.0', 8000)`
+- **Windows:** Check and terminate the process holding port 8000:
+  ```powershell
+  Get-Process -Id (Get-NetTCPConnection -LocalPort 8000).OwningProcess | Stop-Process -Force
+  ```
+- **Linux/macOS:**
+  ```bash
+  sudo lsof -i :8000 -t | xargs kill -9
+  ```
+- Alternatively, launch on a custom port:
+  ```bash
+  uvicorn app.main:app --host 0.0.0.0 --port 8080
+  ```
+
+### Q2: Missing `cashout_model.pkl`
+**Symptoms:** `FileNotFoundError: ml/models/cashout_model.pkl`
+- Train and serialize the model:
+  ```bash
+  python ml/train_and_serialize.py
+  ```
+
+### Q3: React Frontend shows blank white page
+**Symptoms:** Accessing `http://localhost:8000/` returns an empty screen.
+- Verify that `frontend/dist/index.html` exists. If not, build it:
+  ```bash
+  cd frontend
+  npm install
+  npm run build
+  cd ..
+  ```
+
+### Q4: PowerShell Execution Policy Warning
+**Symptoms:** `.\venv\Scripts\Activate.ps1 cannot be loaded because running scripts is disabled`
+- Run PowerShell with temporary bypass:
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  .\venv\Scripts\Activate.ps1
+  ```
+
+### Q5: Outbox or Database Lock
+**Symptoms:** `sqlite3.OperationalError: database is locked`
+- SENTINEL uses SQLite with WAL (Write-Ahead Logging). If a crash left a lock, remove `.outbox.db` and `.outbox.db-journal` in the working directory; SENTINEL will re-initialize an empty outbox automatically.
+
+---
+
+### Need Further Assistance?
+Refer to the master system specification in [README.md](file:///c:/sih/README.md) or the presenter cheat sheet in [sentinel_prototype/sentinel/docs/DEMO_RUNBOOK.md](file:///c:/sih/sentinel_prototype/sentinel/docs/DEMO_RUNBOOK.md).
