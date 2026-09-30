@@ -69,11 +69,8 @@ def run_hawkes_validation(num_episodes=500, seed=42):
             distances.sort(key=lambda x: x[0])
             nearby = [(distances[0][1], distances[0][0])]
 
-        # Target ATM B chosen by runner (biased toward closer ATMs)
-        weights = [math.exp(-d / 2.0) for _, d in nearby]
-        tot = sum(weights)
-        probs = [w / tot for w in weights]
-        target_atm = np.random.choice([a for a, _ in nearby], p=probs)
+        # Ground truth: uniform random from nearby ATMs (independent of ranker kernel)
+        target_atm = random.choice([a for a, _ in nearby])
         target_id = target_atm["atm_id"]
 
         # Time of second withdrawal: 3 to 15 minutes after first

@@ -25,14 +25,18 @@ from sklearn.ensemble import (
     HistGradientBoostingClassifier,
     RandomForestClassifier,
 )
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import (
     average_precision_score,
+    brier_score_loss,
     f1_score,
     precision_recall_curve,
     precision_score,
     recall_score,
+    roc_auc_score,
 )
 from sklearn.preprocessing import OneHotEncoder
+from scipy.stats import ks_2samp
 
 warnings.filterwarnings("ignore")
 
@@ -76,6 +80,16 @@ def compute_opt_threshold(y_true, y_probs):
     return float(opt_t)
 
 
+def compute_ece(y_true, y_prob, n_bins=10):
+    bins = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    for i in range(n_bins):
+        mask = (y_prob >= bins[i]) & (y_prob < bins[i+1])
+        if mask.sum() > 0:
+            ece += mask.sum() * abs(float(y_true[mask].mean()) - float(y_prob[mask].mean()))
+    return float(ece / max(len(y_true), 1))
+
+
 def train_and_serialize():
     print("=" * 70)
     print("SENTINEL Multi-Model Training & Serialization")
@@ -98,6 +112,15 @@ def train_and_serialize():
     X.columns = [str(c).replace("[", "").replace("]", "").replace("<", "") for c in X.columns]
     feature_names = list(X.columns)
     y = df[TARGET].values
+
+    # Temporal split: sort by day to prevent train-set leakage
+    # Metrics evaluated on temporal holdout (last 20% by day) — not training data
+    sort_idx = df['day'].argsort().values
+    X_sorted = X.iloc[sort_idx].reset_index(drop=True)
+    y_sorted = y[sort_idx]
+    split = int(len(X_sorted) * 0.80)
+    X_train, X_test = X_sorted.iloc[:split], X_sorted.iloc[split:]
+    y_train, y_test = y_sorted[:split], y_sorted[split:]
 
     # 2. Define All Candidate Models
     models_dict = {
@@ -162,32 +185,38 @@ def train_and_serialize():
     metrics = {}
     feature_importances = {}
 
-    print(f"\nTraining all {len(models_dict)} models on {len(X):,} samples with {len(feature_names)} features...\n")
-    print(f"{'Model':<25} {'PR-AUC':<10} {'Opt-Thresh':<12} {'F1-Opt':<10} {'Recall':<10} {'Time':<8}")
-    print("-" * 75)
+    print(f"\nTraining all {len(models_dict)} models on {len(X_train):,} train samples, evaluating on {len(X_test):,} holdout samples ({len(feature_names)} features)...\n")
+    print(f"{'Model':<25} {'PR-AUC':<9} {'ROC-AUC':<9} {'KS-Stat':<9} {'ECE':<8} {'Opt-Th':<8} {'F1-Opt':<8} {'Time':<6}")
+    print("-" * 88)
 
     for name, clf in models_dict.items():
         t0 = time.time()
-        clf.fit(X, y)
+        clf.fit(X_train, y_train)
         train_time = time.time() - t0
 
         if hasattr(clf, "predict_proba"):
-            probs = clf.predict_proba(X)[:, 1]
+            probs = clf.predict_proba(X_test)[:, 1]
         else:
-            probs = clf.decision_function(X)
+            probs = clf.decision_function(X_test)
 
-        opt_th = compute_opt_threshold(y, probs)
+        opt_th = compute_opt_threshold(y_test, probs)
         preds_opt = (probs >= opt_th).astype(int)
 
-        pr_auc = float(average_precision_score(y, probs))
-        f1_opt = float(f1_score(y, preds_opt))
-        rec_opt = float(recall_score(y, preds_opt))
-        prec_opt = float(precision_score(y, preds_opt))
+        pr_auc = float(average_precision_score(y_test, probs))
+        f1_opt = float(f1_score(y_test, preds_opt))
+        rec_opt = float(recall_score(y_test, preds_opt))
+        prec_opt = float(precision_score(y_test, preds_opt))
+        roc_auc = float(roc_auc_score(y_test, probs))
+        ks_stat = float(ks_2samp(probs[y_test == 1], probs[y_test == 0]).statistic)
+        ece = compute_ece(y_test, probs)
 
         trained_models[name] = clf
         thresholds[name] = opt_th
         metrics[name] = {
             "pr_auc": pr_auc,
+            "roc_auc": roc_auc,
+            "ks_statistic": ks_stat,
+            "ece": ece,
             "opt_threshold": opt_th,
             "f1_score": f1_opt,
             "recall": rec_opt,
@@ -205,14 +234,40 @@ def train_and_serialize():
         else:
             feature_importances[name] = {}
 
-        print(f"{name:<25} {pr_auc:<10.3f} {opt_th:<12.3f} {f1_opt:<10.3f} {rec_opt:<10.3f} {train_time:.2f}s")
+        print(f"{name:<25} {pr_auc:<9.3f} {roc_auc:<9.3f} {ks_stat:<9.3f} {ece:<8.3f} {opt_th:<8.3f} {f1_opt:<8.3f} {train_time:.2f}s")
 
-    # 3. Create Serialized Bundle
-    # Primary model explicitly locked to LightGBM (Primary Operational Engine)
-    primary_model_name = "LightGBM" if "LightGBM" in trained_models else "HistGradientBoosting"
+    # 3. Apply Isotonic Calibration to Primary Model
+    primary_model_name = "LightGBM" if "LightGBM" in trained_models else ("CatBoost" if "CatBoost" in trained_models else list(trained_models.keys())[0])
+
+    cal_split = int(len(X_train) * 0.90)
+    X_cal_train = X_train.iloc[:cal_split]
+    y_cal_train = y_train[:cal_split]
+    X_cal_val = X_train.iloc[cal_split:]
+    y_cal_val = y_train[cal_split:]
+
+    primary_clf = trained_models[primary_model_name].__class__(**trained_models[primary_model_name].get_params())
+    primary_clf.fit(X_cal_train, y_cal_train)
+
+    try:
+        from sklearn.frozen import FrozenEstimator
+        calibrated_clf = CalibratedClassifierCV(estimator=FrozenEstimator(primary_clf), method='isotonic')
+    except (ImportError, Exception):
+        calibrated_clf = CalibratedClassifierCV(estimator=primary_clf, method='isotonic', cv='prefit')
+    calibrated_clf.fit(X_cal_val, y_cal_val)
+
+    raw_probs = trained_models[primary_model_name].predict_proba(X_test)[:, 1]
+    cal_probs = calibrated_clf.predict_proba(X_test)[:, 1]
+    brier_raw = float(brier_score_loss(y_test, raw_probs))
+    brier_cal = float(brier_score_loss(y_test, cal_probs))
+    print(f"\nCalibration ({primary_model_name}): Brier score {brier_raw:.4f} -> {brier_cal:.4f}")
+
+    # 4. Create Serialized Bundle
     bundle = {
         "models": trained_models,
         "primary_model_name": primary_model_name,
+        "calibrated_model": calibrated_clf,
+        "calibrated_model_name": primary_model_name + "_isotonic",
+        "brier_calibrated": brier_cal,
         "encoder": encoder,
         "num_cols": NUM_COLS,
         "cat_cols": CAT_COLS,

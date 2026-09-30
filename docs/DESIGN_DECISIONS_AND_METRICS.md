@@ -39,13 +39,15 @@ To resolve these challenges, every design decision in SENTINEL is grounded in **
 
 ---
 
-### Decision 3: F1-Optimal Decision Threshold (0.197) vs. Default 0.50
-- **Problem:** In severe class imbalance (only $\approx 28\%$ of complaints reach physical ATM cashout within the golden window), applying standard default threshold ($p \ge 0.50$) results in massive false negatives — missing active cashouts.
+### Decision 3: F1-Optimal Decision Threshold (0.349) vs. Default 0.50
+> **Note (2026-09-30):** Metrics below reflect holdout-validated figures. Earlier figures were training-set evaluations.
+
+- **Problem:** In operational cybercrime dispatch, positive cashouts account for $\approx 38\text{--}42\%$ of multi-hop incidents. Applying standard default threshold ($p \ge 0.50$) produces conservative decisions that under-recall rapidly escaping runners.
 - **Solution:** Grid-search optimization across Precision-Recall curve to identify the operational F1-optimal threshold:
-  $$\tau^* = \arg\max_{\tau} F_1(\tau) = 0.197$$
+  $$\tau^* = \arg\max_{\tau} F_1(\tau) \approx 0.349$$
 - **Operational Reality:**
-  - At $\tau = 0.50$: Precision is high ($88.4\%$), but Recall drops to $61.2\%$ (missing 4 out of 10 cashouts).
-  - At $\tau = 0.197$: Recall surges to **$91.8\%$** while maintaining actionable precision ($78.4\%$), ensuring police dispatch units are mobilized for nearly all recoverable cashouts.
+  - At $\tau = 0.50$: Precision is $80.7\%$, but Recall is $75.1\%$ ($F_1 = 0.778$).
+  - At $\tau = 0.349$: Recall surges to **$85.8\%$** while maintaining actionable precision ($73.6\%$, $F_1 = 0.792$), ensuring police dispatch units are mobilized for critical recoverable cashouts.
 
 ---
 
@@ -116,16 +118,27 @@ The cashout prediction engine was benchmarked across 7 distinct algorithm archit
 
 ### 7-Model Benchmark Matrix
 
-| Model Architecture | Precision | Recall | F1 Score | PR-AUC | ROC-AUC | Brier Score | Latency ($\mu\text{s}$) | Memory | Rank |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **CatBoost (Oblivious Trees)** | **0.8841** | **0.7812** | **0.8295** | **0.8812** | **0.9142** | **0.1745** | **0.6** | 35 KB | 🏆 **Production Model** |
-| **LightGBM (GBDT)** | 0.8624 | 0.7705 | 0.8138 | 0.8690 | 0.9081 | 0.1812 | 1.2 | 48 KB | **Runner-Up** |
-| **XGBoost (Depth-Wise)** | 0.8519 | 0.7640 | 0.8055 | 0.8584 | 0.9015 | 0.1865 | 1.8 | 62 KB | **3rd Place** |
-| **Random Forest (100 Trees)** | 0.8210 | 0.7240 | 0.7694 | 0.5260 | 0.8540 | 0.2045 | 14.5 | 4.2 MB | Baseline |
-| **Logistic Regression (L2)** | 0.6912 | 0.6120 | 0.6492 | 0.4410 | 0.7420 | 0.2410 | 0.3 | 4 KB | Linear Baseline |
-| **Multi-Layer Perceptron (MLP)** | 0.7950 | 0.7100 | 0.7501 | 0.7120 | 0.8250 | 0.2180 | 91.0 | 540 KB | Deep Neural |
-| **Naive Bayes** | 0.5820 | 0.6840 | 0.6289 | 0.3810 | 0.6890 | 0.2890 | 0.4 | 6 KB | Probabilistic |
+> **Evaluation methodology (updated 2026-09-30):** All metrics below are holdout-validated from walk-forward
+> temporal holdout splits (last 20% of timeline), not training data.
+> Previous table figures were training-set evaluations and have been superseded.
 
+| Model Architecture | Source | Opt Thresh | Precision | Recall | F1 Score | PR-AUC | ROC-AUC | KS Stat | ECE | Brier Score | Latency |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **CatBoost (Oblivious Trees)** | native | **0.349** | **0.736** | **0.858** | **0.792** | **0.878** | **0.903** | **0.634** | **0.018** | **0.1246** | **2.3 µs** |
+| **LightGBM (GBDT)** | HistGB | 0.351 | 0.743 | 0.838 | 0.787 | 0.872 | 0.899 | 0.624 | 0.033 | 0.1287 | 7.0 µs |
+| **XGBoost (Depth-Wise)** | native | 0.373 | 0.749 | 0.830 | 0.787 | 0.871 | 0.897 | 0.625 | 0.033 | 0.1293 | 9.5 µs |
+| **Random Forest (baseline)** | native | 0.413 | 0.742 | 0.823 | 0.780 | 0.865 | 0.894 | 0.616 | 0.110 | 0.1453 | 47.9 µs |
+
+### Industry-Standard Metrics vs. Targets
+
+| Metric | Holdout Value | Industry Target | Status |
+|---|:---:|:---:|:---:|
+| PR-AUC | 0.878 | > 0.70 | Surpassed (+25.4%) |
+| ROC-AUC | 0.903 | > 0.85 | Surpassed (+6.2%) |
+| F1 @ threshold | 0.792 | > 0.65 | Surpassed (+21.8%) |
+| Brier Score (calibrated) | 0.1233 | < 0.15 | Surpassed (-17.8% error) |
+| KS Statistic | 0.634 | > 0.35 | Surpassed (+81.1%) |
+| ECE | 0.018 | < 0.05 | Surpassed (-64.0% error) |
 ---
 
 ### Brier Calibration Analysis
@@ -144,6 +157,9 @@ In police operational dispatch, raw accuracy is insufficient: **predicted probab
 | **Hit@3 (Top 3 Patrol Radius)** | 12.3% | 36.8% | **74.6%** | **+203.3%** |
 | **Hit@5 (Cluster Interception)** | 20.5% | 51.2% | **88.4%** | **+72.7%** |
 | **Mean Time-to-Interdiction** | 42 min | 28 min | **11.4 min** | **-59.3% reduction** |
+
+> **Note (2026-09-30):** Above figures were from a synthetic circular benchmark (ground truth selected by same kernel as ranker).
+> After fix: benchmark selects ground truth uniformly — honest Hit@3 ~75.0% (Hit@1: 67.6%, Hit@5: 77.8% vs static baseline 22.8% Hit@3).
 
 ---
 

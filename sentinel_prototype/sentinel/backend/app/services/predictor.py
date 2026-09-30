@@ -55,6 +55,8 @@ class CashoutPredictor:
         self.model_path = Path(model_path) if model_path else DEFAULT_MODEL_PATH
         self.bundle: Optional[dict] = None
         self.active_model_name: str = "LightGBM"
+        self.calibrated_model = None
+        self.calibrated_model_name: Optional[str] = None
         self._load_bundle()
         if self.bundle:
             self._warmup()
@@ -87,6 +89,8 @@ class CashoutPredictor:
                     m.n_jobs = 1
 
             self.active_model_name = self.bundle.get("primary_model_name", "LightGBM")
+            self.calibrated_model = self.bundle.get("calibrated_model", None)
+            self.calibrated_model_name = self.bundle.get("calibrated_model_name", None)
         except Exception as exc:
             import logging
             logging.getLogger("uvicorn.error").warning(f"Could not load ML bundle ({exc}), using heuristic fallback.")
@@ -171,6 +175,7 @@ class CashoutPredictor:
         self,
         complaint: Dict[str, Any],
         model_name: Optional[str] = None,
+        use_calibrated: bool = False,
     ) -> PredictionResult:
         """Evaluates cash-out probability for a complaint across all candidate models."""
         chosen_model_name = model_name or self.active_model_name
@@ -234,7 +239,11 @@ class CashoutPredictor:
             all_model_probs[m_name] = round(p, 4)
 
         # 3. Primary model prediction
-        primary_prob = all_model_probs.get(chosen_model_name, all_model_probs[self.active_model_name])
+        if use_calibrated and self.calibrated_model is not None:
+            primary_prob = round(float(self.calibrated_model.predict_proba(X_df)[0, 1]), 4)
+            chosen_model_name = self.calibrated_model_name or f"{chosen_model_name}_calibrated"
+        else:
+            primary_prob = all_model_probs.get(chosen_model_name, all_model_probs[self.active_model_name])
         threshold = thresholds.get(chosen_model_name, 0.24)
         is_risk = bool(primary_prob >= threshold)
 

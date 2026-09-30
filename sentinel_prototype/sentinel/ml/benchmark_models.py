@@ -40,8 +40,10 @@ from sklearn.metrics import (
     precision_recall_curve,
     precision_score,
     recall_score,
+    roc_auc_score,
 )
 from sklearn.preprocessing import OneHotEncoder
+from scipy.stats import ks_2samp
 
 warnings.filterwarnings("ignore")
 
@@ -150,6 +152,16 @@ def best_f1_threshold(y_true, y_prob):
     return float(thresh[best_i]), float(f1s[best_i]), float(prec[best_i]), float(rec[best_i])
 
 
+def compute_ece(y_true, y_prob, n_bins=10):
+    bins = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    for i in range(n_bins):
+        mask = (y_prob >= bins[i]) & (y_prob < bins[i+1])
+        if mask.sum() > 0:
+            ece += mask.sum() * abs(float(y_true[mask].mean()) - float(y_prob[mask].mean()))
+    return float(ece / max(len(y_true), 1))
+
+
 def run_benchmark(csv_path: str = None, n_splits: int = 4, seed: int = 42):
     csv_path = csv_path or str(HERE / "synthetic_complaints.csv")
     df = pd.read_csv(csv_path)
@@ -161,7 +173,7 @@ def run_benchmark(csv_path: str = None, n_splits: int = 4, seed: int = 42):
     for name, (source, model) in candidates.items():
         fold_metrics = {"precision_at_05": [], "recall_at_05": [], "f1_at_05": [],
                          "precision_opt": [], "recall_opt": [], "f1_opt": [], "opt_threshold": [],
-                         "pr_auc": [], "brier": [], "latency_ms": []}
+                         "pr_auc": [], "roc_auc": [], "ks_stat": [], "ece": [], "brier": [], "latency_ms": []}
         encoder = None
         for fold_i, (train_idx, test_idx) in enumerate(walk_forward_split(df, n_splits)):
             train_df, test_df = df.loc[train_idx], df.loc[test_idx]
@@ -187,6 +199,9 @@ def run_benchmark(csv_path: str = None, n_splits: int = 4, seed: int = 42):
             fold_metrics["f1_opt"].append(f1_opt)
             fold_metrics["opt_threshold"].append(opt_thresh)
             fold_metrics["pr_auc"].append(average_precision_score(y_test, y_prob))
+            fold_metrics["roc_auc"].append(roc_auc_score(y_test, y_prob))
+            fold_metrics["ks_stat"].append(ks_2samp(y_prob[y_test == 1], y_prob[y_test == 0]).statistic)
+            fold_metrics["ece"].append(compute_ece(y_test, y_prob))
             fold_metrics["brier"].append(brier_score_loss(y_test, y_prob))
             fold_metrics["latency_ms"].append(latency_ms)
 
@@ -207,6 +222,9 @@ def run_benchmark(csv_path: str = None, n_splits: int = 4, seed: int = 42):
             "recall_opt": np.mean(fold_metrics["recall_opt"]),
             "f1_opt": np.mean(fold_metrics["f1_opt"]),
             "pr_auc": np.mean(fold_metrics["pr_auc"]),
+            "roc_auc": np.mean(fold_metrics["roc_auc"]),
+            "ks_stat": np.mean(fold_metrics["ks_stat"]),
+            "ece": np.mean(fold_metrics["ece"]),
             "brier_score": np.mean(fold_metrics["brier"]),
             "latency_ms_per_sample": np.mean(fold_metrics["latency_ms"]),
         })
@@ -233,14 +251,14 @@ def write_markdown_report(results_df: pd.DataFrame, n_splits: int):
         f"(a fixed 0.5 cutoff is not meaningful on ~1:4 imbalanced data) - that threshold "
         f"is also what would be deployed as the dispatch cutoff.",
         "",
-        "| Model | Source | Opt. threshold | Precision | Recall | F1 | PR-AUC | Brier | Latency (ms/sample) |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| Model | Source | Opt. threshold | Precision | Recall | F1 | PR-AUC | ROC-AUC | KS | ECE | Brier | Latency (ms/sample) |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for _, r in results_df.iterrows():
         lines.append(
             f"| {r['model']} | {r['source']} | {r['opt_threshold']:.3f} | {r['precision_opt']:.3f} | "
-            f"{r['recall_opt']:.3f} | {r['f1_opt']:.3f} | {r['pr_auc']:.3f} | "
-            f"{r['brier_score']:.4f} | {r['latency_ms_per_sample']:.4f} |"
+            f"{r['recall_opt']:.3f} | {r['f1_opt']:.3f} | {r['pr_auc']:.3f} | {r['roc_auc']:.3f} | "
+            f"{r['ks_stat']:.3f} | {r['ece']:.3f} | {r['brier_score']:.4f} | {r['latency_ms_per_sample']:.4f} |"
         )
     lines += [
         "",
