@@ -94,12 +94,21 @@ _BACKEND_DIR = str(Path(__file__).resolve().parent.parent / "backend")
 if _BACKEND_DIR not in sys.path:
     sys.path.insert(0, _BACKEND_DIR)
 
-try:
-    from app.services.spatiotemporal_engine import MAHARASHTRA_ATMS
-except ImportError:
-    MAHARASHTRA_ATMS = []
+import json
 
-CANONICAL_ATMS = MAHARASHTRA_ATMS
+_DATA_ATMS_PATH = Path(__file__).resolve().parent.parent / "data" / "atms" / "maharashtra_osm_atms.json"
+if _DATA_ATMS_PATH.exists():
+    try:
+        CANONICAL_ATMS = json.loads(_DATA_ATMS_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        CANONICAL_ATMS = []
+else:
+    try:
+        from app.services.spatiotemporal_engine import MAHARASHTRA_ATMS
+        CANONICAL_ATMS = MAHARASHTRA_ATMS
+    except ImportError:
+        CANONICAL_ATMS = []
+
 ATMS_BY_JCCT: dict[str, list[dict]] = {}
 ATM_COORD_MAP: dict[str, tuple[float, float]] = {}
 
@@ -149,9 +158,38 @@ CHANNEL_WEIGHTS = np.array([0.52, 0.22, 0.12, 0.08, 0.06])
 
 
 def generate_complaints(n: int, rng) -> pd.DataFrame:
-    jcct_origin = rng.choice(JCCT_NAMES, size=n, p=JCCT_WEIGHTS)
+    # 180-Day Timeline with Temporal Concept Drift:
+    # Days 0-60: Baseline UPI (65%), IMPS (20%), AePS (10%)
+    # Days 61-120: AePS micro-ATM exploitation surge (doubles to 22%)
+    # Days 121-180: Festive season volume surge + geography shift toward Pune / Nashik corridor
+    day = np.sort(rng.integers(0, 180, size=n))
+
+    # Vectorized piecewise temporal drift across timeline
+    p_ch_phase1 = np.array([0.65, 0.20, 0.10, 0.04, 0.01])
+    p_ch_phase2 = np.array([0.52, 0.18, 0.22, 0.05, 0.03])
+    p_ch_phase3 = np.array([0.57, 0.19, 0.15, 0.06, 0.03])
+
+    p_jcct_phase3 = np.array([0.22, 0.25, 0.10, 0.14, 0.07, 0.10, 0.06, 0.06])
+    p_jcct_phase3 = p_jcct_phase3 / p_jcct_phase3.sum()
+
+    channel_type = np.empty(n, dtype=object)
+    jcct_origin = np.empty(n, dtype=object)
+
+    m1 = day < 60
+    m2 = (day >= 60) & (day < 120)
+    m3 = day >= 120
+
+    if m1.any():
+        channel_type[m1] = rng.choice(CHANNEL_TYPES, size=int(m1.sum()), p=p_ch_phase1)
+        jcct_origin[m1] = rng.choice(JCCT_NAMES, size=int(m1.sum()), p=JCCT_WEIGHTS)
+    if m2.any():
+        channel_type[m2] = rng.choice(CHANNEL_TYPES, size=int(m2.sum()), p=p_ch_phase2)
+        jcct_origin[m2] = rng.choice(JCCT_NAMES, size=int(m2.sum()), p=JCCT_WEIGHTS)
+    if m3.any():
+        channel_type[m3] = rng.choice(CHANNEL_TYPES, size=int(m3.sum()), p=p_ch_phase3)
+        jcct_origin[m3] = rng.choice(JCCT_NAMES, size=int(m3.sum()), p=p_jcct_phase3)
+
     tier = rng.choice(PINCODE_TIERS, size=n, p=TIER_WEIGHTS)
-    channel_type = rng.choice(CHANNEL_TYPES, size=n, p=CHANNEL_WEIGHTS)
 
     hour_probs = np.array([
         0.05, 0.06, 0.06, 0.05, 0.03, 0.02,  # 00:00 - 05:00 (Dark window surge)
@@ -185,33 +223,23 @@ def generate_complaints(n: int, rng) -> pd.DataFrame:
     police_attested = rng.random(n) < 0.58
     attestation_count = utr_verified.astype(int) + bank_corroborated.astype(int) + police_attested.astype(int)
 
-    structuring_flag = ((amount >= 45000.0) & (rng.random(n) < 0.45)).astype(int)
+    # Statutory PMLA Structuring Rule (transactions intentionally structured just below ₹50,000 PAN threshold)
+    structuring_flag = ((amount >= 45000.0) & (amount < 50000.0) & (rng.random(n) < 0.85)).astype(int)
     fan_out_ratio = np.where(structuring_flag == 1, rng.integers(2, 6, size=n), 1)
 
     sim_swap_last_48h = (rng.random(n) < 0.085).astype(int)
     remote_access_tool_flag = (rng.random(n) < 0.115).astype(int)
 
-    # Non-linear operational ground-truth logic
-    risk_score = (
-        -3.35
-        + 1.8 * (structuring_flag == 1)
-        + 1.3 * (remote_access_tool_flag == 1)
-        + 1.1 * (sim_swap_last_48h == 1)
-        + 0.9 * (is_banking_hours_flag == 0)
-        + 0.7 * (channel_type == "UPI")
-        + 1.0 * (channel_type == "ATM_CARDLESS")
-        - 1.4 * (channel_type == "NEFT")
-        + 0.4 * (fan_out_ratio > 2)
-        + 0.3 * np.log1p(atm_density_home)
-        - 0.6 * (hop_velocity_min / 30.0).clip(0, 3)
-        + 0.5 * (time_to_file_min < 25)
-        + rng.normal(0, 0.5, n)
+    # Causal Agent-Based Simulation (Mule Runner vs Bank Freeze Race)
+    t_freeze, freeze_delays = sample_bank_freeze_delay(
+        channel_type, is_banking_hours_flag, time_to_file_min, rng
+    )
+    total_runner_time = sample_runner_cashout_latency(
+        hop_depth, hop_velocity_min, atm_density_home, sim_swap_last_48h, remote_access_tool_flag, structuring_flag, rng
     )
 
-    prob = 1.0 / (1.0 + np.exp(-risk_score))
-    label = (rng.random(n) < prob).astype(int)
-
-    day = np.sort(rng.integers(0, 180, size=n))
+    will_cash_out = (total_runner_time < t_freeze).astype(int)
+    margin_minutes = np.round(t_freeze - total_runner_time, 2)
 
     df = pd.DataFrame({
         "complaint_id": [f"C-{i:06d}" for i in range(n)],
@@ -237,9 +265,94 @@ def generate_complaints(n: int, rng) -> pd.DataFrame:
         "police_attested": police_attested.astype(int),
         "attestation_count": attestation_count,
         "day": day,
-        "cashout_in_window": label,
+        "cashout_in_window": will_cash_out,
+        # Supplementary diagnostic columns (backward-compatible)
+        "runner_latency_min": np.round(total_runner_time, 2),
+        "freeze_latency_min": np.round(t_freeze, 2),
+        "margin_minutes": margin_minutes,
     })
     return df.sort_values("day").reset_index(drop=True)
+
+
+def sample_bank_freeze_delay(
+    channel_types: np.ndarray,
+    is_banking_hours: np.ndarray,
+    time_to_file_min: np.ndarray,
+    rng,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Simulates operational interdiction latency (minutes from victim report to bank hold)
+    calibrated against 1930 NCRP / CFCFRMS and NPCI channel settlement mechanics.
+    Returns: (t_freeze_total, freeze_delay_only)
+    """
+    n = len(channel_types)
+    freeze_delays = np.zeros(n, dtype=float)
+
+    # Base channel lognormals (median in mins)
+    channel_params = {
+        "UPI": (3.0, 0.40),          # median ~20 min (NPCI instant API hold)
+        "IMPS": (3.3, 0.45),         # median ~27 min
+        "AEPS_KIOSK": (3.8, 0.50),   # median ~45 min (BC agent settlement delay)
+        "ATM_CARDLESS": (3.1, 0.40), # median ~22 min
+        "NEFT": (4.1, 0.40),         # median ~60 min (batch clearance)
+    }
+    for ch, (mu, sigma) in channel_params.items():
+        m = (channel_types == ch)
+        if m.any():
+            freeze_delays[m] = rng.lognormal(mean=mu, sigma=sigma, size=m.sum())
+
+    # Off-banking hours penalty: manual branch holds take 1.8x longer during night / weekends unless UPI
+    off_hours_mult = np.where((is_banking_hours == 0) & (channel_types != "UPI"), 1.8, 1.0)
+    freeze_delays *= off_hours_mult
+
+    # Fast reporting threshold: if victim reports within 18 min, bank automated alerts trigger early in 50% of cases
+    fast_victim = time_to_file_min < 18.0
+    bank_auto_alert = (rng.random(n) < 0.50) & fast_victim
+    t_freeze = np.where(bank_auto_alert, np.minimum(freeze_delays, 22.0), time_to_file_min + freeze_delays)
+    return t_freeze, freeze_delays
+
+
+def sample_runner_cashout_latency(
+    hop_depth: np.ndarray,
+    hop_velocity_min: np.ndarray,
+    atm_density: np.ndarray,
+    sim_swap: np.ndarray,
+    rat_flag: np.ndarray,
+    structuring_flag: np.ndarray,
+    rng,
+) -> np.ndarray:
+    """
+    Simulates physical mule runner travel and cash withdrawal latency (minutes from incident).
+    Non-linear mechanics:
+    - Layering hop travel time: compounding delays for deeper chains
+    - Terminal ATM leg: inverse square-root of local ATM density (shorter in Mumbai/Pune metro)
+    - Queue & multi-card extraction: gamma distribution
+    - Syndicate coordination advantage: SIM swap and RAT tools allow advance runner dispatch
+    """
+    n = len(hop_depth)
+
+    # Syndicate takeover: credential takeover allows runner to be positioned before money moves
+    rapid_takeover = (rat_flag == 1) & (hop_velocity_min < 12.0)
+    handler_overhead = np.where(
+        rapid_takeover,
+        rng.gamma(shape=2.0, scale=3.5, size=n),
+        rng.gamma(shape=3.0, scale=8.2, size=n),
+    )
+
+    # Layering hop transit: step-function delay for chains > 2 hops
+    layering_delay = np.where(hop_depth <= 2, hop_depth * 5.0, hop_depth * 10.0)
+
+    # Terminal transit to target cash-out ATM
+    transit_to_atm = rng.gamma(shape=3.0, scale=3.5, size=n) * (28.0 / np.clip(atm_density, 8.0, 40.0))
+
+    # Physical ATM withdrawal time (cardless OTP / multi-card debit queue)
+    atm_withdrawal = rng.gamma(shape=2.0, scale=3.0, size=n) + 2.0
+
+    # Syndicate advantages
+    syndicate_speedup = sim_swap * 7.0 + rat_flag * 5.0 + structuring_flag * 3.5
+
+    total_runner_time = handler_overhead + layering_delay + transit_to_atm + atm_withdrawal - syndicate_speedup
+    return np.clip(total_runner_time, 5.0, 300.0)
 
 
 def generate_transactions(complaints: pd.DataFrame, rng) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -304,135 +417,292 @@ def generate_transactions(complaints: pd.DataFrame, rng) -> tuple[pd.DataFrame, 
             "is_inter_jcct_jump": 0,
         })
 
-        # 2. Hop 1: Gateway 2-Split
+        target_depth = int(row.hop_depth)
         origin_atms = _get_atms_for_city(origin_jcct, state_code)
         dest_atms = _get_atms_for_city(dest_jcct, dest_state_code)
+        gateway_acc = f"ACC-{row.complaint_id}-M1_GATEWAY"
 
-        # Fork 1 (Immediate Cash-out to meet ATM card daily limit)
-        if total_amt > 100000:
-            b1_ratio = float(rng.uniform(0.28, 0.35))
-        elif total_amt <= 40000:
-            b1_ratio = float(rng.uniform(0.40, 0.46))
-        else:
+        if target_depth == 1:
+            # 1-Hop direct cash-out at terminal ATM without intermediary hops
+            term_cand = rng.choice(origin_atms)
+            term_id = term_cand["atm_id"]
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 1,
+                "branch_id": "BRANCH_2A",
+                "source_account": f"ACC-{row.complaint_id}-V",
+                "dest_account": gateway_acc,
+                "amount": total_amt,
+                "channel": row.channel_type,
+                "tranche_type": "DIRECT_CASHOUT",
+                "flow_status": "EXTRACTED",
+                "terminal_id": term_id,
+                "utr": f"UTR-{row.complaint_id}-00",
+                "timestamp": t_debit,
+                "jcct_source": origin_jcct,
+                "jcct_dest": origin_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "is_inter_jcct_jump": 0,
+            })
+            if reuse_ring:
+                mule_account_pool.setdefault(ring_device, []).append(gateway_acc)
+
+        elif target_depth == 2:
+            # Level 0 -> Level 1 Ingestion Debit
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 1,
+                "branch_id": "INGESTION",
+                "source_account": f"ACC-{row.complaint_id}-V",
+                "dest_account": gateway_acc,
+                "amount": total_amt,
+                "channel": row.channel_type,
+                "tranche_type": "INITIAL_DEBIT",
+                "flow_status": "SETTLED",
+                "terminal_id": "",
+                "utr": f"UTR-{row.complaint_id}-00",
+                "timestamp": t_debit,
+                "jcct_source": origin_jcct,
+                "jcct_dest": origin_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "is_inter_jcct_jump": 0,
+            })
+            # Hop 2 Split: Fork 1 and Terminal Cashout Runway (BRANCH_2A)
             b1_ratio = float(rng.uniform(0.35, 0.44))
+            branch1_amt = round(total_amt * b1_ratio, 2)
+            branch2_amt = round(total_amt - branch1_amt, 2)
+            assert abs((branch1_amt + branch2_amt) - total_amt) < 1e-4
 
-        branch1_amt = round(total_amt * b1_ratio, 2)
-        branch2_total = round(total_amt - branch1_amt, 2)
+            mule1_cashout_acc = f"ACC-{row.complaint_id}-M1_CASHOUT"
+            term1_cand = rng.choice(origin_atms)
+            term1_id = term1_cand["atm_id"]
+            t_fork1 = t_debit + float(rng.uniform(1.0, 3.0)) * 60
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 2,
+                "branch_id": "BRANCH_1",
+                "source_account": gateway_acc,
+                "dest_account": mule1_cashout_acc,
+                "amount": branch1_amt,
+                "channel": "UPI",
+                "tranche_type": "DIRECT_CASHOUT",
+                "flow_status": "EXTRACTED",
+                "terminal_id": term1_id,
+                "utr": f"UTR-{row.complaint_id}-01A",
+                "timestamp": t_fork1,
+                "jcct_source": origin_jcct,
+                "jcct_dest": origin_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "is_inter_jcct_jump": 0,
+            })
 
-        mule1_cashout_acc = f"ACC-{row.complaint_id}-M1_CASHOUT"
-        term1_cand = rng.choice(origin_atms)
-        term1_id = term1_cand["atm_id"]
-        t_fork1 = t_debit + float(rng.uniform(1.0, 3.0)) * 60
+            mule2a_runway_acc = f"ACC-{row.complaint_id}-M2A_RUNWAY"
+            term2_cand = rng.choice(dest_atms)
+            term2_id = term2_cand["atm_id"]
+            t_sub2a = t_debit + float(rng.uniform(2.5, 5.0)) * 60
+            is_jump = int(JCCT_BY_NAME[origin_jcct].jcct_team != JCCT_BY_NAME[dest_jcct].jcct_team)
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 2,
+                "branch_id": "BRANCH_2A",
+                "source_account": gateway_acc,
+                "dest_account": mule2a_runway_acc,
+                "amount": branch2_amt,
+                "channel": row.channel_type if row.channel_type != "NEFT" else "IMPS",
+                "tranche_type": "ACTIVE_THREAT",
+                "flow_status": "IN_FLIGHT",
+                "terminal_id": term2_id,
+                "utr": f"UTR-{row.complaint_id}-02A",
+                "timestamp": t_sub2a,
+                "jcct_source": origin_jcct,
+                "jcct_dest": dest_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+                "is_inter_jcct_jump": is_jump,
+            })
+            if reuse_ring:
+                mule_account_pool.setdefault(ring_device, []).extend([mule1_cashout_acc, mule2a_runway_acc])
 
-        tx_rows.append({
-            "complaint_id": row.complaint_id,
-            "hop_number": 2,
-            "branch_id": "BRANCH_1",
-            "source_account": gateway_acc,
-            "dest_account": mule1_cashout_acc,
-            "amount": branch1_amt,
-            "channel": "UPI",
-            "tranche_type": "DIRECT_CASHOUT",
-            "flow_status": "EXTRACTED",
-            "terminal_id": term1_id,
-            "utr": f"UTR-{row.complaint_id}-01A",
-            "timestamp": t_fork1,
-            "jcct_source": origin_jcct,
-            "jcct_dest": origin_jcct,
-            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
-            "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
-            "is_inter_jcct_jump": 0,
-        })
+        else:
+            # target_depth >= 3
+            # 1. Level 0 -> Level 1 Ingestion Debit
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 1,
+                "branch_id": "INGESTION",
+                "source_account": f"ACC-{row.complaint_id}-V",
+                "dest_account": gateway_acc,
+                "amount": total_amt,
+                "channel": row.channel_type,
+                "tranche_type": "INITIAL_DEBIT",
+                "flow_status": "SETTLED",
+                "terminal_id": "",
+                "utr": f"UTR-{row.complaint_id}-00",
+                "timestamp": t_debit,
+                "jcct_source": origin_jcct,
+                "jcct_dest": origin_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "is_inter_jcct_jump": 0,
+            })
 
-        # Fork 2 (Layering Relay Transit)
-        layering_acc = f"ACC-{row.complaint_id}-M2_LAYERING"
-        t_fork2 = t_debit + float(rng.uniform(2.5, 5.0)) * 60
-        is_jump = int(JCCT_BY_NAME[origin_jcct].jcct_team != JCCT_BY_NAME[dest_jcct].jcct_team)
+            # 2. Hop 2: Gateway 2-Split
+            if total_amt > 100000:
+                b1_ratio = float(rng.uniform(0.28, 0.35))
+            elif total_amt <= 40000:
+                b1_ratio = float(rng.uniform(0.40, 0.46))
+            else:
+                b1_ratio = float(rng.uniform(0.35, 0.44))
 
-        tx_rows.append({
-            "complaint_id": row.complaint_id,
-            "hop_number": 2,
-            "branch_id": "BRANCH_2",
-            "source_account": gateway_acc,
-            "dest_account": layering_acc,
-            "amount": branch2_total,
-            "channel": "IMPS",
-            "tranche_type": "LAYERING_RELAY",
-            "flow_status": "IN_TRANSIT",
-            "terminal_id": "",
-            "utr": f"UTR-{row.complaint_id}-01B",
-            "timestamp": t_fork2,
-            "jcct_source": origin_jcct,
-            "jcct_dest": dest_jcct,
-            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
-            "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
-            "is_inter_jcct_jump": is_jump,
-        })
+            branch1_amt = round(total_amt * b1_ratio, 2)
+            branch2_total = round(total_amt - branch1_amt, 2)
 
-        # 3. Hop 2: Layering Mule Sub-Split (Branch 2 Splits Again!)
-        b2a_ratio = float(rng.uniform(0.56, 0.65))
-        branch2a_amt = round(branch2_total * b2a_ratio, 2)
-        branch2b_amt = round(branch2_total - branch2a_amt, 2)
+            mule1_cashout_acc = f"ACC-{row.complaint_id}-M1_CASHOUT"
+            term1_cand = rng.choice(origin_atms)
+            term1_id = term1_cand["atm_id"]
+            t_fork1 = t_debit + float(rng.uniform(1.0, 3.0)) * 60
 
-        # Invariant Assertion Check
-        assert abs((branch1_amt + branch2a_amt + branch2b_amt) - total_amt) < 1e-4
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 2,
+                "branch_id": "BRANCH_1",
+                "source_account": gateway_acc,
+                "dest_account": mule1_cashout_acc,
+                "amount": branch1_amt,
+                "channel": "UPI",
+                "tranche_type": "DIRECT_CASHOUT",
+                "flow_status": "EXTRACTED",
+                "terminal_id": term1_id,
+                "utr": f"UTR-{row.complaint_id}-01A",
+                "timestamp": t_fork1,
+                "jcct_source": origin_jcct,
+                "jcct_dest": origin_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "is_inter_jcct_jump": 0,
+            })
 
-        # Sub-Fork 2A (Active Cash-out Target Runway)
-        mule2a_runway_acc = f"ACC-{row.complaint_id}-M2A_RUNWAY"
-        term2_cand = rng.choice(dest_atms)
-        term2_id = term2_cand["atm_id"]
-        t_sub2a = t_fork2 + float(rng.uniform(3.0, 8.0)) * 60
+            # Fork 2 (Layering Relay Transit)
+            layering_acc = f"ACC-{row.complaint_id}-M2_LAYERING"
+            t_fork2 = t_debit + float(rng.uniform(2.5, 5.0)) * 60
+            is_jump = int(JCCT_BY_NAME[origin_jcct].jcct_team != JCCT_BY_NAME[dest_jcct].jcct_team)
 
-        tx_rows.append({
-            "complaint_id": row.complaint_id,
-            "hop_number": 3,
-            "branch_id": "BRANCH_2A",
-            "source_account": layering_acc,
-            "dest_account": mule2a_runway_acc,
-            "amount": branch2a_amt,
-            "channel": row.channel_type if row.channel_type != "NEFT" else "IMPS",
-            "tranche_type": "ACTIVE_THREAT",
-            "flow_status": "IN_FLIGHT",
-            "terminal_id": term2_id,
-            "utr": f"UTR-{row.complaint_id}-02A",
-            "timestamp": t_sub2a,
-            "jcct_source": origin_jcct,
-            "jcct_dest": dest_jcct,
-            "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
-            "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
-            "is_inter_jcct_jump": is_jump,
-        })
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": 2,
+                "branch_id": "BRANCH_2",
+                "source_account": gateway_acc,
+                "dest_account": layering_acc,
+                "amount": branch2_total,
+                "channel": "IMPS",
+                "tranche_type": "LAYERING_RELAY",
+                "flow_status": "IN_TRANSIT",
+                "terminal_id": "",
+                "utr": f"UTR-{row.complaint_id}-01B",
+                "timestamp": t_fork2,
+                "jcct_source": origin_jcct,
+                "jcct_dest": dest_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+                "is_inter_jcct_jump": is_jump,
+            })
 
-        # Sub-Fork 2B (Preserved Disputed Escrow / BNSS Lien)
-        mule2b_hold_acc = f"ACC-{row.complaint_id}-M2B_HOLD"
-        rem_dest_atms = [a for a in dest_atms if a["atm_id"] != term2_id] or dest_atms
-        term3_cand = rng.choice(rem_dest_atms)
-        term3_id = term3_cand["atm_id"]
-        t_sub2b = t_fork2 + float(rng.uniform(4.0, 10.0)) * 60
+            # Intermediate Layering Hops if target hop_depth > 3
+            curr_layering_acc = layering_acc
+            curr_t = t_fork2
 
-        tx_rows.append({
-            "complaint_id": row.complaint_id,
-            "hop_number": 3,
-            "branch_id": "BRANCH_2B",
-            "source_account": layering_acc,
-            "dest_account": mule2b_hold_acc,
-            "amount": branch2b_amt,
-            "channel": "NEFT",
-            "tranche_type": "PRESERVED_LIEN",
-            "flow_status": "PRESERVED",
-            "terminal_id": term3_id,
-            "utr": f"UTR-{row.complaint_id}-02B",
-            "timestamp": t_sub2b,
-            "jcct_source": dest_jcct,
-            "jcct_dest": dest_jcct,
-            "jcct_team_source": JCCT_BY_NAME[dest_jcct].jcct_team,
-            "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
-            "is_inter_jcct_jump": 0,
-        })
+            if target_depth > 3:
+                for h in range(3, target_depth):
+                    dt_step = float(rng.exponential(scale=max(row.hop_velocity_min, 1.0)) * 60 + 30)
+                    curr_t += dt_step
+                    next_relay_acc = f"ACC-{row.complaint_id}-RELAY_{h}"
+                    tx_rows.append({
+                        "complaint_id": row.complaint_id,
+                        "hop_number": h,
+                        "branch_id": f"RELAY_{h}",
+                        "source_account": curr_layering_acc,
+                        "dest_account": next_relay_acc,
+                        "amount": branch2_total,
+                        "channel": "IMPS" if (h % 2 == 1) else "UPI",
+                        "tranche_type": "LAYERING_RELAY",
+                        "flow_status": "IN_TRANSIT",
+                        "terminal_id": "",
+                        "utr": f"UTR-{row.complaint_id}-0{h}",
+                        "timestamp": curr_t,
+                        "jcct_source": dest_jcct,
+                        "jcct_dest": dest_jcct,
+                        "jcct_team_source": JCCT_BY_NAME[dest_jcct].jcct_team,
+                        "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+                        "is_inter_jcct_jump": 0,
+                    })
+                    curr_layering_acc = next_relay_acc
 
-        # Shared Device Ring Links
-        if reuse_ring:
-            mule_account_pool.setdefault(ring_device, []).extend([mule1_cashout_acc, layering_acc, mule2a_runway_acc])
+            # 3. Terminal Layering Mule Sub-Split (Active Threat Runway vs Preserved Lien)
+            b2a_ratio = float(rng.uniform(0.56, 0.65))
+            branch2a_amt = round(branch2_total * b2a_ratio, 2)
+            branch2b_amt = round(branch2_total - branch2a_amt, 2)
+
+            # Invariant Assertion Check
+            assert abs((branch1_amt + branch2a_amt + branch2b_amt) - total_amt) < 1e-4
+
+            # Sub-Fork 2A (Active Cash-out Target Runway)
+            mule2a_runway_acc = f"ACC-{row.complaint_id}-M2A_RUNWAY"
+            term2_cand = rng.choice(dest_atms)
+            term2_id = term2_cand["atm_id"]
+            t_sub2a = curr_t + float(rng.uniform(3.0, 8.0)) * 60
+
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": target_depth,
+                "branch_id": "BRANCH_2A",
+                "source_account": curr_layering_acc,
+                "dest_account": mule2a_runway_acc,
+                "amount": branch2a_amt,
+                "channel": row.channel_type if row.channel_type != "NEFT" else "IMPS",
+                "tranche_type": "ACTIVE_THREAT",
+                "flow_status": "IN_FLIGHT",
+                "terminal_id": term2_id,
+                "utr": f"UTR-{row.complaint_id}-02A",
+                "timestamp": t_sub2a,
+                "jcct_source": origin_jcct,
+                "jcct_dest": dest_jcct,
+                "jcct_team_source": JCCT_BY_NAME[origin_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+                "is_inter_jcct_jump": is_jump,
+            })
+
+            # Sub-Fork 2B (Preserved Disputed Escrow / BNSS Lien)
+            mule2b_hold_acc = f"ACC-{row.complaint_id}-M2B_HOLD"
+            rem_dest_atms = [a for a in dest_atms if a["atm_id"] != term2_id] or dest_atms
+            term3_cand = rng.choice(rem_dest_atms)
+            term3_id = term3_cand["atm_id"]
+            t_sub2b = curr_t + float(rng.uniform(4.0, 10.0)) * 60
+
+            tx_rows.append({
+                "complaint_id": row.complaint_id,
+                "hop_number": target_depth,
+                "branch_id": "BRANCH_2B",
+                "source_account": curr_layering_acc,
+                "dest_account": mule2b_hold_acc,
+                "amount": branch2b_amt,
+                "channel": "NEFT",
+                "tranche_type": "PRESERVED_LIEN",
+                "flow_status": "PRESERVED",
+                "terminal_id": term3_id,
+                "utr": f"UTR-{row.complaint_id}-02B",
+                "timestamp": t_sub2b,
+                "jcct_source": dest_jcct,
+                "jcct_dest": dest_jcct,
+                "jcct_team_source": JCCT_BY_NAME[dest_jcct].jcct_team,
+                "jcct_team_dest": JCCT_BY_NAME[dest_jcct].jcct_team,
+                "is_inter_jcct_jump": 0,
+            })
+
+            if reuse_ring:
+                mule_account_pool.setdefault(ring_device, []).extend([mule1_cashout_acc, layering_acc, mule2a_runway_acc])
 
     tx_df = pd.DataFrame(tx_rows)
 
@@ -447,6 +717,56 @@ def generate_transactions(complaints: pd.DataFrame, rng) -> tuple[pd.DataFrame, 
         columns=["account_a", "account_b", "device_hash"])
 
     return tx_df, device_df
+
+
+def generate_evaluation_complaints(n: int = 2000, seed: int = RNG_SEED + 100) -> pd.DataFrame:
+    """
+    Generates a dedicated multi-class evaluation dataset specifically for testing the
+    Authenticity Gate without contaminating the clean ML training dataset.
+    Class Breakdown:
+      - genuine (~82%): Standard legitimate cybercrime filings
+      - duplicate_utr (~5%): Exact UTR replays within 1-72h (Sybil attack / double-filing)
+      - malformed_utr (~3%): Corrupted UTR strings failing NPCI checksum/format
+      - serial_filer (~4%): Complainant filing count >= 5 in 90 days
+      - griefing_burst (~6%): Rapid burst of automated filings from same IP/device
+    """
+    rng = np.random.default_rng(seed)
+    base_df = generate_complaints(n, rng)
+
+    class_probs = [0.82, 0.05, 0.03, 0.04, 0.06]
+    classes = ["genuine", "duplicate_utr", "malformed_utr", "serial_filer", "griefing_burst"]
+    assigned_classes = rng.choice(classes, size=n, p=class_probs)
+
+    base_df["ground_truth_class"] = assigned_classes
+    base_df["ground_truth_authentic"] = (assigned_classes == "genuine").astype(int)
+
+    # Inject realistic adversarial attributes per class:
+    utrs = []
+    seen_utrs = []
+
+    for i, row in base_df.iterrows():
+        c_class = row["ground_truth_class"]
+        raw_utr = f"4291{i:08d}"
+
+        if c_class == "genuine":
+            utrs.append(raw_utr)
+            seen_utrs.append(raw_utr)
+        elif c_class == "duplicate_utr":
+            # Replay a previously observed genuine UTR
+            dup_utr = rng.choice(seen_utrs) if seen_utrs else raw_utr
+            utrs.append(dup_utr)
+        elif c_class == "malformed_utr":
+            # Malformed string: bad length or invalid special characters
+            utrs.append(f"INVALID-UTR#{rng.integers(100, 999)}")
+        elif c_class == "serial_filer":
+            utrs.append(raw_utr)
+            base_df.at[i, "complainant_filing_count_90d"] = int(rng.integers(6, 15))
+        elif c_class == "griefing_burst":
+            utrs.append(f"BURST_{raw_utr}")
+            base_df.at[i, "time_to_file_min"] = 0.5  # near-zero automated burst filing
+
+    base_df["utr"] = utrs
+    return base_df
 
 
 def annotate_complaints_with_cashout(complaints: pd.DataFrame, tx_df: pd.DataFrame, rng) -> pd.DataFrame:
@@ -509,14 +829,17 @@ def generate(n_complaints: int = 18000, seed: int = RNG_SEED):
 if __name__ == "__main__":
     out_dir = Path(__file__).resolve().parent
     complaints, tx_df, device_df = generate(n_complaints=18000)
+    eval_df = generate_evaluation_complaints(n=2000)
 
     complaints.to_csv(out_dir / "synthetic_complaints.csv", index=False)
     tx_df.to_csv(out_dir / "synthetic_transactions.csv", index=False)
     device_df.to_csv(out_dir / "synthetic_device_links.csv", index=False)
+    eval_df.to_csv(out_dir / "synthetic_complaints_evaluation.csv", index=False)
 
     print(f"complaints: {len(complaints)} rows -> synthetic_complaints.csv")
     print(f"transactions: {len(tx_df)} rows -> synthetic_transactions.csv")
     print(f"device links: {len(device_df)} rows -> synthetic_device_links.csv")
+    print(f"evaluation dataset: {len(eval_df)} rows -> synthetic_complaints_evaluation.csv")
     print(f"\npositive rate (cashout_in_window=1): {complaints['cashout_in_window'].mean():.3f}")
     print(f"interstate rate (cashout JCCT != origin JCCT): {complaints['is_interstate'].mean():.3f}")
     print(f"\ncomplaints per JCCT origin:\n{complaints['jcct_origin'].value_counts()}")
