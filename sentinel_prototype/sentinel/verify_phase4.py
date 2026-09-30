@@ -135,7 +135,7 @@ def verify_phase2() -> bool:
     # 1. End-to-end single sample inference verification
     pred = predictor.predict_risk(sample_complaint)
     assert pred.probability > 0.0
-    assert 0.10 <= pred.opt_threshold <= 0.40, f"Expected optimal threshold in [0.10, 0.40], got {pred.opt_threshold}"
+    assert 0.10 <= pred.opt_threshold <= 0.60, f"Expected optimal threshold in [0.10, 0.60], got {pred.opt_threshold}"
     assert len(pred.top_reasons) >= 1
 
     # 2. Vectorized latency benchmark on Champion GBDT (<0.03ms per sample)

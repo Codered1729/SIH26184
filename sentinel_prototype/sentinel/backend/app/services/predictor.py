@@ -43,9 +43,26 @@ class PredictionResult:
     risk_tier: str  # "CRITICAL", "HIGH", "ELEVATED", "LOW"
     top_reasons: List[str]
     features_used: Dict[str, Any]
+    top_shap_factors: Optional[List[Dict[str, Any]]] = None
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+_SHAP_MODULE = None
+_SHAP_CHECKED = False
+
+
+def _safe_import_shap():
+    global _SHAP_MODULE, _SHAP_CHECKED
+    if not _SHAP_CHECKED:
+        _SHAP_CHECKED = True
+        try:
+            import shap
+            _SHAP_MODULE = shap
+        except Exception:
+            _SHAP_MODULE = None
+    return _SHAP_MODULE
 
 
 class CashoutPredictor:
@@ -57,6 +74,7 @@ class CashoutPredictor:
         self.active_model_name: str = "LightGBM"
         self.calibrated_model = None
         self.calibrated_model_name: Optional[str] = None
+        self._shap_explainers: Dict[str, Any] = {}
         self._load_bundle()
         if self.bundle:
             self._warmup()
@@ -175,6 +193,118 @@ class CashoutPredictor:
 
         return reasons[:3]
 
+    def _get_explainer(self, model_name: str, model: Any):
+        if model_name not in self._shap_explainers:
+            shap_lib = _safe_import_shap()
+            if shap_lib is not None:
+                try:
+                    self._shap_explainers[model_name] = shap_lib.TreeExplainer(model)
+                except Exception:
+                    self._shap_explainers[model_name] = None
+            else:
+                self._shap_explainers[model_name] = None
+        return self._shap_explainers.get(model_name)
+
+    def _compute_shap_reasons(
+        self, features_df: pd.DataFrame, model_name: str, model_obj: Any
+    ) -> tuple[List[str], List[Dict[str, Any]]]:
+        """
+        Computes mathematically authentic TreeSHAP feature attributions per sample.
+        Uses native CatBoost TreeSHAP (C++ engine) for CatBoost models,
+        or shap.TreeExplainer when available, with feature importance fallback.
+        """
+        vals = None
+        feature_names = self.bundle.get("feature_names", list(features_df.columns))
+
+        # 1. Native CatBoost TreeSHAP (fastest, zero-overhead C++ implementation)
+        if hasattr(model_obj, "get_feature_importance"):
+            try:
+                import catboost
+                pool = catboost.Pool(features_df)
+                raw_shap = model_obj.get_feature_importance(pool, type=catboost.EFstrType.ShapValues)
+                if raw_shap.ndim == 2 and raw_shap.shape[1] >= len(feature_names):
+                    # Last column is base value / expected value
+                    vals = raw_shap[0, :len(feature_names)]
+            except Exception:
+                vals = None
+
+        # 2. Scikit-learn / XGBoost / LightGBM TreeExplainer if shap is importable
+        if vals is None:
+            try:
+                explainer = self._get_explainer(model_name, model_obj)
+                if explainer is not None:
+                    sv = explainer.shap_values(features_df)
+                    if isinstance(sv, list) and len(sv) == 2:
+                        vals = sv[1][0]
+                    elif hasattr(sv, "values"):
+                        vals = sv.values[0]
+                    else:
+                        vals = sv[0]
+            except Exception:
+                vals = None
+
+        # 3. Fallback: feature importances scaled by presence of feature
+        if vals is None:
+            importances = getattr(model_obj, "feature_importances_", None)
+            if importances is not None and len(importances) == len(feature_names):
+                row_vals = features_df.iloc[0].values
+                vals = np.array(importances) * np.where(row_vals != 0, 1.0, 0.0)
+            else:
+                vals = np.zeros(len(feature_names))
+
+        contributions = list(zip(feature_names, vals))
+        sorted_contribs = sorted(contributions, key=lambda x: abs(x[1]), reverse=True)
+
+        top_shap_factors = []
+        for feat, impact in sorted_contribs[:5]:
+            direction = "elevates" if impact > 0 else "reduces"
+            top_shap_factors.append({
+                "feature": feat,
+                "impact": round(float(impact), 4),
+                "direction": direction,
+                "text": f"{feat} ({direction} cash-out probability by {abs(impact):.3f})",
+            })
+
+        # Generate top plain-language explainability reasons
+        top_reasons = []
+        for feat, impact in sorted_contribs[:3]:
+            direction = "elevates" if impact > 0 else "reduces"
+            val = float(features_df.iloc[0].get(feat, 0.0))
+            reason = self._format_shap_reason(feat, val, impact, direction)
+            top_reasons.append(reason)
+
+        return top_reasons, top_shap_factors
+
+    def _format_shap_reason(self, feat: str, val: float, impact: float, direction: str) -> str:
+        """Translates a SHAP feature attribution into plain-language LEA evidence."""
+        imp_str = f"{abs(impact):.3f}"
+        if feat == "amount":
+            return f"Fraud volume (Rs. {val:,.0f}) {direction} cash-out likelihood by {imp_str}"
+        elif feat == "hop_velocity_min":
+            return f"Hop velocity ({val:.1f} mins) {direction} automated laundering risk by {imp_str}"
+        elif feat == "sim_swap_last_48h" and val == 1:
+            return f"Beneficiary SIM-swap in preceding 48 hours {direction} risk by {imp_str} (OTP interception pattern)"
+        elif feat == "remote_access_tool_flag" and val == 1:
+            return f"Remote desktop / APK accessibility service active on endpoint {direction} risk by {imp_str}"
+        elif feat == "structuring_flag" and val == 1:
+            return f"Transaction structured below Rs. 50,000 AML threshold {direction} risk by {imp_str}"
+        elif feat == "atm_density_home_pincode":
+            return f"ATM cluster density ({val:.1f}/lakh) {direction} physical extraction speed by {imp_str}"
+        elif feat == "fan_out_ratio" and val > 1:
+            return f"Fan-out layering across {int(val)} beneficiary accounts {direction} risk by {imp_str}"
+        elif feat == "is_banking_hours_flag" and val == 0:
+            return f"Off-hours transaction timing outside core banking window {direction} risk by {imp_str}"
+        elif feat == "time_to_file_min":
+            return f"Reporting latency ({val:.0f} mins) {direction} active cash-out urgency by {imp_str}"
+        elif feat == "linked_device_count" and val > 0:
+            return f"Shared hardware device fingerprint with {int(val)} accounts {direction} risk by {imp_str}"
+        elif "channel_type" in feat:
+            rail = feat.replace("channel_type_", "")
+            return f"Payment rail ({rail}) {direction} physical withdrawal risk by {imp_str}"
+        else:
+            clean_name = feat.replace("_", " ").title()
+            return f"{clean_name} ({direction} cash-out probability by {imp_str})"
+
     def predict_risk(
         self,
         complaint: Dict[str, Any],
@@ -184,24 +314,9 @@ class CashoutPredictor:
         """Evaluates cash-out probability for a complaint across all candidate models."""
         chosen_model_name = model_name or self.active_model_name
 
-        # Fallback heuristic if pickle model is unavailable
+        # Fail-closed: raise runtime exception if bundle is not loaded
         if not self.bundle:
-            amount = float(complaint.get("amount", 20000.0))
-            prob = min(0.95, max(0.05, (amount / 100000.0) * 0.6 + 0.2))
-            all_probs = {m: prob for m in self.available_models}
-            threshold = 0.25
-            is_risk = prob >= threshold
-            tier = "CRITICAL" if prob >= 0.70 else ("HIGH" if prob >= 0.45 else ("ELEVATED" if is_risk else "LOW"))
-            return PredictionResult(
-                probability=prob,
-                is_cashout_risk=is_risk,
-                opt_threshold=threshold,
-                model_used=chosen_model_name,
-                all_model_probabilities=all_probs,
-                risk_tier=tier,
-                top_reasons=self._generate_top_reasons(complaint, {}),
-                features_used=complaint,
-            )
+            raise RuntimeError("ML model bundle not loaded. Cannot generate risk prediction.")
 
         # 1. Prepare Feature Vector
         num_cols = self.bundle["num_cols"]
@@ -246,8 +361,10 @@ class CashoutPredictor:
         if use_calibrated and self.calibrated_model is not None:
             primary_prob = round(float(self.calibrated_model.predict_proba(X_df)[0, 1]), 4)
             chosen_model_name = self.calibrated_model_name or f"{chosen_model_name}_calibrated"
+            active_model_obj = self.calibrated_model
         else:
             primary_prob = all_model_probs.get(chosen_model_name, all_model_probs[self.active_model_name])
+            active_model_obj = models.get(chosen_model_name, models[self.active_model_name])
         threshold = thresholds.get(chosen_model_name, 0.24)
         is_risk = bool(primary_prob >= threshold)
 
@@ -261,9 +378,8 @@ class CashoutPredictor:
         else:
             risk_tier = "LOW"
 
-        # 4. Generate explainable reasons
-        primary_fi = importances.get(chosen_model_name, {})
-        top_reasons = self._generate_top_reasons(complaint, primary_fi)
+        # 4. Generate SHAP explainable reasons
+        top_reasons, top_shap_factors = self._compute_shap_reasons(X_df, chosen_model_name, active_model_obj)
 
         return PredictionResult(
             probability=primary_prob,
@@ -274,7 +390,19 @@ class CashoutPredictor:
             risk_tier=risk_tier,
             top_reasons=top_reasons,
             features_used={k: complaint.get(k) for k in num_cols + cat_cols},
+            top_shap_factors=top_shap_factors,
         )
+
+
+_PREDICTOR_INSTANCE: Optional[CashoutPredictor] = None
+
+
+def get_predictor() -> CashoutPredictor:
+    """Singleton accessor for CashoutPredictor service."""
+    global _PREDICTOR_INSTANCE
+    if _PREDICTOR_INSTANCE is None:
+        _PREDICTOR_INSTANCE = CashoutPredictor()
+    return _PREDICTOR_INSTANCE
 
 
 if __name__ == "__main__":
@@ -285,22 +413,25 @@ if __name__ == "__main__":
     print(f"Active Model:     {predictor.active_model_name}")
     print("=" * 70)
 
-    # 1. Test High-Risk Cybercrime Complaint (Pune UPI Mule Layering)
+    # 1. Test High-Risk Cybercrime Complaint (Pune AEPS Mule Layering)
     high_risk_complaint = {
+        "channel_type": "AEPS_KIOSK",
         "jcct_origin": "Pune",
         "pincode_tier": "metro",
-        "amount": 65000.0,
-        "hop_depth": 3,
+        "amount": 48000.0,
+        "hop_depth": 4,
         "hop_velocity_min": 4.2,
         "account_age_days": 18.0,
         "linked_device_count": 3,
-        "time_to_file_min": 14.0,
+        "time_to_file_min": 85.0,
         "atm_density_home_pincode": 32.5,
         "complainant_filing_count_90d": 0,
         "utr_verified": 1,
         "bank_corroborated": 1,
         "police_attested": 1,
         "attestation_count": 3,
+        "structuring_flag": 1,
+        "sim_swap_last_48h": 1,
     }
 
     t0 = time.time()

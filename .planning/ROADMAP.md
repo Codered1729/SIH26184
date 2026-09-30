@@ -10,7 +10,7 @@ SENTINEL is developed as a streamlined, high-impact vertical prototype focused o
 - [x] **Phase 2: Predictive Spatiotemporal Engine & Resilient Dispatch** — GBDT cash-out prediction, Hawkes ATM cluster ranking, Bayesian 45m decay, and Section 105 BNSS outbox dispatch.
 - [ ] **Phase 3: Interactive 4-Screen Operator Dashboard & Geospatial Visualizer** — 4-screen interface in the locked 4-color palette, FLIP card re-sorting, and Maharashtra hotspot map.
 - [ ] **Phase 4: Live Event Simulator & End-to-End Presentation Harness** — Interactive presentation controller with scenario injection and end-to-end offline reverification.
-- [ ] **Phase 7: ML Evaluation Integrity & Industry-Standard Metrics** — Fix training-set leakage, add ROC-AUC/KS/ECE metrics, fix circular Hawkes benchmark, apply isotonic calibration, and update docs with honest numbers.
+- [x] **Phase 7: ML Evaluation Integrity & Industry-Standard Metrics** — Fix training-set leakage, add ROC-AUC/KS/ECE metrics, fix circular Hawkes benchmark, apply isotonic calibration, and update docs with honest numbers.
 
 ---
 
@@ -207,10 +207,10 @@ Plans:
 
 Plans:
 
-- [ ] 09-01: Delete fake model comparison panel in routes.py and replace with real inference timing and bundle metrics.
-- [ ] 09-02: Enforce strict officer token authentication with 401 rejection and integration tests.
-- [ ] 09-03: Purge circular Hawkes claims across READMEs, presentation specs, and design documentation.
-- [ ] 09-04: Correct BNSS statutory citations, add Logistic Regression benchmark candidate, and unify `ml/config.yaml`.
+- [x] 09-01: Delete fake model comparison panel in routes.py and replace with real inference timing and bundle metrics.
+- [x] 09-02: Enforce strict officer token authentication with 401 rejection and integration tests.
+- [x] 09-03: Purge circular Hawkes claims across READMEs, presentation specs, and design documentation.
+- [x] 09-04: Correct BNSS statutory citations, add Logistic Regression benchmark candidate, and unify `ml/config.yaml`.
 
 ---
 
@@ -229,9 +229,9 @@ Plans:
 
 Plans:
 
-- [ ] 10-01: Implement Pydantic complaint validation and SHAP TreeExplainer feature attributions.
-- [ ] 10-02: Modularize `routes.py` into dedicated routers, add health checks, and enforce fail-closed model loading.
-- [ ] 10-03: Vectorize Hawkes point-process ranking with cKDTree and implement MLE parameter fitting.
+- [x] 10-01: Implement Pydantic complaint validation and SHAP TreeExplainer feature attributions.
+- [x] 10-02: Modularize `routes.py` into dedicated routers, add health checks, and enforce fail-closed model loading.
+- [x] 10-03: Vectorize Hawkes point-process ranking with cKDTree and implement MLE parameter fitting.
 
 ---
 
@@ -248,10 +248,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Live Event Simulator & End-to-End Presentation Harness | 3/3 | Complete | 2026-09-25 |
 | 5. Widescreen Command Center UX & Operational Optimization | 2/2 | Complete | 2026-09-25 |
 | 6. Animated Blast Radius Subgraph & XAI Evidence Card | 1/1 | Complete | 2026-09-28 |
-| 7. ML Evaluation Integrity & Industry-Standard Metrics | 0/3 | Planned | — |
+| 7. ML Evaluation Integrity & Industry-Standard Metrics | 3/3 | Complete | 2026-09-30 |
 | 8. Synthetic Dataset Integrity & Causal Simulation | 4/4 | Complete | 2026-09-30 |
-| 9. Honesty & Credibility Cleanup | 0/4 | Planned | — |
-| 10. Serving & Architecture Hardening | 0/3 | Planned | — |
+| 9. Honesty & Credibility Cleanup | 4/4 | Complete | 2026-09-30 |
+| 10. Serving & Architecture Hardening | 3/3 | Complete | 2026-09-30 |
 
 ---
 *Roadmap updated: 2026-09-30*

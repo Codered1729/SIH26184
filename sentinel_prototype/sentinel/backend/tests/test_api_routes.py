@@ -38,6 +38,20 @@ class TestSentinelAPIRoutes(unittest.TestCase):
         resp_root = self.client.get("/")
         self.assertEqual(resp_root.status_code, 200)
 
+    def test_01b_health_model(self):
+        """Verify model bundle diagnostic health endpoint returns healthy status and bundle metadata."""
+        resp = self.client.get("/health/model")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["status"], "HEALTHY")
+        self.assertIn("primary_model", data)
+        self.assertIn("bundle_sha256", data)
+        self.assertGreater(data["features_count"], 0)
+
+        # Also verify under API v1 prefix
+        resp_v1 = self.client.get("/api/v1/health/model")
+        self.assertEqual(resp_v1.status_code, 200)
+
     def test_02_get_alerts_feed(self):
         """Verify alerts feed returns ranked alerts with situational golden windows."""
         resp = self.client.get("/api/v1/alerts")

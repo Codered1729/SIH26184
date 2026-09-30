@@ -1,0 +1,10 @@
+{
+  "alpha": 0.01,
+  "beta": 0.016667,
+  "spatial_decay_km": 10.0,
+  "baseline_mu": 0.01,
+  "half_life_seconds": 41.6,
+  "neg_log_likelihood": 1483.948,
+  "convergence_status": "CONVERGED",
+  "optimization_message": "CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL"
+}

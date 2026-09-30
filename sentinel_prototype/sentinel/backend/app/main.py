@@ -9,12 +9,14 @@ import sys
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 _BACKEND_ROOT = str(Path(__file__).resolve().parents[1])
 if _BACKEND_ROOT not in sys.path:
     sys.path.insert(0, _BACKEND_ROOT)
 
 from app.api.routes import router as api_router
+from app.routers.health import router as health_router
 
 app = FastAPI(
     title="SENTINEL — Autonomous Cyber Fraud Cash-Out Hotspot Forecaster",
@@ -25,33 +27,22 @@ app = FastAPI(
 # Enable CORS for local Vite development frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins for local hackathon demo
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include API Router under both /api/v1 and /api
+# Include root health checks
+app.include_router(health_router)
+
+# Include domain API Routers under both /api/v1 and /api
 app.include_router(api_router, prefix="/api/v1", tags=["v1"])
 app.include_router(api_router, prefix="/api", tags=["default"])
-
-
-@app.get("/health")
-def healthcheck():
-    return {
-        "status": "online",
-        "system": "SENTINEL",
-        "region": "Maharashtra State Cyber Command",
-        "version": "1.0.0",
-    }
-
-
-from fastapi.staticfiles import StaticFiles
 
 _FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
 if _FRONTEND_DIST.exists() and (_FRONTEND_DIST / "index.html").exists():
-    # Mount static assets and serve index.html for root and SPA routes
     app.mount("/", StaticFiles(directory=str(_FRONTEND_DIST), html=True), name="frontend")
 else:
     @app.get("/")
@@ -68,8 +59,5 @@ else:
 if __name__ == "__main__":
     import os
     import uvicorn
-    # Disabled reload by default for demo stability: prevents catastrophic RAM state wipe
-    # (in-memory graph, alert queue, ledgers) if any file is touched during judging.
-    # Can be enabled explicitly for dev via: set SENTINEL_RELOAD=true
     should_reload = os.environ.get("SENTINEL_RELOAD", "false").lower() == "true"
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=should_reload)
