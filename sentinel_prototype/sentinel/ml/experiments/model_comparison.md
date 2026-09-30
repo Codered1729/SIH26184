@@ -4,10 +4,11 @@ Walk-forward validation, 4 temporal folds, synthetic calibrated dataset (`ml/syn
 
 | Model | Source | Opt. threshold | Precision | Recall | F1 | PR-AUC | ROC-AUC | KS | ECE | Brier | Latency (ms/sample) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| CatBoost | real | 0.349 | 0.736 | 0.858 | 0.792 | 0.878 | 0.903 | 0.634 | 0.018 | 0.1246 | 0.0023 |
-| LightGBM | fallback:HistGradientBoosting | 0.351 | 0.743 | 0.838 | 0.787 | 0.872 | 0.899 | 0.624 | 0.033 | 0.1287 | 0.0070 |
-| XGBoost | real | 0.373 | 0.749 | 0.830 | 0.787 | 0.871 | 0.897 | 0.625 | 0.033 | 0.1293 | 0.0095 |
-| RandomForest (baseline) | real | 0.413 | 0.742 | 0.823 | 0.780 | 0.865 | 0.894 | 0.616 | 0.110 | 0.1453 | 0.0479 |
+| CatBoost | real | 0.349 | 0.736 | 0.858 | 0.792 | 0.878 | 0.903 | 0.634 | 0.018 | 0.1246 | 0.0021 |
+| LightGBM | fallback:HistGradientBoosting | 0.351 | 0.743 | 0.838 | 0.787 | 0.872 | 0.899 | 0.624 | 0.033 | 0.1287 | 0.0075 |
+| XGBoost | real | 0.373 | 0.749 | 0.830 | 0.787 | 0.871 | 0.897 | 0.625 | 0.033 | 0.1293 | 0.0108 |
+| RandomForest (baseline) | real | 0.413 | 0.742 | 0.823 | 0.780 | 0.865 | 0.894 | 0.616 | 0.110 | 0.1453 | 0.0390 |
+| LogisticRegression | real | 0.416 | 0.714 | 0.864 | 0.782 | 0.861 | 0.890 | 0.610 | 0.047 | 0.1362 | 0.0018 |
 
 **Selected model: CatBoost** (highest PR-AUC = 0.878).
 

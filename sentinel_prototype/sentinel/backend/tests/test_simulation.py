@@ -17,7 +17,7 @@ from app.services.simulation_engine import SimulationEngine
 
 class TestSimulationAndAudit(unittest.TestCase):
     def setUp(self):
-        self.client = TestClient(app)
+        self.client = TestClient(app, headers={"X-Officer-Token": "DEMO_OFFICER_TOKEN_2026"})
         self.engine = SimulationEngine()
 
     def test_scenarios_metadata(self):

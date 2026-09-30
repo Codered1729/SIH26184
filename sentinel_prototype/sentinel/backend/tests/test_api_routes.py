@@ -25,7 +25,7 @@ from app.main import app
 class TestSentinelAPIRoutes(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.client = TestClient(app)
+        cls.client = TestClient(app, headers={"X-Officer-Token": "DEMO_OFFICER_TOKEN_2026"})
 
     def test_01_health_and_root(self):
         """Verify health check and root endpoints return online status."""

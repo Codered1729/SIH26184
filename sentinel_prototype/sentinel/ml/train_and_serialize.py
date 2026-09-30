@@ -138,6 +138,15 @@ def train_and_serialize():
         ),
     }
 
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import Pipeline
+
+    models_dict["LogisticRegression"] = Pipeline([
+        ("scaler", StandardScaler()),
+        ("lr", LogisticRegression(C=1.0, max_iter=1000, random_state=42, class_weight='balanced'))
+    ])
+
     # Include native XGBoost
     try:
         import xgboost as xgb
@@ -231,6 +240,8 @@ def train_and_serialize():
             feature_importances[name] = dict(zip(feature_names, [float(v) for v in clf.get_feature_importance()]))
         elif hasattr(clf, "coef_"):
             feature_importances[name] = dict(zip(feature_names, [float(v) for v in np.abs(clf.coef_[0])]))
+        elif hasattr(clf, "named_steps") and hasattr(clf.named_steps.get("lr", None), "coef_"):
+            feature_importances[name] = dict(zip(feature_names, [float(v) for v in np.abs(clf.named_steps["lr"].coef_[0])]))
         else:
             feature_importances[name] = {}
 

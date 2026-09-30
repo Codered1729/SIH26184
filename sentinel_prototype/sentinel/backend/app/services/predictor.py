@@ -70,9 +70,12 @@ class CashoutPredictor:
         if not self.model_path.exists():
             # Graceful dummy fallback if bundle is not yet trained
             self.bundle = None
+            self.bundle_sha256 = "UNVERIFIED"
             return
 
         try:
+            import hashlib
+            self.bundle_sha256 = f"sha256:{hashlib.sha256(self.model_path.read_bytes()).hexdigest()}"
             # Map legacy Cython _loss module alias if required by scikit-learn pickle
             try:
                 import sklearn._loss._loss
@@ -82,6 +85,7 @@ class CashoutPredictor:
 
             with open(self.model_path, "rb") as f:
                 self.bundle = pickle.load(f)
+            self.bundle["bundle_sha256"] = self.bundle_sha256
 
             # Set n_jobs=1 for low-overhead single-sample inference on Windows
             for m in self.bundle.get("models", {}).values():

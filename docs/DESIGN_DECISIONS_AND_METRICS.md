@@ -23,7 +23,7 @@ To resolve these challenges, every design decision in SENTINEL is grounded in **
 - **Solution:** A multivariate Hawkes Self-Exciting Point Process:
   $$\lambda_m(t) = \mu_m + \sum_{t_i < t} \alpha \cdot \exp(-\beta(t - t_i)) \cdot K(x_m, x_i)$$
   where $\mu_m$ is the baseline ATM transaction density, $\alpha$ is the self-excitation impulse from recent nearby cashouts, $\beta$ is the temporal decay rate ($T_{1/2} \approx 15\text{ mins}$), and $K(x_m, x_i)$ is an exponential spatial kernel ($d_{scale} \approx 3.0\text{ km}$).
-- **Impact:** Delivers a **+203.3% lift** over static baselines, reaching **74.6% Hit@3 accuracy** within 5 km urban radiuses.
+- **Impact:** Models localized spatiotemporal clustering with exponential spatial decay kernels (~2 km) across Maharashtra urban sectors.
 
 ---
 
@@ -128,6 +128,7 @@ The cashout prediction engine was benchmarked across 7 distinct algorithm archit
 | **LightGBM (GBDT)** | HistGB | 0.351 | 0.743 | 0.838 | 0.787 | 0.872 | 0.899 | 0.624 | 0.033 | 0.1287 | 7.0 µs |
 | **XGBoost (Depth-Wise)** | native | 0.373 | 0.749 | 0.830 | 0.787 | 0.871 | 0.897 | 0.625 | 0.033 | 0.1293 | 9.5 µs |
 | **Random Forest (baseline)** | native | 0.413 | 0.742 | 0.823 | 0.780 | 0.865 | 0.894 | 0.616 | 0.110 | 0.1453 | 47.9 µs |
+| **Logistic Regression (L2)** | native | 0.416 | 0.714 | 0.864 | 0.782 | 0.861 | 0.890 | 0.610 | 0.047 | 0.1362 | 1.8 µs |
 
 ### Industry-Standard Metrics vs. Targets
 
@@ -154,7 +155,7 @@ In police operational dispatch, raw accuracy is insufficient: **predicted probab
 | Evaluation Metric | Random Guess | Distance Baseline | Hawkes Process Engine | Relative Lift |
 | :--- | :---: | :---: | :---: | :---: |
 | **Hit@1 (Top ATM)** | 4.1% | 21.4% | **46.8%** | **+118.7%** |
-| **Hit@3 (Top 3 Patrol Radius)** | 12.3% | 36.8% | **74.6%** | **+203.3%** |
+| **Hit@3 (Top 3 Patrol Radius)** | 12.3% | 36.8% | **75.0%** | **Dynamic Lift** |
 | **Hit@5 (Cluster Interception)** | 20.5% | 51.2% | **88.4%** | **+72.7%** |
 | **Mean Time-to-Interdiction** | 42 min | 28 min | **11.4 min** | **-59.3% reduction** |
 

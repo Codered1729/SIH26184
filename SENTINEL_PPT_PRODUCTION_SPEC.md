@@ -56,7 +56,7 @@
    * *The Operational Outcome:* **Filters Out the Noise Upfront.** Instantly quarantines fake, uncorroborated, and duplicate griefing complaints before they consume police resources.
 2. **Hawkes Self-Exciting Point-Process Spatiotemporal Core:**
    * *The Engineering:* Continuous-time multivariate point-process modeling spatial decay ($\le 2\text{km}$) and temporal excitation ($\beta = 1/600$) with $dt > 3600\text{s}$ short-circuiting and $10\text{km}$ bounding box filters.
-   * *The Operational Outcome:* **3 in 4 Criminals Intercepted.** Predicts the exact ATM cluster the mule runner will hit next with **74.6% Hit@3 accuracy** (+203% lift over static patrols).
+   * *The Operational Outcome:* **Predictive Spatial Interdiction.** Dynamically forecasts the ATM cluster where cash-out is imminent using Hawkes self-exciting point-processes.
 3. **Closed-Form Bayesian Posterior Belief Updating:**
    * *The Engineering:* Closed-form conjugate posterior calculation ($O(1)$, $< 0.01\text{ ms}$) updating spatial likelihoods on each intermediate mule hop without neural retraining.
    * *The Operational Outcome:* **Dynamically Tightens the Dragnet.** As layered bank transfers stream in, the search radius contracts around the active withdrawal kiosk in real time.
@@ -121,7 +121,7 @@
  │                                LAYER 3: PREDICTIVE & SPATIOTEMPORAL INTELLIGENCE CORE                            │
  ├──────────────────────────────────────────────────┬───────────────────────────────────────────────────────────────┤
  │   Champion Classification Engine (CatBoost/GBDT) │   Spatiotemporal Point-Process Ranker (Hawkes)                │
- │   • PR-AUC: 0.518 | Brier: 0.1745 | Latency: 0.001ms │   • Hit@3: 74.6% (+203% vs static baseline)                   │
+ │   • PR-AUC: 0.518 | Brier: 0.1745 | Latency: 0.001ms │   • Hawkes Spatial Kernel: Dynamic localized excitation                   │
  │   • F1-Optimal Decision Cutoff: 0.269 (Recall 68.0%)│   • Spatial Bounding Box (10km) + Temporal Cutoff (dt>3600s) │
  ├──────────────────────────────────────────────────┴───────────────────────────────────────────────────────────────┤
  │   Closed-Form Bayesian Belief Updater (Laplace Smoothed)                                                         │
@@ -182,7 +182,7 @@
 |---|---|---|---|---|
 | **1** | **Legality of Fund Freezing** | Proposes smart contracts to automatically freeze bank accounts via APIs without human review. | Auto-generates **Section 106 & 107(5) BNSS Lawful Hold Orders** with Section 63(4) BSA digital certificates for disputed amounts only. | **100% Statutory Compliance.** Autonomous account freezing is illegal under Indian law; SENTINEL provides lawful, court-admissible police orders. |
 | **2** | **Disputed vs. Blanket Liens** | Freezes entire savings/current accounts, paralyzing legitimate businesses and inducing litigation. | Implements **Targeted Disputed-Amount Liens** ($\le ₹78,000$), preserving unflagged account balances. | Prevents wrongful merchant account freezes and avoids crippling bank customer support desks. |
-| **3** | **Spatiotemporal Accuracy** | Uses static density heatmaps or generic BERT embeddings that show historical clusters. | Deploys a **Self-Exciting Hawkes Point-Process** with temporal cutoff ($dt < 3600\text{s}$) and spatial bounding ($< 10\text{km}$). | Achieves **74.6% Hit@3 accuracy** (+203% gain over static baselines) by modeling dynamic criminal burst behavior. |
+| **3** | **Spatiotemporal Accuracy** | Uses static density heatmaps or generic BERT embeddings that show historical clusters. | Deploys a **Self-Exciting Hawkes Point-Process** with temporal cutoff ($dt < 3600\text{s}$) and spatial bounding ($< 10\text{km}$). | Models dynamic criminal burst behavior using temporal cutoff and spatial bounding kernels. |
 | **4** | **Inference & Serving Latency** | Bulky deep-learning models requiring expensive cloud GPUs and causing 2–5 second delays. | Optimized **CatBoost / LightGBM C++ inference** running in **0.0010 ms/sample** on commodity CPUs. | **Zero GPU Cost & Zero Latency.** Processes 270,000 complaints/sec on standard GovTech server hardware. |
 | **5** | **Fake & Duplicate Grievances** | Directly feeds raw complaints into the prediction pipeline, crashing queues on coordinated spam. | **Authenticity Gate (4-layer rule engine)** verifying UTR structure, nodal webhooks, and rate limits in **0.05 ms**. | Quarantines Sybil attacks and duplicate-UTR griefing before consuming analytical compute. |
 | **6** | **Bank Gateway Downtime** | Assumes continuous API connectivity; dropped network calls permanently lose fraud alerts. | **Circuit Breaker + Transactional Outbox (WAL mode)** with automated DLQ and async non-blocking retry replay. | **Zero Alert Loss.** 100% transmission recovery verified under simulated bank API network outages. |
@@ -205,11 +205,11 @@
 
 ```text
 ┌────────────────────────────────────────┐  ┌────────────────────────────────────────┐
-│              ₹15,000+ Cr               │  │          3 in 4 Criminals Caught       │
-│        Physical Cash-Out Drain         │  │         (74.6% Hit@3 ATM Accuracy)     │
+│              Substantial Illicit Drain               │  │          Targeted ATM Interception       │
+│        Physical Cash-Out Drain         │  │         (Hawkes Point-Process ATM Interception)     │
 │ ~65-70% of cyber fraud is liquidated   │  │ Patrolling top 3 suggested kiosks      │
 │ into physical cash at ATMs/kiosks;     │  │ intercepts the runner in 3 of 4 cases  │
-│ SENTINEL halts this point of no return.│  │ (+203% gain over static police beats). │
+│ SENTINEL halts this point of no return.│  │ (Dynamic localized excitation over static beats). │
 └────────────────────────────────────────┘  └────────────────────────────────────────┘
 ┌────────────────────────────────────────┐  ┌────────────────────────────────────────┐
 │       2.5x Threat Detection Lift       │  │               15 – 45 Min              │
@@ -230,7 +230,7 @@
 
 ### [Section 2: Novel Qualitative Operational Benefits]
 1. **Targeting the Irreversible Bottleneck (Physical Cash-Out):**
-   * Digital funds can be reversed or liened, but physical cash leaving an ATM is irrecoverable. SENTINEL directly targets the ~₹15,000+ Crore physical withdrawal drain before cash is dispensed.
+   * Digital funds can be reversed or liened, but physical cash leaving an ATM is irrecoverable. SENTINEL directly targets the estimated substantial physical withdrawal drain (I4C / Parliamentary Committee on Finance estimates) before cash is dispensed.
 2. **Zero Illegal Account Freezes:**
    * 3-tier authenticity validation and disputed-amount hold requests eliminate wrongful merchant account freezes, protecting legitimate commerce while securing victim funds.
 3. **Automated Cross-JCCT Interstate Routing:**
@@ -277,10 +277,10 @@
 ---
 
 ### [Section 2: Hawkes Spatiotemporal Algorithmic Validation]
-*Tested on 500 sequential cash-out burst episodes across 50+ calibrated Maharashtra ATMs ([validate_hawkes.py](file:///c:/sih/sentinel_prototype/sentinel/ml/experiments/validate_hawkes.py)):*
-* **Hit@1:** Hawkes `44.6%` vs Static Baseline `11.8%` (**+278.0% Relative Gain**)
-* **Hit@3:** Hawkes `74.6%` vs Static Baseline `24.6%` (**+203.3% Relative Gain**)
-* **Hit@5:** Hawkes `89.2%` vs Static Baseline `38.4%` (**+132.3% Relative Gain**)
+*Tested on 500 sequential cash-out burst episodes across calibrated Maharashtra ATMs ([validate_hawkes.py](file:///c:/sih/sentinel_prototype/sentinel/ml/experiments/validate_hawkes.py)):*
+* **Hit@1:** Hawkes `67.6%` vs Static Baseline `6.8%` (Dynamic localized excitation)
+* **Hit@3:** Hawkes `75.0%` vs Static Baseline `22.8%` (Algorithmic cluster recovery)
+* **Hit@5:** Hawkes `77.8%` vs Static Baseline `33.6%` (Coverage lift)
 
 ---
 
@@ -316,7 +316,7 @@
 ## Complete Slide-by-Slide Presenter Script (Word-for-Word 3-Minute Flow)
 
 ### Slide 1: Introduction (0:00 - 0:25)
-> *"Respected jury members, digital funds can be reversed or liened while they remain in bank ledgers, but the moment illicit proceeds are physically withdrawn as cash at an ATM, that capital is lost forever. In India, an estimated ₹15,000+ Crores are siphoned off annually through physical cash-out withdrawals. Today, law enforcement operates under a severe structural disadvantage: an incident occurs, a report is filed hours later, and by the time tracing starts, the mule runner has already emptied the ATM. We present **SENTINEL**—an autonomous predictive analytics framework that forecasts cash withdrawal locations before the money moves, operating inside the critical 15 to 45 minute golden window, with 100% compliance with the new Bharatiya Nagarik Suraksha Sanhita."*
+> *"Respected jury members, digital funds can be reversed or liened while they remain in bank ledgers, but the moment illicit proceeds are physically withdrawn as cash at an ATM, that capital is lost forever. In India, an estimated thousands of crores are siphoned off annually (I4C estimates) through physical cash-out withdrawals. Today, law enforcement operates under a severe structural disadvantage: an incident occurs, a report is filed hours later, and by the time tracing starts, the mule runner has already emptied the ATM. We present **SENTINEL**—an autonomous predictive analytics framework that forecasts cash withdrawal locations before the money moves, operating inside the critical 15 to 45 minute golden window, with 100% compliance with the new Bharatiya Nagarik Suraksha Sanhita."*
 
 ### Slide 2: The Solution & Anti-SKYVAR Reality Check (0:25 - 1:00)
 > *"Unlike conventional hackathon proposals that present dangerous, legally impossible shortcuts—like smart contracts that autonomously freeze entire bank accounts without human or judicial oversight—SENTINEL is built for actual deployment. We implement a four-pillar architecture: a sub-millisecond Authenticity Gate that eliminates fake complaints upfront, a Hawkes self-exciting point-process that predicts the exact cash-out ATM, closed-form Bayesian re-ranking that tightens predictions on every mule hop without retraining, and court-admissible Section 106 hold notices for disputed amounts only."*
@@ -328,7 +328,7 @@
 > *"We have systematically addressed every real-world operational failure mode. To prevent patrol radio flooding, we enforce an algorithmic 15-minute suppression cooldown. To eliminate Cartesian graph explosions, we maintain unique B-tree indexing across all transaction nodes. And critically, every alert carries a Section 63(4) BSA digital hash certificate. While generic solutions trigger litigation by freezing entire merchant accounts, SENTINEL strictly places disputed-amount liens, preserving legitimate commerce."*
 
 ### Slide 5: Real-World Impact (2:15 - 2:40)
-> *"The impact is grounded in empirical reality. In 500 simulated burst episodes across Maharashtra, our Hawkes point-process achieved a 74.6% Hit@3 accuracy—meaning patrolling the top 3 suggested kiosks catches the runner in 3 out of 4 episodes. That is a 203% gain over static police patrols. We deliver a 2.5 times discriminative lift over random chance and 68% recall out-of-sample, all while ensuring zero unlawful account freezes."*
+> *"The impact is grounded in empirical reality. In 500 simulated burst episodes across Maharashtra, our Hawkes point-process prioritizes candidate ATMs based on spatiotemporal decay kernels—meaning patrolling suggested kiosks provides actionable spatiotemporal prioritization over static police patrol coverage. We deliver a 2.5 times discriminative lift over random chance and 68% recall out-of-sample, all while ensuring zero unlawful account freezes."*
 
 ### Slide 6: Research, References & Empirical Performance (2:40 - 3:00)
 > *"Finally, we don't present mockups or unverified claims. Our models are validated on 18,000 complaints using strict 4-fold walk-forward cross-validation without temporal data leakage. With a calibrated Brier score of 0.1745 and inference speeds under a microsecond on commodity CPUs, SENTINEL is built to deploy directly into police cyber cells and bank nodal desks. SENTINEL is not a concept—it is a production-ready GovTech shield built to protect India's digital economy. Thank you."*

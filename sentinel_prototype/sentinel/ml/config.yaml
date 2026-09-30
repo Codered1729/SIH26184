@@ -1,0 +1,90 @@
+# SENTINEL Machine Learning & Operational Dispatch Unified Configuration
+# Version: 1.0.0
+# Calibrated for Maharashtra cybercrime ecosystem (Mumbai MMR, Pune, Nagpur, Nashik, Thane)
+
+version: "1.0.0"
+random_seed: 42
+
+data:
+  raw_path: "sentinel_prototype/sentinel/ml/synthetic_complaints.csv"
+  evaluation_path: "sentinel_prototype/sentinel/ml/synthetic_complaints_evaluation.csv"
+  osm_atms_path: "sentinel_prototype/sentinel/data/atms/maharashtra_osm_atms.json"
+  test_split_ratio: 0.20
+  temporal_column: "day"
+  target_column: "cashout_in_window"
+
+features:
+  categorical:
+    - "jcct_origin"
+    - "pincode_tier"
+    - "channel_type"
+  numerical:
+    - "atm_density_home_pincode"
+    - "hop_depth"
+    - "amount"
+    - "hop_velocity_min"
+    - "account_age_days"
+    - "linked_device_count"
+    - "time_to_file_min"
+    - "complainant_filing_count_90d"
+    - "utr_verified"
+    - "bank_corroborated"
+    - "police_attested"
+    - "attestation_count"
+    - "hour_of_day"
+    - "is_banking_hours_flag"
+    - "structuring_flag"
+    - "fan_out_ratio"
+    - "sim_swap_last_48h"
+    - "remote_access_tool_flag"
+
+thresholds:
+  default_operational_threshold: 0.35
+  f1_optimal: true
+  min_confidence: 0.60
+  golden_window_minutes: 45.0
+  atm_cooldown_seconds: 900
+
+models:
+  primary: "CatBoost"
+  calibration:
+    method: "isotonic"
+    val_split_ratio: 0.10
+  hyperparameters:
+    RandomForest_tuned:
+      n_estimators: 300
+      max_depth: 8
+      random_state: 42
+    RandomForest_baseline:
+      n_estimators: 200
+      max_depth: 8
+      random_state: 42
+    HistGradientBoosting:
+      max_iter: 300
+      learning_rate: 0.05
+      random_state: 42
+    GradientBoosting:
+      n_estimators: 200
+      max_depth: 5
+      learning_rate: 0.05
+      random_state: 42
+    CatBoost:
+      iterations: 300
+      depth: 6
+      learning_rate: 0.05
+      random_seed: 42
+    LightGBM:
+      n_estimators: 300
+      max_depth: 6
+      learning_rate: 0.05
+      random_state: 42
+    XGBoost:
+      n_estimators: 200
+      max_depth: 5
+      learning_rate: 0.05
+      random_state: 42
+    LogisticRegression:
+      C: 1.0
+      max_iter: 1000
+      random_state: 42
+      class_weight: "balanced"

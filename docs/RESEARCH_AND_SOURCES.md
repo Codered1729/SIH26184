@@ -10,18 +10,18 @@ SENTINEL is built from the ground up to comply strictly with India's criminal ju
 
 ### 1.1 Bharatiya Nagarik Suraksha Sanhita (BNSS), 2023
 
-#### Section 105: Summons / Order for Production of Documents or Things
-- **Statutory Mandate:** Empowers the officer in charge of a police station or an authorized cyber cell investigator to issue an order requiring the production of any document, digital record, or transactional artifact necessary for the investigation.
-- **SENTINEL Integration:** Used at the ingestion stage to ingest attested bank ledger extracts and telecommunication CDR/IMEI logs.
+#### Section 105: Recording of Search & Seizure through Audio-Video Electronic Means
+- **Statutory Mandate:** Mandates that the process of conducting search and seizure, including preparation of seizure lists and signature of witnesses, shall be recorded through audio-video electronic means (e.g. mobile phone, electronic device), ensuring a tamper-evident digital evidentiary chain of custody.
+- **SENTINEL Integration:** Used as the mandatory digital evidentiary audit trail and cryptographic hash certificate logging framework for all automated electronic seizure and hold actions.
 
-#### Section 106: Attachment, Forfeiture, or Preservation of Property Derived from Criminal Activities
-- **Statutory Mandate:** Provides explicit statutory authorization for the preservation, seizure, and attachment of property (including digital currency and bank balances) identified as proceeds of crime.
-- **SENTINEL Integration:** Forms the legal backbone of SENTINEL's rapid-dispatch preservation orders to bank nodal officers.
+#### Section 106: Power of Police Officer to Seize Property Linked to Offence
+- **Statutory Mandate:** Empowers a police officer to seize or freeze any property which may be alleged or suspected to have been stolen, or which may be found under circumstances which create suspicion of the commission of any offence (including fraudulent bank credits).
+- **SENTINEL Integration:** Forms the legal backbone of SENTINEL's rapid-dispatch police interim hold orders directed to bank nodal officers.
 
-#### Section 107(5): Proportionate Disputed-Amount Preservation Lien
-- **Statutory Mandate:** Mandates that where an account holds funds in excess of the illicit proceeds, the attachment or freeze order shall be **strictly restricted to the disputed quantum** derived from the criminal activity, prohibiting blanket freezes of entire operational accounts.
+#### Section 107(5): Proportionate Disputed-Amount Judicial Attachment Lien
+- **Statutory Mandate:** Governs Magistrate ex-parte interim attachment of property derived from criminal activity, mandating that where an account holds funds in excess of the illicit proceeds, the attachment or freeze shall be **strictly restricted to the disputed quantum**, prohibiting blanket freezes of entire operational accounts.
 - **SENTINEL Integration:**
-  - Traditional Section 91 CrPC notices triggered unconstitutional blanket account freezes, blocking ₹5,00,000 for a ₹20,000 dispute.
+  - Traditional Section 91/102 CrPC notices triggered unconstitutional blanket account freezes, blocking ₹5,00,000 for a ₹20,000 dispute.
   - SENTINEL programmatically calculates the exact disputed rupee quantum ($₹\text{Disputed}$), formatting the notice to instruct the bank nodal officer to place a **debit freeze strictly on the disputed amount**, leaving operational and merchant balances active.
 
 ---

@@ -28,6 +28,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.base import clone
 from sklearn.ensemble import (
     GradientBoostingClassifier,
     HistGradientBoostingClassifier,
@@ -110,6 +111,15 @@ def build_candidates(seed: int):
     candidates["RandomForest (baseline)"] = ("real", RandomForestClassifier(
         n_estimators=200, max_depth=8, random_state=seed, n_jobs=-1,
     ))
+
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import Pipeline
+
+    candidates["LogisticRegression"] = ("real", Pipeline([
+        ("scaler", StandardScaler()),
+        ("lr", LogisticRegression(C=1.0, max_iter=1000, random_state=seed, class_weight='balanced'))
+    ]))
     return candidates
 
 
@@ -181,7 +191,7 @@ def run_benchmark(csv_path: str = None, n_splits: int = 4, seed: int = 42):
             X_test, _ = make_features(test_df, encoder=encoder, fit=False)
             y_train, y_test = train_df[TARGET].values, test_df[TARGET].values
 
-            model_fold = model.__class__(**model.get_params())
+            model_fold = clone(model)
             model_fold.fit(X_train, y_train)
 
             t0 = time.perf_counter()
