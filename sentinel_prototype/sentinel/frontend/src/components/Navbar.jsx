@@ -60,7 +60,7 @@ export default function Navbar({
       zIndex: 1000,
     }}>
       {/* Top Header Bar */}
-      <div style={{
+      <div className="sentinel-navbar-header" style={{
         maxWidth: '100%',
         margin: '0',
         padding: '8px 28px',
@@ -102,14 +102,14 @@ export default function Navbar({
                 SIH 26184
               </span>
             </div>
-            <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '500' }}>
+            <div className="sentinel-navbar-brand-sub" style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '500' }}>
               Maharashtra State Cyber Police • Inter-Bank CFCFRMS Golden Window Intervention
             </div>
           </div>
         </div>
 
         {/* Operational Telemetry Indicators */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="sentinel-navbar-telemetry" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           {/* Authenticated Officer Session Badge */}
           <div style={{
             display: 'flex',
@@ -210,7 +210,7 @@ export default function Navbar({
       </div>
 
       {/* Navigation Screen Tabs */}
-      <div style={{
+      <div className="sentinel-nav-tabs" style={{
         maxWidth: '100%',
         margin: '0',
         padding: '0 28px',
@@ -219,6 +219,7 @@ export default function Navbar({
         gap: '4px',
         backgroundColor: '#071526',
         overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
       }}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -227,6 +228,7 @@ export default function Navbar({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
+              className="sentinel-nav-tab"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -243,7 +245,7 @@ export default function Navbar({
               }}
             >
               <Icon size={14} strokeWidth={isActive ? 2.4 : 1.8} color={isActive ? 'var(--color-teal)' : '#94A3B8'} />
-              <span>{tab.label}</span>
+              <span className="sentinel-tab-label">{tab.label}</span>
               {tab.badge !== undefined && tab.badge > 0 && (
                 <span style={{
                   padding: '1px 5px',

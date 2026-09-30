@@ -13,10 +13,16 @@ jobs:
     steps:
       - name: Ping /health Endpoint
         run: |
-          echo "Pinging SENTINEL Render service..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://sentinel-sih26184.onrender.com/health)
+          echo "Pinging SENTINEL Render service to prevent cold-start sleep..."
+          # Use || true so the job never fails — free tier may return non-200 during warm-up
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+            https://sentinel-sih26184.onrender.com/health || echo "000")
           echo "HTTP Status: $STATUS"
-          if [ "$STATUS" -ne 200 ]; then
-            echo "Unexpected status $STATUS, pinging root URL..."
-            curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://sentinel-sih26184.onrender.com/
+          if [ "$STATUS" = "200" ]; then
+            echo "Service healthy — keepalive ping successful."
+          else
+            echo "Service warming up (status=$STATUS) — this is expected on Render free tier cold-start. Pinging root as fallback..."
+            curl -s -o /dev/null --max-time 30 https://sentinel-sih26184.onrender.com/ || true
+            echo "Keepalive ping sent. Job will not fail on warm-up responses."
           fi
+          exit 0

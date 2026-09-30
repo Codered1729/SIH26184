@@ -187,7 +187,7 @@ export default function App() {
       />
 
       {/* Main 5-Screen Operational Command Workspace - Fluid Widescreen Layout */}
-      <main style={{ flex: 1, width: '100%', maxWidth: '100%', margin: '0', padding: '16px 28px' }}>
+      <main className="sentinel-main" style={{ flex: 1, width: '100%', maxWidth: '100%', margin: '0', padding: '16px 28px' }}>
         {/* Screen 1: Priority Queue & Alert Feed */}
         {activeTab === 'queue' && (
           <PriorityQueue

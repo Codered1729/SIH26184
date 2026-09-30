@@ -326,3 +326,122 @@ code, pre, .font-mono {
   border: none;
 }
 
+/* ==========================================================================
+   RESPONSIVE — Mobile & Tablet Breakpoints
+   ========================================================================== */
+
+/* Tablet (≤1024px) */
+@media (max-width: 1024px) {
+  body {
+    font-size: 12px;
+  }
+
+  .sentinel-main {
+    padding: 12px 16px !important;
+  }
+
+  .sentinel-navbar-header {
+    padding: 8px 16px !important;
+  }
+
+  .sentinel-nav-tabs {
+    padding: 0 12px !important;
+  }
+
+  .sentinel-scenario-bar-header {
+    padding: 6px 16px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .sentinel-scenario-grid {
+    padding: 0 16px 8px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Mobile (≤640px) */
+@media (max-width: 640px) {
+  body {
+    font-size: 12px;
+  }
+
+  .sentinel-main {
+    padding: 8px 10px !important;
+  }
+
+  /* Navbar */
+  .sentinel-navbar-header {
+    padding: 8px 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .sentinel-navbar-telemetry {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .sentinel-navbar-telemetry .sentinel-officer-badge {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .sentinel-navbar-brand-sub {
+    display: none !important; /* hide long subtitle on mobile */
+  }
+
+  .sentinel-nav-tabs {
+    padding: 0 8px !important;
+    gap: 0 !important;
+  }
+
+  .sentinel-nav-tab {
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .sentinel-nav-tab .sentinel-tab-label {
+    display: none !important; /* icon-only on mobile */
+  }
+
+  /* Scenario bar */
+  .sentinel-scenario-bar-header {
+    padding: 6px 12px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .sentinel-scenario-grid {
+    padding: 0 12px 8px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Alert cards */
+  .card {
+    padding: 10px 12px !important;
+  }
+
+  /* Buttons — larger touch targets */
+  .btn {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+  }
+
+  /* Tab buttons touch targets */
+  .tab-btn {
+    padding: 10px 12px !important;
+  }
+}
+
+/* Spin animation for loading spinners */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+

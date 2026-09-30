@@ -111,7 +111,7 @@ export default function ScenarioControllerBar({
       position: 'relative',
       zIndex: 990,
     }}>
-      <div style={{
+      <div className="sentinel-scenario-bar-header" style={{
         maxWidth: '100%',
         margin: '0',
         padding: '6px 28px',
@@ -206,7 +206,7 @@ export default function ScenarioControllerBar({
 
       {/* Expanded Scenario Buttons Strip */}
       {!isCollapsed && (
-        <div style={{
+        <div className="sentinel-scenario-grid" style={{
           maxWidth: '100%',
           margin: '0',
           padding: '0 28px 8px',
