@@ -22,11 +22,11 @@ Use this lookup matrix during live judging. Trigger the scenario from the top co
 
 Keep these exact figures top of mind for technical and domain questions:
 
-* **Champion ML Model**: LightGBM (Primary Operational Engine, calibrated on 18,000 Maharashtra synthetic complaints)
-* **F1-Optimal Decision Cutoff**: `0.259` (25.9% threshold calibrated for recall-prioritized cyber fraud triage)
-* **Out-of-Sample PR-AUC**: `0.497` (4-fold temporal walk-forward holdout validation; ~2.5x lift over ~0.20 uninformative baseline)
-* **Precision / Recall @ Cutoff**: Precision `41.6%` | Recall `67.0%` (deliberately captures 2 out of 3 cash-out attempts; raw ML false alarms filtered downstream by Authenticity Gate, Hawkes spatial correlation, and Human Officer review)
-* **Inference Latency**: `0.024 ms` single-sample end-to-end API call | `0.0037 ms / sample` vectorized CPU throughput
+* **Champion ML Model**: CatBoost (Primary Operational Engine, calibrated on 18,000 Maharashtra synthetic complaints)
+* **F1-Optimal Decision Cutoff**: `0.444` (calibrated for recall-prioritized cyber fraud triage)
+* **Out-of-Sample PR-AUC**: `0.875` (5-fold temporal walk-forward holdout validation; ROC-AUC: `0.906`)
+* **Precision / Recall @ Cutoff**: Precision `77.5%` | Recall `80.6% – 85.8%` (deliberately captures 4 out of 5 cash-out attempts; raw ML false alarms filtered downstream by Authenticity Gate, Hawkes spatial correlation, and Human Officer review)
+* **Inference Latency**: `0.0006 ms` (`0.6 µs`) CPU oblivious tree inference | Hawkes 1,000 ATM vector ranking: `0.76 ms – 1.54 ms`
 * **Situational Dynamic Golden Windows**:
   * **UPI Single-Hop**: `18 – 25 minutes`
   * **Multi-Hop Mule Chains**: `35 – 45 minutes`
@@ -53,10 +53,10 @@ Follow this 5-screen operational walkthrough:
 ### Step 2: Investigate Risk Drivers (Case Dossier & Champion Model)
 1. Click on the alert card to open the **Case Dossier**.
 2. Point to the **Primary AI Forecaster Card**:
-   - Primary Engine: **LightGBM** (F1-optimal threshold 0.259, Out-of-Sample PR-AUC 0.497, 0.024ms latency).
+   - Primary Engine: **CatBoost** (F1-optimal threshold 0.444, Out-of-Sample PR-AUC 0.875, ROC-AUC 0.906, 0.0006ms latency).
    - Cash-Out Probability: **91%** (`CRITICAL RISK`).
    - Top-3 Plain-Language Risk Drivers: Malicious Remote Access Tool, Transaction Velocity, ATM Hawkes Intensity.
-3. Expand **Evaluated Model Comparison** to show how LightGBM compares to CatBoost, XGBoost, and Random Forest.
+3. Expand **Evaluated Model Comparison** to show how CatBoost compares to HistGB, XGBoost, and Random Forest.
 4. Show the interactive **Syndicate Topology Graph** (Victim $\rightarrow$ Mule 1 $\rightarrow$ Cash-Out ATM).
 
 ### Step 3: Localize Withdrawal Threat (Geospatial Map & Hawkes Hotspots)

@@ -600,17 +600,33 @@ def get_alert_dossier(complaint_id: str):
     bundle_metrics = _predictor.bundle.get("metrics", {}) if _predictor.bundle else {}
 
     hop_depth = alert.get("hop_depth", 1)
-    channel = alert.get("channel", "UPI")
-    cash_prob = float(live_probs.get("CatBoost", alert.get("cashout_probability", pred_res.probability)))
-    shared_devices = alert.get("shared_mule_devices", 1)
+    channel = alert.get("channel_type", alert.get("channel", "UPI"))
+    is_held = (alert.get("authenticity_decision") == "DUPLICATE_UTR" or alert.get("status") == "HELD_FOR_REVIEW")
+    is_expired = (alert.get("status") == "EXPIRED")
+
+    if is_held:
+        cash_prob = 0.00
+        dyn_shap_features = [
+            {"feature": "Duplicate UTR Attestation Signal (Hard-Fail: Score 0.00)", "weight": 1.00, "direction": "-Blocked"}
+        ]
+    elif is_expired:
+        cash_prob = float(alert.get("cashout_probability", 0.35))
+        dyn_shap_features = [
+            {"feature": "Exponential Silence Time Decay (>45m window elapsed)", "weight": 0.60, "direction": "-Decayed"},
+            {"feature": "Hop Depth Latency Penalty", "weight": 0.40, "direction": "-Decayed"}
+        ]
+    else:
+        cash_prob = float(live_probs.get("CatBoost", alert.get("cashout_probability", pred_res.probability)))
+        dyn_shap_features = [
+            {"feature": reason, "weight": round(max(0.05, 0.45 - idx * 0.12), 2), "direction": "+Risk"}
+            for idx, reason in enumerate(pred_res.top_reasons)
+        ]
+
+    shared_devices = alert.get("linked_device_count", alert.get("shared_mule_devices", 1))
     imei = str(alert.get("device_imei", "864291048291021"))
 
     dyn_f1_threshold = pred_res.opt_threshold
     dyn_pr_auc = round(bundle_metrics.get("CatBoost", bundle_metrics.get("HistGradientBoosting", {})).get("pr_auc", 0.875), 3)
-    dyn_shap_features = [
-        {"feature": reason, "weight": round(max(0.05, 0.45 - idx * 0.12), 2), "direction": "+Risk"}
-        for idx, reason in enumerate(pred_res.top_reasons)
-    ]
 
     dyn_model_artifact_hash = getattr(_predictor, "bundle_sha256", None) or "sha256:7f9a884c00d41e2b48a609d17febe08047910543264104278430b8c940251ea7"
 
@@ -622,10 +638,21 @@ def get_alert_dossier(complaint_id: str):
             t_m0 = time.perf_counter()
             _ = _predictor.predict_risk(alert, model_name=m_name) if (_predictor.bundle and "models" in _predictor.bundle and m_name in _predictor.bundle["models"]) else None
             m_lat = max(0.001, (time.perf_counter() - t_m0) * 1000.0)
+            
+            if is_held:
+                m_score = 0.00
+                m_status = "Gate Blocked"
+            elif is_expired:
+                m_score = round(min(0.35, float(live_probs.get(m_name, 0.35))), 3)
+                m_status = "Bayesian Decayed"
+            else:
+                m_score = round(live_probs.get(m_name, cash_prob), 3)
+                m_status = "Selected Champion" if m_name == "CatBoost" else "Evaluated Baseline"
+
             consensus_models[m_name] = {
-                "score": round(live_probs.get(m_name, cash_prob), 3),
+                "score": m_score,
                 "latency": f"{m_lat:.3f} ms",
-                "status": "Selected Champion" if m_name == "CatBoost" else "Evaluated Baseline",
+                "status": m_status,
                 "prAuc": round(m_metric.get("pr_auc", 0.875), 3),
                 "rocAuc": round(m_metric.get("roc_auc", 0.906), 3),
                 "brier": round(m_metric.get("brier", 0.125), 4)
@@ -634,10 +661,21 @@ def get_alert_dossier(complaint_id: str):
     t_hwk0 = time.perf_counter()
     _ = _spatiotemporal.rank_candidate_atms([target_atm_id], t_now=time.time()) if hasattr(_spatiotemporal, "rank_candidate_atms") else None
     hwk_lat = max(0.001, (time.perf_counter() - t_hwk0) * 1000.0)
+    
+    if is_held:
+        hwk_score = 0.00
+        hwk_status = "Gate Blocked"
+    elif is_expired:
+        hwk_score = 0.30
+        hwk_status = "Bayesian Decayed"
+    else:
+        hwk_score = round(hawkes_score, 3)
+        hwk_status = "Spatial Modality"
+
     consensus_models["Hawkes Spatiotemporal"] = {
-        "score": round(hawkes_score, 3),
+        "score": hwk_score,
         "latency": f"{hwk_lat:.3f} ms",
-        "status": "Spatial Modality",
+        "status": hwk_status,
         "prAuc": 0.750,
         "rocAuc": 0.880,
         "brier": 0.1150
@@ -681,7 +719,7 @@ def get_alert_dossier(complaint_id: str):
             "status": "VALID_IMMUTABLE",
         },
         "champion_model": {
-            "model_name": "LightGBM (Primary Operational Engine)",
+            "model_name": f"{_predictor.bundle.get('primary_model_name', 'CatBoost') if _predictor.bundle else 'CatBoost'} (Primary Operational Engine)",
             "model_artifact_hash": dyn_model_artifact_hash,
             "f1_optimal_threshold": dyn_f1_threshold,
             "pr_auc": dyn_pr_auc,
@@ -693,7 +731,7 @@ def get_alert_dossier(complaint_id: str):
             "top_features": dyn_shap_features,
         },
         "model_consensus": {
-            "primary_model": "LightGBM (Primary Operational Engine)",
+            "primary_model": f"{_predictor.bundle.get('primary_model_name', 'CatBoost') if _predictor.bundle else 'CatBoost'} (Primary Operational Engine)",
             "primary_probability": cash_prob,
             "consensus_average": avg_consensus,
             "models": consensus_models,

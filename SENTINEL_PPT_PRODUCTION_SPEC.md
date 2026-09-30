@@ -121,8 +121,8 @@
  │                                LAYER 3: PREDICTIVE & SPATIOTEMPORAL INTELLIGENCE CORE                            │
  ├──────────────────────────────────────────────────┬───────────────────────────────────────────────────────────────┤
  │   Champion Classification Engine (CatBoost/GBDT) │   Spatiotemporal Point-Process Ranker (Hawkes)                │
- │   • PR-AUC: 0.518 | Brier: 0.1745 | Latency: 0.001ms │   • Hawkes Spatial Kernel: Dynamic localized excitation                   │
- │   • F1-Optimal Decision Cutoff: 0.269 (Recall 68.0%)│   • Spatial Bounding Box (10km) + Temporal Cutoff (dt>3600s) │
+ │   • PR-AUC: 0.875 | ROC-AUC: 0.906 | Brier: 0.1233   │   • Hawkes Point-Process: cKDTree Vectorized (< 1.6 ms)      │
+ │   • F1-Optimal Threshold: 0.444 (Recall 80.6%–85.8%) │   • Spatial Bounding Box (10km) + Temporal Cutoff (dt>3600s) │
  ├──────────────────────────────────────────────────┴───────────────────────────────────────────────────────────────┤
  │   Closed-Form Bayesian Belief Updater (Laplace Smoothed)                                                         │
  │   • Conjugate Gaussian-decay posterior updating on intermediate mule hops without retraining                    │
@@ -212,17 +212,17 @@
 │ SENTINEL halts this point of no return.│  │ (Dynamic localized excitation over static beats). │
 └────────────────────────────────────────┘  └────────────────────────────────────────┘
 ┌────────────────────────────────────────┐  ┌────────────────────────────────────────┐
-│       2.5x Threat Detection Lift       │  │               15 – 45 Min              │
-│       (0.497 – 0.518 PR-AUC)           │  │          Dynamic Golden Window         │
-│ CatBoost/LightGBM finds true fraud     │  │ Calibrated to payment channel velocity │
-│ needles in the 1930 portal haystack    │  │ (UPI 18-25m, Multi-hop 35-45m,         │
-│ with optimal probability calibration.  │  │ NEFT 45-60m) before cash is dispensed. │
+│      +24.9% Threat Detection Lift      │  │               15 – 45 Min              │
+│      (0.875 PR-AUC / 0.906 ROC-AUC)    │  │          Dynamic Golden Window         │
+│ CatBoost C++ oblivious trees isolate   │  │ Calibrated to payment channel velocity │
+│ true fraud needles in 1930 portal data │  │ (UPI 18-25m, Multi-hop 35-45m,         │
+│ with Brier calibration error = 0.1233. │  │ NEFT 45-60m) before cash is dispensed. │
 └────────────────────────────────────────┘  └────────────────────────────────────────┘
 ┌────────────────────────────────────────┐  ┌────────────────────────────────────────┐
-│             68.0% Recall               │  │           15-Minute Suppression        │
-│      (F1-Optimal 0.269 Cutoff)         │  │             Cooldown Timer         │
-│ Deliberately tuned to capture 2 out    │  │ Smart suppression timer prevents radio │
-│ of 3 cash-out attempts out-of-sample.  │  │ flooding and patrol unit spamming.     │
+│         80.6% – 85.8% Recall           │  │           15-Minute Suppression        │
+│       (F1-Optimal 0.444 Cutoff)        │  │             Cooldown Timer         │
+│ Deliberately tuned to capture 4 out    │  │ Smart suppression timer prevents radio │
+│ of 5 cash-out attempts out-of-sample.  │  │ flooding and patrol unit spamming.     │
 └────────────────────────────────────────┘  └────────────────────────────────────────┘
 ```
 

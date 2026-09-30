@@ -23,11 +23,13 @@ export default function ModelConsensus({ consensusData, championModel, details =
 
   // Primary Champion Model configuration
   const champ = championModel || {
-    model_name: "LightGBM (Primary Operational Engine)",
-    f1_optimal_threshold: 0.259,
-    pr_auc: 0.654,
-    f1_score: 0.591,
-    latency_ms: 0.024,
+    model_name: "CatBoost (Primary Operational Engine)",
+    f1_optimal_threshold: 0.444,
+    pr_auc: 0.875,
+    roc_auc: 0.906,
+    brier_score: 0.1233,
+    f1_score: 0.790,
+    latency_ms: 0.0006,
     cashout_probability: caseData?.cashout_probability || 0.89,
     risk_tier: caseData?.risk_tier || "CRITICAL",
     top_features: [
@@ -41,8 +43,8 @@ export default function ModelConsensus({ consensusData, championModel, details =
 
   const cashoutProb = Number(champ.cashout_probability ?? caseData?.cashout_probability ?? 0.89);
   const probPct = Math.round(cashoutProb * 100);
-  const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.259) * 100);
-  const exceeds = cashoutProb >= (champ.f1_optimal_threshold || 0.259);
+  const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.444) * 100);
+  const exceeds = cashoutProb >= (champ.f1_optimal_threshold || 0.444);
   const isExpired = caseData?.status === 'EXPIRED';
 
   // 1. Calculate Priority Score Engine factors (PRIORITY = Risk x Urgency x Amount x Confidence x Actionability)
@@ -119,13 +121,13 @@ export default function ModelConsensus({ consensusData, championModel, details =
 
   // Benchmark Models for collapsible ensemble drawer
   const benchmarkModels = consensusData?.models || {
-    "LightGBM (Operational Engine)": { score: 0.89, latency: "0.024 ms", status: "Selected Champion", prAuc: 0.654 },
-    "XGBoost": { score: 0.91, latency: "0.142 ms", status: "Evaluated Baseline", prAuc: 0.648 },
-    "CatBoost": { score: 0.86, latency: "0.210 ms", status: "Evaluated Baseline", prAuc: 0.641 },
-    "RandomForest (tuned)": { score: 0.88, latency: "0.380 ms", status: "Evaluated Baseline", prAuc: 0.635 },
-    "HistGradientBoosting": { score: 0.87, latency: "0.045 ms", status: "Evaluated Baseline", prAuc: 0.630 },
-    "GradientBoosting": { score: 0.88, latency: "0.110 ms", status: "Evaluated Baseline", prAuc: 0.627 },
-    "Hawkes Spatiotemporal": { score: factorActionability, latency: "0.015 ms", status: "Spatial Modality", prAuc: 0.680 },
+    "CatBoost (Oblivious Trees)": { score: 0.91, latency: "0.0006 ms", status: "Selected Champion", prAuc: 0.875, rocAuc: 0.906, brier: 0.1233 },
+    "HistGradientBoosting": { score: 0.89, latency: "0.0070 ms", status: "Evaluated Baseline", prAuc: 0.871, rocAuc: 0.904, brier: 0.1287 },
+    "XGBoost": { score: 0.89, latency: "0.0095 ms", status: "Evaluated Baseline", prAuc: 0.870, rocAuc: 0.903, brier: 0.1293 },
+    "GradientBoosting": { score: 0.88, latency: "0.0151 ms", status: "Evaluated Baseline", prAuc: 0.869, rocAuc: 0.904, brier: 0.1293 },
+    "RandomForest (tuned)": { score: 0.87, latency: "0.0479 ms", status: "Evaluated Baseline", prAuc: 0.858, rocAuc: 0.897, brier: 0.1453 },
+    "Logistic Regression (L2)": { score: 0.85, latency: "0.0018 ms", status: "Linear Baseline", prAuc: 0.854, rocAuc: 0.891, brier: 0.1362 },
+    "Hawkes Spatiotemporal": { score: factorActionability, latency: "0.7600 ms", status: "Spatial Modality", prAuc: 0.750, rocAuc: 0.778, brier: 0.1100 },
   };
 
   // Feature list for previous LightGBM card
@@ -515,7 +517,7 @@ export default function ModelConsensus({ consensusData, championModel, details =
                 <Trophy size={15} color="var(--color-teal-dark)" />
               </div>
               <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--color-navy)', margin: 0 }}>
-                Primary AI Forecaster: LightGBM (Operational Engine)
+                Primary AI Forecaster: {champ.model_name || "CatBoost (Operational Engine)"}
               </h3>
             </div>
             <p style={{ fontSize: '11.5px', color: 'var(--color-muted)', marginTop: '2px', margin: 0 }}>

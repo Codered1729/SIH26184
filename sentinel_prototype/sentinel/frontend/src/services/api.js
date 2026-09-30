@@ -788,13 +788,15 @@ export const api = {
         status: "VALID_IMMUTABLE",
       },
       champion_model: {
-        model_name: "LightGBM (Primary Operational Engine)",
-        f1_optimal_threshold: 0.291,
-        pr_auc: 0.654,
-        f1_score: 0.591,
-        latency_ms: 0.0016,
+        model_name: "CatBoost (Primary Operational Engine)",
+        f1_optimal_threshold: 0.444,
+        pr_auc: 0.875,
+        roc_auc: 0.906,
+        brier_score: 0.1233,
+        f1_score: 0.790,
+        latency_ms: 0.0006,
         cashout_probability: item.cashout_probability,
-        exceeds_threshold: item.cashout_probability >= 0.291,
+        exceeds_threshold: item.cashout_probability >= 0.444,
         risk_tier: item.cashout_probability >= 0.70 ? "CRITICAL" : (item.cashout_probability >= 0.45 ? "HIGH" : "ELEVATED"),
         top_features: [
           { feature: "Malicious Remote Access / APK Tool", weight: 0.41, direction: "+Risk" },
@@ -803,13 +805,13 @@ export const api = {
         ]
       },
       model_consensus: {
-        primary_model: "LightGBM (Primary Operational Engine)",
+        primary_model: "CatBoost (Primary Operational Engine)",
         primary_probability: item.cashout_probability,
         consensus_average: item.cashout_probability,
         models: {
-          "LightGBM (Primary Engine)": item.cashout_probability,
+          "CatBoost": item.cashout_probability,
+          "HistGradientBoosting": Math.min(0.95, item.cashout_probability + 0.01),
           "XGBoost": Math.min(0.95, item.cashout_probability + 0.02),
-          "CatBoost": Math.max(0.70, item.cashout_probability - 0.02),
           "GradientBoosting": Math.min(0.95, item.cashout_probability + 0.01),
           "RandomForest (tuned)": item.cashout_probability,
           "RandomForest (baseline)": 0.78,

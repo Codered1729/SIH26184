@@ -46,7 +46,7 @@ class TestSimulationAndAudit(unittest.TestCase):
         self.assertGreaterEqual(alert["cashout_probability"], 0.85)
         self.assertEqual(alert["authenticity_decision"], "VERIFIED")
         self.assertIn("champion_model", alert)
-        self.assertEqual(alert["champion_model"]["model_name"], "LightGBM / GBDT (Champion)")
+        self.assertIn("CatBoost", alert["champion_model"]["model_name"])
 
     def test_trigger_duplicate_utr_hard_fail(self):
         """Validates duplicate UTR hard-fails to HELD_FOR_REVIEW with score 0.0."""

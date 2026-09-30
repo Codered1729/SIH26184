@@ -238,6 +238,13 @@ class CashoutPredictor:
                         vals = sv[1][0]
                     elif hasattr(sv, "values"):
                         vals = sv.values[0]
+                    elif isinstance(sv, np.ndarray):
+                        if sv.ndim == 3 and sv.shape[2] == 2:
+                            vals = sv[0, :, 1]
+                        elif sv.ndim == 2:
+                            vals = sv[0]
+                        else:
+                            vals = sv
                     else:
                         vals = sv[0]
             except Exception:
@@ -252,7 +259,15 @@ class CashoutPredictor:
             else:
                 vals = np.zeros(len(feature_names))
 
-        contributions = list(zip(feature_names, vals))
+        # Defensively guarantee vals is a 1D float list
+        vals = np.asarray(vals)
+        if vals.ndim == 2 and vals.shape[1] == 2:
+            vals = vals[:, 1]
+        elif vals.ndim > 1:
+            vals = vals.ravel()[:len(feature_names)]
+        clean_vals = [float(v) for v in vals]
+
+        contributions = list(zip(feature_names, clean_vals))
         sorted_contribs = sorted(contributions, key=lambda x: abs(x[1]), reverse=True)
 
         top_shap_factors = []
