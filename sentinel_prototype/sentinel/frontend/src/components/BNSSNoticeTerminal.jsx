@@ -77,8 +77,8 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
           </div>
 
           {/* Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div className="astrix-pill-nav">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="astrix-pill-nav" style={{ flexWrap: 'wrap' }}>
               <button
                 onClick={() => setViewMode('html')}
                 className={`astrix-pill-btn ${viewMode === 'html' ? 'active' : ''}`}
@@ -109,15 +109,15 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
       </div>
 
       {/* Main Grid: Notice Document on Left, Resilient Outbox on Right */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: '16px', alignItems: 'start' }}>
+      <div className="bnss-terminal-grid">
         {/* Notice Document Viewer */}
-        <div style={{ width: '100%', minHeight: '480px' }}>
+        <div style={{ width: '100%', minHeight: '380px' }}>
           {viewMode === 'html' ? (
             notice ? (
               <div 
                 className="astrix-card"
                 dangerouslySetInnerHTML={{ __html: notice.html_content }}
-                style={{ width: '100%', overflow: 'hidden' }}
+                style={{ width: '100%', overflowX: 'auto', wordBreak: 'break-word' }}
               />
             ) : (
               <div className="astrix-card" style={{ padding: '36px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
@@ -131,6 +131,8 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
               fontSize: '11.5px',
               lineHeight: 1.6,
               whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              overflowX: 'auto',
               color: 'var(--foreground)',
               backgroundColor: 'var(--secondary)',
             }}>

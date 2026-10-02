@@ -63,9 +63,9 @@ export default function CaseDetail({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       {/* Top Banner with Action Controls */}
-      <div className="astrix-card" style={{ padding: '18px 24px' }}>
+      <div className="astrix-card" style={{ padding: '16px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <button 
               onClick={onBack}
               className="astrix-btn-outline"
@@ -105,7 +105,7 @@ export default function CaseDetail({
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <button
               onClick={() => onOpenNotice(complaintId)}
               className="astrix-btn-outline"

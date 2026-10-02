@@ -99,8 +99,8 @@ export default function AstrixTopbar({
         </div>
       </div>
 
-      {/* Center: Command Search Bar */}
-      <div style={{ flex: 1, maxWidth: '420px', margin: '0 8px', minWidth: '120px' }}>
+      {/* Center: Command Search Bar (Hidden on Mobile screens where space is compact) */}
+      <div className="hidden-mobile" style={{ flex: 1, maxWidth: '420px', margin: '0 8px', minWidth: '120px' }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -180,7 +180,7 @@ export default function AstrixTopbar({
               backgroundColor: backendOnline ? 'var(--success)' : 'var(--destructive)',
             }} />
           </span>
-          <span style={{ display: 'inline', color: 'var(--foreground)' }}>
+          <span className="hidden-xs" style={{ display: 'inline', color: 'var(--foreground)' }}>
             {backendOnline ? 'Live' : 'Offline'}
           </span>
         </div>
@@ -210,9 +210,10 @@ export default function AstrixTopbar({
             fontWeight: '600',
             gap: '5px',
           }}
+          title="Register new cyber incident"
         >
           <Plus size={14} strokeWidth={2.5} />
-          <span>New Report</span>
+          <span className="hidden-xs">New Report</span>
         </button>
 
         {/* Theme Switcher Toggle */}

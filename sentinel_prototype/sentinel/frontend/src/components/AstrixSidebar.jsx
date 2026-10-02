@@ -12,7 +12,8 @@ import {
   Sun, 
   Moon, 
   CheckCircle2, 
-  Shield 
+  Shield,
+  X 
 } from 'lucide-react';
 
 export default function AstrixSidebar({
@@ -31,6 +32,8 @@ export default function AstrixSidebar({
   outboxStatus = {},
   onReplayOutbox
 }) {
+  const effectivelyCollapsed = isCollapsed && !isMobileOpen;
+
   const navItems = [
     { id: 'queue', label: 'Alerts Queue', icon: HomeIcon, count: alertsCount },
     { id: 'dossier', label: 'Case Details', icon: ListIcon },
@@ -48,36 +51,36 @@ export default function AstrixSidebar({
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 35,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            zIndex: 999,
             backdropFilter: 'blur(4px)',
           }}
         />
       )}
 
-      <aside className={`astrix-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
-        {/* Brand Header - Clean single brand, toggle is handled canonically in topbar */}
+      <aside className={`astrix-sidebar ${effectivelyCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
+        {/* Brand Header - Brand logo + title, plus mobile-only close button */}
         <div style={{
           height: '56px',
-          padding: isCollapsed ? '0 12px' : '0 16px',
+          padding: effectivelyCollapsed ? '0 12px' : '0 16px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isCollapsed ? 'center' : 'flex-start',
+          justifyContent: effectivelyCollapsed ? 'center' : 'space-between',
           borderBottom: '1px solid var(--sidebar-border)',
         }}>
           <div 
-            onClick={isCollapsed ? onToggleCollapse : undefined}
-            title={isCollapsed ? "Click to expand sidebar" : undefined}
+            onClick={effectivelyCollapsed ? onToggleCollapse : undefined}
+            title={effectivelyCollapsed ? "Click to expand sidebar" : undefined}
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '10px', 
               minWidth: 0,
-              cursor: isCollapsed ? 'pointer' : 'default'
+              cursor: effectivelyCollapsed ? 'pointer' : 'default'
             }}
           >
             <AstrixLogo width={28} height={28} />
-            {!isCollapsed && (
+            {!effectivelyCollapsed && (
               <span style={{
                 fontSize: '16px',
                 fontWeight: '800',
@@ -89,12 +92,23 @@ export default function AstrixSidebar({
               </span>
             )}
           </div>
+
+          {/* Close button visible only in mobile drawer view */}
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="astrix-btn-outline mobile-close-btn"
+            style={{ padding: '6px', cursor: 'pointer', borderRadius: 'var(--radius-sm)' }}
+            aria-label="Close navigation"
+          >
+            <X size={16} />
+          </button>
         </div>
 
         {/* Navigation Section */}
-        <div style={{ flex: 1, padding: isCollapsed ? '12px 6px' : '14px 10px', display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, padding: effectivelyCollapsed ? '12px 6px' : '14px 10px', display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto' }}>
           <div>
-            {!isCollapsed && (
+            {!effectivelyCollapsed && (
               <p style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 8px 6px', margin: 0 }}>
                 Navigation
               </p>
@@ -111,13 +125,13 @@ export default function AstrixSidebar({
                       setActiveTab(item.id);
                       if (onCloseMobile) onCloseMobile();
                     }}
-                    title={isCollapsed ? item.label : undefined}
+                    title={effectivelyCollapsed ? item.label : undefined}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: isCollapsed ? 'center' : 'space-between',
+                      justifyContent: effectivelyCollapsed ? 'center' : 'space-between',
                       width: '100%',
-                      padding: isCollapsed ? '8px' : '8px 12px',
+                      padding: effectivelyCollapsed ? '8px' : '8px 12px',
                       borderRadius: 'var(--radius-md)',
                       backgroundColor: isActive ? 'var(--sidebar-accent)' : 'transparent',
                       color: isActive ? 'var(--sidebar-accent-foreground)' : 'var(--sidebar-foreground)',
@@ -138,12 +152,12 @@ export default function AstrixSidebar({
                           flexShrink: 0
                         }}
                       />
-                      {!isCollapsed && (
+                      {!effectivelyCollapsed && (
                         <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
                       )}
                     </div>
 
-                    {!isCollapsed && item.count !== undefined && (
+                    {!effectivelyCollapsed && item.count !== undefined && (
                       <span style={{
                         padding: '1px 6px',
                         borderRadius: 'var(--radius-full)',
@@ -162,7 +176,7 @@ export default function AstrixSidebar({
           </div>
 
           {/* Quick Action Button */}
-          {!isCollapsed && (
+          {!effectivelyCollapsed && (
             <div>
               <p style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 8px 6px', margin: 0 }}>
                 Quick Action
@@ -190,7 +204,7 @@ export default function AstrixSidebar({
           )}
 
           {/* System Status Card */}
-          {!isCollapsed && (
+          {!effectivelyCollapsed && (
             <div style={{
               marginTop: 'auto',
               padding: '10px 12px',
@@ -216,14 +230,14 @@ export default function AstrixSidebar({
 
         {/* User Profile & Theme Toggle Footer */}
         <div style={{
-          padding: isCollapsed ? '10px 8px' : '12px 14px',
+          padding: effectivelyCollapsed ? '10px 8px' : '12px 14px',
           borderTop: '1px solid var(--sidebar-border)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isCollapsed ? 'center' : 'space-between',
+          justifyContent: effectivelyCollapsed ? 'center' : 'space-between',
           gap: '8px',
         }}>
-          {!isCollapsed ? (
+          {!effectivelyCollapsed ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
               <div style={{
                 width: '30px',

@@ -66,10 +66,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
       zIndex: 2000,
       padding: '16px',
     }}>
-      <div className="astrix-card" style={{
-        width: '100%',
-        maxWidth: '540px',
-        padding: '24px',
+      <div className="astrix-card intake-modal-card" style={{
         position: 'relative',
         boxShadow: 'var(--shadow-lg)',
       }}>
@@ -78,12 +75,16 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '18px',
-            right: '18px',
+            top: '16px',
+            right: '16px',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
             color: 'var(--muted-foreground)',
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
           aria-label="Close dialog"
         >
@@ -91,7 +92,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
         </button>
 
         {/* Modal Header */}
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: '16px', paddingRight: '28px' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
             <Plus size={18} style={{ color: 'var(--primary)' }} />
             Register Cyber Incident / SMS Ingestion
@@ -117,7 +118,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               type="button"
               onClick={() => handleLoadDemo('genuine')}
               className="astrix-btn-outline"
-              style={{ padding: '4px 8px', fontSize: '11px' }}
+              style={{ padding: '5px 9px', fontSize: '11px', flex: '1 1 auto', textAlign: 'center' }}
             >
               1. Genuine UPI (₹78k - Pune)
             </button>
@@ -125,7 +126,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               type="button"
               onClick={() => handleLoadDemo('duplicate')}
               className="astrix-btn-outline"
-              style={{ padding: '4px 8px', fontSize: '11px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444' }}
+              style={{ padding: '5px 9px', fontSize: '11px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444', flex: '1 1 auto', textAlign: 'center' }}
             >
               2. Duplicate UTR (Sybil Rejection)
             </button>
@@ -133,7 +134,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               type="button"
               onClick={() => handleLoadDemo('neft')}
               className="astrix-btn-outline"
-              style={{ padding: '4px 8px', fontSize: '11px' }}
+              style={{ padding: '5px 9px', fontSize: '11px', flex: '1 1 auto', textAlign: 'center' }}
             >
               3. Multi-Hop IMPS (₹1.35L - Thane)
             </button>
@@ -163,12 +164,13 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                 fontSize: '12px',
                 fontFamily: 'var(--font-sans)',
                 outline: 'none',
+                boxSizing: 'border-box',
               }}
             />
           </div>
 
           {/* Form Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+          <div className="intake-form-grid">
             <div>
               <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                 Victim District
@@ -185,6 +187,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                   backgroundColor: 'var(--secondary)',
                   color: 'var(--foreground)',
                   outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               >
                 <option value="Pune">Pune</option>
@@ -211,6 +214,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                   backgroundColor: 'var(--secondary)',
                   color: 'var(--foreground)',
                   outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               >
                 <option value="UPI">UPI</option>
@@ -237,6 +241,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                   backgroundColor: 'var(--secondary)',
                   color: 'var(--foreground)',
                   outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
@@ -263,12 +268,12 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
           )}
 
           {/* Actions */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
+          <div className="intake-modal-actions">
             <button
               type="button"
               onClick={onClose}
               className="astrix-btn-outline"
-              style={{ padding: '7px 14px', fontSize: '12px' }}
+              style={{ padding: '8px 16px', fontSize: '12px' }}
             >
               Cancel
             </button>
@@ -276,7 +281,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               type="submit"
               disabled={submitting}
               className="astrix-btn-primary"
-              style={{ padding: '7px 16px', fontSize: '12px' }}
+              style={{ padding: '8px 18px', fontSize: '12px' }}
             >
               {submitting ? 'Running Authenticity Gate...' : 'Process Incident & Triage'}
             </button>
