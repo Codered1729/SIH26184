@@ -1,17 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import AlertCard from './AlertCard';
 import { 
-  MetricCubeIcon, 
-  TrendingUpIcon, 
-  SearchIcon 
-} from './AstrixIcons';
-import { 
-  Zap, 
-  ShieldAlert, 
-  MapPin, 
-  ShieldCheck, 
+  Search, 
   ArrowUpDown, 
-  RotateCw 
+  RotateCw,
+  Inbox
 } from 'lucide-react';
 
 export default function PriorityQueue({ 
@@ -79,149 +72,33 @@ export default function PriorityQueue({
   }, [alerts]);
 
   const tabs = [
-    { id: 'all', label: 'All Incidents', count: counts.all },
-    { id: 'critical', label: 'Critical Risk (<25m)', count: counts.critical },
-    { id: 'held', label: 'Held for Review (Sybil)', count: counts.held },
-    { id: 'dispatched', label: 'Patrol Dispatched', count: counts.dispatched },
-    { id: 'expired', label: 'Window Concluded', count: counts.expired },
+    { id: 'all', label: 'All Alerts', count: counts.all },
+    { id: 'critical', label: 'Urgent (< 25m)', count: counts.critical },
+    { id: 'held', label: 'Under Review', count: counts.held },
+    { id: 'dispatched', label: 'Dispatched', count: counts.dispatched },
+    { id: 'expired', label: 'Expired', count: counts.expired },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Astrix Top Overview Section: 4 High-Impact Metric Cards */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-        {/* Metric 1: Active Triage */}
-        <div className="astrix-metric-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className="astrix-metric-icon-box">
-              <MetricCubeIcon className="size-4" />
-            </div>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '2px 8px',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: 'color-mix(in srgb, var(--success) 12%, transparent)',
-              color: 'var(--success)',
-              fontSize: '11px',
-              fontWeight: '700',
-            }}>
-              <TrendingUpIcon className="size-3" />
-              +12.4% vs baseline
-            </span>
-          </div>
-          <div>
-            <div className="astrix-metric-value">{alerts.length}</div>
-            <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-              Active Incidents in Queue
-            </p>
-          </div>
-        </div>
-
-        {/* Metric 2: Critical Golden Window */}
-        <div className="astrix-metric-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className="astrix-metric-icon-box" style={{ color: 'var(--primary)', borderColor: 'color-mix(in srgb, var(--primary) 30%, var(--border))' }}>
-              <Zap size={16} />
-            </div>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '2px 8px',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: 'color-mix(in srgb, var(--primary) 12%, transparent)',
-              color: 'var(--primary)',
-              fontSize: '11px',
-              fontWeight: '700',
-            }}>
-              &lt; 25m Golden Window
-            </span>
-          </div>
-          <div>
-            <div className="astrix-metric-value">{counts.critical}</div>
-            <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-              High-Velocity Cash-Out Risk
-            </p>
-          </div>
-        </div>
-
-        {/* Metric 3: Sybil Defense / Held */}
-        <div className="astrix-metric-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className="astrix-metric-icon-box" style={{ color: '#8B5CF6' }}>
-              <ShieldAlert size={16} />
-            </div>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '2px 8px',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: 'rgba(139, 92, 246, 0.12)',
-              color: '#8B5CF6',
-              fontSize: '11px',
-              fontWeight: '700',
-            }}>
-              100% Duplicate UTR Block
-            </span>
-          </div>
-          <div>
-            <div className="astrix-metric-value">{counts.held}</div>
-            <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-              Held for Supervisor Review
-            </p>
-          </div>
-        </div>
-
-        {/* Metric 4: Hawkes Point-Process Lift */}
-        <div className="astrix-metric-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className="astrix-metric-icon-box" style={{ color: 'var(--info)' }}>
-              <MapPin size={16} />
-            </div>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '2px 8px',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: 'color-mix(in srgb, var(--info) 12%, transparent)',
-              color: 'var(--info)',
-              fontSize: '11px',
-              fontWeight: '700',
-            }}>
-              75.0% Hit@3 Accuracy
-            </span>
-          </div>
-          <div>
-            <div className="astrix-metric-value">11.4 min</div>
-            <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--muted-foreground)', marginTop: '4px' }}>
-              Mean Time-to-Interdiction (-59.3%)
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Astrix Toolbar & Stream Controls */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Stream Controls Header */}
       <section className="astrix-card" style={{ padding: '16px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
           <div>
-            <h2 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--foreground)', margin: 0 }}>
-              Live Classification &amp; Triage Stream
+            <h2 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.02em', margin: 0 }}>
+              Live Fraud Alerts
             </h2>
-            <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginTop: '2px' }}>
-              CatBoost gradient boosting classification &amp; Hawkes self-exciting point-process ATM ranking
+            <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginTop: '2px', margin: 0 }}>
+              Incoming fraud reports prioritized by urgency to stop ATM cash withdrawals
             </p>
           </div>
 
           {onRefresh && (
             <button 
               onClick={onRefresh}
-              className="btn btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '12px' }}
-              title="Refresh Stream"
+              className="astrix-btn-outline"
+              style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+              title="Refresh Alert Stream"
             >
               <RotateCw size={13} />
               <span>Refresh</span>
@@ -239,8 +116,8 @@ export default function PriorityQueue({
           borderTop: '1px solid var(--border)',
           paddingTop: '14px',
         }}>
-          {/* Segmented Pill Tabs */}
-          <div className="astrix-pill-nav" style={{ flexWrap: 'wrap' }}>
+          {/* Segmented Pill Tabs with clean horizontal scroll on mobile */}
+          <div className="astrix-pill-nav" style={{ overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
             {tabs.map((tab) => {
               const isActive = filterTab === tab.id;
               return (
@@ -248,9 +125,10 @@ export default function PriorityQueue({
                   key={tab.id}
                   onClick={() => setFilterTab(tab.id)}
                   className={`astrix-pill-btn ${isActive ? 'active' : ''}`}
+                  style={{ whiteSpace: 'nowrap' }}
                 >
                   <span>{tab.label}</span>
-                  <span className="astrix-pill-badge">
+                  <span className={`astrix-pill-badge ${isActive ? 'active' : ''}`}>
                     {tab.count}
                   </span>
                 </button>
@@ -261,14 +139,14 @@ export default function PriorityQueue({
           {/* Search & Sort Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <SearchIcon className="size-3.5" style={{ position: 'absolute', left: '10px', color: 'var(--muted-foreground)' }} />
+              <Search size={14} style={{ position: 'absolute', left: '10px', color: 'var(--muted-foreground)', flexShrink: 0, pointerEvents: 'none' }} />
               <input
                 type="text"
-                placeholder="Search ID, UTR, city..."
+                placeholder="Search by ID, city, bank..."
                 value={searchQuery}
                 onChange={(e) => setInternalSearchQuery(e.target.value)}
                 style={{
-                  padding: '6px 10px 6px 28px',
+                  padding: '7px 10px 7px 30px',
                   borderRadius: 'var(--radius-sm)',
                   border: '1px solid var(--border)',
                   backgroundColor: 'var(--secondary)',
@@ -282,7 +160,7 @@ export default function PriorityQueue({
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ArrowUpDown size={13} color="var(--muted-foreground)" />
+              <ArrowUpDown size={13} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -298,9 +176,9 @@ export default function PriorityQueue({
                   cursor: 'pointer',
                 }}
               >
-                <option value="priority">Sort: Priority Score</option>
-                <option value="amount">Sort: Amount (₹ High to Low)</option>
-                <option value="time">Sort: Urgent (Time Left)</option>
+                <option value="priority">Sort: Most Urgent</option>
+                <option value="amount">Sort: Amount (High to Low)</option>
+                <option value="time">Sort: Time Remaining</option>
               </select>
             </div>
           </div>
@@ -311,12 +189,12 @@ export default function PriorityQueue({
       <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {sortedAlerts.length === 0 ? (
           <div className="astrix-card" style={{ padding: '48px 24px', textAlign: 'center' }}>
-            <ShieldAlert size={36} color="var(--muted-foreground)" style={{ margin: '0 auto 12px' }} />
-            <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--foreground)' }}>
-              No Incidents Match Selected Filter
+            <Inbox size={32} style={{ margin: '0 auto 10px', color: 'var(--muted-foreground)' }} />
+            <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--foreground)', margin: '0 0 4px' }}>
+              No alerts found
             </h3>
-            <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginTop: '4px' }}>
-              Try selecting a different filter tab or clear your search query.
+            <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', margin: 0 }}>
+              {searchQuery ? `No results matching "${searchQuery}". Try clearing search.` : 'No alerts in this category.'}
             </p>
           </div>
         ) : (
@@ -324,10 +202,10 @@ export default function PriorityQueue({
             <AlertCard
               key={alert.complaint_id}
               alert={alert}
+              onSelect={onSelectAlert}
+              onDispatch={onDispatchAlert}
               isSelected={selectedComplaintId === alert.complaint_id}
               isHighlighted={highlightedAlertId === alert.complaint_id}
-              onSelect={() => onSelectAlert && onSelectAlert(alert)}
-              onDispatch={() => onDispatchAlert && onDispatchAlert(alert)}
             />
           ))
         )}

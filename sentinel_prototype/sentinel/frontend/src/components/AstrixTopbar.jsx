@@ -1,19 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import { 
-  SearchIcon, 
-  CmdIcon, 
-  SidebarToggleIcon 
-} from './AstrixIcons';
-import { 
+  Search, 
   Plus, 
   RotateCw, 
   Sun, 
   Moon, 
-  Shield, 
-  Activity, 
-  Database,
-  Menu
+  Menu,
+  X
 } from 'lucide-react';
+import { CmdIcon } from './AstrixIcons';
 
 export default function AstrixTopbar({
   activeTab,
@@ -32,15 +27,12 @@ export default function AstrixTopbar({
   const searchInputRef = useRef(null);
 
   const tabTitles = {
-    queue: 'Priority Queue & Real-Time Triage',
-    dossier: 'Forensic Case Dossier & XAI Analysis',
-    map: 'Spatiotemporal Hawkes ATM Interception',
-    bnss: 'Section 105 & 106 BNSS Statutory Notice Terminal',
-    audit: 'Tamper-Evident SHA-256 Audit Trail',
+    queue: 'Fraud Alerts Queue',
+    dossier: 'Case Details',
+    map: 'ATM Map & Locations',
+    bnss: 'Bank Freeze Orders',
+    audit: 'Audit Log',
   };
-
-  const circuitState = outboxStatus?.circuit_breaker?.state || 'CLOSED';
-  const pendingCount = outboxStatus?.outbox?.pending_count || 0;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -55,40 +47,40 @@ export default function AstrixTopbar({
 
   return (
     <header className="astrix-topbar">
-      {/* Left: Mobile Menu Toggle, Desktop Toggle, & Breadcrumbs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+      {/* Left: Mobile Menu Toggle, Desktop Breadcrumbs */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flexShrink: 0 }}>
         {/* Mobile menu trigger */}
         <button
           type="button"
           onClick={onOpenMobileSidebar}
-          className="astrix-btn-outline"
-          style={{ padding: '6px', display: 'flex', cursor: 'pointer' }}
+          className="astrix-btn-outline mobile-menu-btn"
+          style={{ padding: '6px', cursor: 'pointer' }}
           aria-label="Open Navigation"
         >
           <Menu size={16} />
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted-foreground)' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
             SENTINEL
           </span>
           <span style={{ color: 'var(--muted-foreground)', fontSize: '12px' }}>/</span>
           <h1 style={{
-            fontSize: '14px',
-            fontWeight: '700',
-            color: 'var(--foreground)',
+            fontSize: '13px',
+            fontWeight: '600',
+            color: 'var(--muted-foreground)',
             margin: 0,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}>
-            {tabTitles[activeTab] || 'Cyber Command Dashboard'}
+            {tabTitles[activeTab] || 'Dashboard'}
           </h1>
         </div>
       </div>
 
       {/* Center: Command Search Bar */}
-      <div style={{ flex: 1, maxWidth: '440px', margin: '0 12px' }}>
+      <div style={{ flex: 1, maxWidth: '420px', margin: '0 8px', minWidth: '120px' }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -96,17 +88,16 @@ export default function AstrixTopbar({
           backgroundColor: 'var(--secondary)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-md)',
-          padding: '6px 12px',
-          height: '38px',
-          transition: 'border-color 0.15s ease',
+          padding: '6px 10px',
+          height: '36px',
         }}>
-          <SearchIcon className="size-4 shrink-0 text-muted-foreground" style={{ color: 'var(--muted-foreground)' }} />
+          <Search size={14} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
           <input
             ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-            placeholder="Search complaints, UTRs, ATMs... (Cmd+K)"
+            placeholder="Search by ID, city, or bank..."
             style={{
               flex: 1,
               background: 'transparent',
@@ -115,6 +106,7 @@ export default function AstrixTopbar({
               fontSize: '12px',
               color: 'var(--foreground)',
               fontFamily: 'var(--font-sans)',
+              minWidth: 0,
             }}
           />
           {searchQuery ? (
@@ -125,13 +117,15 @@ export default function AstrixTopbar({
                 border: 'none',
                 color: 'var(--muted-foreground)',
                 cursor: 'pointer',
-                fontSize: '11px',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2px',
               }}
             >
-              Clear
+              <X size={13} />
             </button>
           ) : (
-            <div style={{
+            <div className="hidden-mobile" style={{
               display: 'flex',
               alignItems: 'center',
               gap: '2px',
@@ -142,8 +136,9 @@ export default function AstrixTopbar({
               color: 'var(--muted-foreground)',
               fontSize: '10px',
               fontWeight: '700',
+              flexShrink: 0,
             }}>
-              <CmdIcon className="size-2.5" />
+              <CmdIcon width={10} height={10} />
               <span>K</span>
             </div>
           )}
@@ -151,13 +146,13 @@ export default function AstrixTopbar({
       </div>
 
       {/* Right Controls: Telemetry, Primary CTA, Refresh, Theme */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-        {/* Live Pipeline Badge with Animated Dot */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        {/* Live Status Badge */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
-          padding: '5px 10px',
+          gap: '5px',
+          padding: '4px 8px',
           borderRadius: 'var(--radius-full)',
           border: '1px solid var(--border)',
           backgroundColor: 'var(--card)',
@@ -165,7 +160,7 @@ export default function AstrixTopbar({
           fontWeight: '600',
           color: backendOnline ? 'var(--success)' : 'var(--destructive)',
         }}>
-          <span style={{ position: 'relative', display: 'flex', width: '8px', height: '8px' }}>
+          <span style={{ position: 'relative', display: 'flex', width: '7px', height: '7px' }}>
             <span style={{
               position: 'absolute',
               inset: 0,
@@ -176,35 +171,15 @@ export default function AstrixTopbar({
             }} />
             <span style={{
               position: 'relative',
-              width: '8px',
-              height: '8px',
+              width: '7px',
+              height: '7px',
               borderRadius: '50%',
               backgroundColor: backendOnline ? 'var(--success)' : 'var(--destructive)',
             }} />
           </span>
           <span style={{ display: 'inline', color: 'var(--foreground)' }}>
-            {backendOnline ? 'Live Pipeline' : 'Offline'}
+            {backendOnline ? 'Live' : 'Offline'}
           </span>
-        </div>
-
-        {/* Nodal Outbox Circuit Badge */}
-        <div style={{
-          display: 'none',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '5px 10px',
-          borderRadius: 'var(--radius-full)',
-          border: '1px solid',
-          borderColor: circuitState === 'OPEN' ? 'color-mix(in srgb, var(--destructive) 40%, transparent)' : 'var(--border)',
-          backgroundColor: circuitState === 'OPEN' ? 'color-mix(in srgb, var(--destructive) 10%, transparent)' : 'var(--card)',
-          fontSize: '11px',
-          fontWeight: '600',
-          color: circuitState === 'OPEN' ? 'var(--destructive)' : 'var(--muted-foreground)',
-        }}
-        className="md:inline-flex"
-        >
-          <Database size={12} />
-          <span>WAL: {circuitState}</span>
         </div>
 
         {/* Refresh Button */}
@@ -212,29 +187,29 @@ export default function AstrixTopbar({
           <button
             type="button"
             onClick={onRefresh}
-            title="Refresh Real-time Feeds"
+            title="Refresh Feeds"
             className="astrix-btn-outline"
-            style={{ padding: '7px 9px', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+            style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
           >
-            <RotateCw size={14} />
+            <RotateCw size={13} />
           </button>
         )}
 
-        {/* Primary Action Button: Log Incident */}
+        {/* Primary Action Button: New Report */}
         <button
           type="button"
           onClick={onOpenIntake}
-          className="btn btn-primary"
+          className="astrix-btn-primary"
           style={{
-            padding: '7px 14px',
+            padding: '6px 12px',
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
             fontWeight: '600',
-            gap: '6px',
+            gap: '5px',
           }}
         >
-          <Plus size={15} strokeWidth={2.5} />
-          <span style={{ display: 'inline' }}>Log Incident</span>
+          <Plus size={14} strokeWidth={2.5} />
+          <span>New Report</span>
         </button>
 
         {/* Theme Switcher Toggle */}
@@ -244,13 +219,13 @@ export default function AstrixTopbar({
           title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
           className="astrix-btn-outline"
           style={{
-            padding: '7px 9px',
+            padding: '6px 8px',
             borderRadius: 'var(--radius-sm)',
             cursor: 'pointer',
             color: 'var(--foreground)'
           }}
         >
-          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
         </button>
       </div>
     </header>

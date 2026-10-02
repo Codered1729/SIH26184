@@ -12,11 +12,8 @@ import {
   Plus, 
   Sun, 
   Moon, 
-  RotateCw, 
-  Zap, 
   CheckCircle2, 
-  AlertCircle,
-  Database
+  Shield 
 } from 'lucide-react';
 
 export default function AstrixSidebar({
@@ -36,15 +33,12 @@ export default function AstrixSidebar({
   onReplayOutbox
 }) {
   const navItems = [
-    { id: 'queue', label: 'Priority Queue', icon: HomeIcon, count: alertsCount },
-    { id: 'dossier', label: 'Case Dossier', icon: ClassificationIcon },
-    { id: 'map', label: 'ATM Hotspots', icon: MapPinIcon },
-    { id: 'bnss', label: 'BNSS Notices', icon: ComplianceIcon },
-    { id: 'audit', label: 'Audit Ledger', icon: ReportsIcon, count: auditCount },
+    { id: 'queue', label: 'Alerts Queue', icon: HomeIcon, count: alertsCount },
+    { id: 'dossier', label: 'Case Details', icon: ClassificationIcon },
+    { id: 'map', label: 'ATM Map', icon: MapPinIcon },
+    { id: 'bnss', label: 'Freeze Orders', icon: ComplianceIcon },
+    { id: 'audit', label: 'Audit Logs', icon: ReportsIcon, count: auditCount },
   ];
-
-  const circuitState = outboxStatus?.circuit_breaker?.state || 'CLOSED';
-  const pendingCount = outboxStatus?.outbox?.pending_count || 0;
 
   return (
     <>
@@ -63,26 +57,27 @@ export default function AstrixSidebar({
       )}
 
       <aside className={`astrix-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
-        {/* Brand & Collapse Header */}
+        {/* Brand & Collapse Header - Single line clean SENTINEL brand */}
         <div style={{
-          height: '64px',
-          padding: isCollapsed ? '0 12px' : '0 18px',
+          height: '56px',
+          padding: isCollapsed ? '0 12px' : '0 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: isCollapsed ? 'center' : 'space-between',
           borderBottom: '1px solid var(--sidebar-border)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
-            <AstrixLogo className="size-8 shrink-0" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+            <AstrixLogo width={28} height={28} />
             {!isCollapsed && (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '15px', fontWeight: '800', letterSpacing: '-0.02em', color: 'var(--sidebar-foreground)' }}>
-                  SENTINEL
-                </span>
-                <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Cyber Forensics AI
-                </span>
-              </div>
+              <span style={{
+                fontSize: '16px',
+                fontWeight: '800',
+                letterSpacing: '-0.02em',
+                color: 'var(--sidebar-foreground)',
+                whiteSpace: 'nowrap',
+              }}>
+                SENTINEL
+              </span>
             )}
           </div>
 
@@ -90,9 +85,9 @@ export default function AstrixSidebar({
             type="button"
             onClick={onToggleCollapse}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            className="astrix-btn-outline"
+            className="astrix-btn-outline desktop-only"
             style={{
-              padding: '6px',
+              padding: '5px',
               borderRadius: 'var(--radius-sm)',
               color: 'var(--sidebar-muted)',
               display: isCollapsed ? 'none' : 'flex',
@@ -101,19 +96,19 @@ export default function AstrixSidebar({
               cursor: 'pointer'
             }}
           >
-            <SidebarToggleIcon className="size-4.5" />
+            <SidebarToggleIcon width={16} height={16} />
           </button>
         </div>
 
         {/* Navigation Section */}
-        <div style={{ flex: 1, padding: isCollapsed ? '16px 8px' : '16px 12px', display: 'flex', flexDirection: 'column', gap: '22px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, padding: isCollapsed ? '12px 6px' : '14px 10px', display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto' }}>
           <div>
             {!isCollapsed && (
-              <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px 8px' }}>
-                Operational Command
+              <p style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 8px 6px', margin: 0 }}>
+                Navigation
               </p>
             )}
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
               {navItems.map((item) => {
                 const IconComponent = item.icon;
                 const isActive = activeTab === item.id;
@@ -131,31 +126,40 @@ export default function AstrixSidebar({
                       alignItems: 'center',
                       justifyContent: isCollapsed ? 'center' : 'space-between',
                       width: '100%',
-                      padding: isCollapsed ? '10px' : '9px 12px',
+                      padding: isCollapsed ? '8px' : '8px 12px',
                       borderRadius: 'var(--radius-md)',
-                      border: '1px solid',
-                      borderColor: isActive ? 'var(--primary)' : 'transparent',
-                      backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-                      color: isActive ? 'var(--primary-foreground)' : 'var(--sidebar-foreground)',
-                      fontWeight: isActive ? '600' : '500',
-                      fontSize: '13px',
+                      backgroundColor: isActive ? 'var(--sidebar-accent)' : 'transparent',
+                      color: isActive ? 'var(--sidebar-accent-foreground)' : 'var(--sidebar-foreground)',
+                      border: 'none',
                       cursor: 'pointer',
+                      fontSize: '12.5px',
+                      fontWeight: isActive ? '700' : '500',
                       transition: 'all 0.15s ease',
+                      textAlign: 'left',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <IconComponent className="size-4.5 shrink-0" />
-                      {!isCollapsed && <span>{item.label}</span>}
+                      <IconComponent
+                        width={18}
+                        height={18}
+                        style={{
+                          color: isActive ? 'var(--primary)' : 'var(--sidebar-muted)',
+                          flexShrink: 0
+                        }}
+                      />
+                      {!isCollapsed && (
+                        <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
+                      )}
                     </div>
 
-                    {!isCollapsed && item.count !== undefined && item.count > 0 && (
+                    {!isCollapsed && item.count !== undefined && (
                       <span style={{
-                        fontSize: '10px',
-                        fontWeight: '700',
-                        padding: '2px 7px',
+                        padding: '1px 6px',
                         borderRadius: 'var(--radius-full)',
-                        backgroundColor: isActive ? 'var(--card)' : 'var(--secondary)',
-                        color: isActive ? 'var(--primary)' : 'var(--foreground)',
+                        fontSize: '10.5px',
+                        fontWeight: '700',
+                        backgroundColor: isActive ? 'var(--primary)' : 'var(--sidebar-accent)',
+                        color: isActive ? '#FFFFFF' : 'var(--sidebar-muted)',
                       }}>
                         {item.count}
                       </span>
@@ -166,86 +170,62 @@ export default function AstrixSidebar({
             </nav>
           </div>
 
-          {/* Quick Action: Log Incident */}
-          <div>
-            {!isCollapsed && (
-              <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 8px 8px' }}>
-                Quick Triage
+          {/* Quick Action Button */}
+          {!isCollapsed && (
+            <div>
+              <p style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 8px 6px', margin: 0 }}>
+                Quick Action
               </p>
-            )}
-            <button
-              type="button"
-              onClick={onOpenIntake}
-              title={isCollapsed ? "Log New Complaint" : undefined}
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                padding: isCollapsed ? '10px' : '9px 12px',
-                borderRadius: 'var(--radius-md)',
-                justifyContent: isCollapsed ? 'center' : 'flex-start',
-                gap: '8px',
-                fontSize: '13px',
-              }}
-            >
-              <Plus size={16} strokeWidth={2.5} />
-              {!isCollapsed && <span>Ingest Raw Complaint</span>}
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenIntake) onOpenIntake();
+                  if (onCloseMobile) onCloseMobile();
+                }}
+                className="astrix-btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '12.5px',
+                  fontWeight: '600',
+                  justifyContent: 'center',
+                }}
+              >
+                <Plus size={15} strokeWidth={2.5} />
+                <span>+ Report Incident</span>
+              </button>
+            </div>
+          )}
 
-          {/* System Telemetry Status (Astrix Pipeline Pill) */}
+          {/* System Status Card */}
           {!isCollapsed && (
             <div style={{
               marginTop: 'auto',
-              padding: '12px',
+              padding: '10px 12px',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--card)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
+              backgroundColor: 'var(--sidebar-accent)',
+              border: '1px solid var(--sidebar-border)',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)' }}>
-                  State Gateway
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--sidebar-muted)', textTransform: 'uppercase' }}>
+                  System Status
                 </span>
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  fontSize: '10px',
-                  fontWeight: '700',
-                  color: circuitState === 'OPEN' ? 'var(--destructive)' : 'var(--success)'
-                }}>
-                  <span style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: circuitState === 'OPEN' ? 'var(--destructive)' : 'var(--success)'
-                  }} />
-                  {circuitState === 'OPEN' ? 'OUTAGE (DLQ)' : 'ONLINE'}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', color: backendOnline ? 'var(--success)' : 'var(--destructive)', fontWeight: '700' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: backendOnline ? 'var(--success)' : 'var(--destructive)' }} />
+                  {backendOnline ? 'Online' : 'Offline'}
                 </span>
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Database size={13} className="text-muted-foreground" />
-                <span>SQLite WAL: {pendingCount} queued</span>
-              </div>
-              {circuitState === 'OPEN' && onReplayOutbox && (
-                <button
-                  onClick={onReplayOutbox}
-                  className="btn btn-secondary"
-                  style={{ width: '100%', fontSize: '11px', padding: '4px 8px' }}
-                >
-                  <RotateCw size={12} />
-                  Replay Backlog
-                </button>
-              )}
+              <p style={{ fontSize: '11px', color: 'var(--sidebar-muted)', margin: 0 }}>
+                All services operational
+              </p>
             </div>
           )}
         </div>
 
         {/* User Profile & Theme Toggle Footer */}
         <div style={{
-          padding: isCollapsed ? '12px 8px' : '14px 16px',
+          padding: isCollapsed ? '10px 8px' : '12px 14px',
           borderTop: '1px solid var(--sidebar-border)',
           display: 'flex',
           alignItems: 'center',
@@ -253,45 +233,45 @@ export default function AstrixSidebar({
           gap: '8px',
         }}>
           {!isCollapsed ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
               <div style={{
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: 'var(--radius-full)',
                 backgroundColor: 'var(--primary)',
                 color: '#FFFFFF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: '700',
                 flexShrink: 0,
               }}>
-                MH
+                <Shield size={14} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                 <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--sidebar-foreground)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  Insp. MH-8842
+                  Duty Officer
                 </span>
-                <span style={{ fontSize: '10px', color: 'var(--sidebar-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  Maharashtra Cyber
+                <span style={{ fontSize: '10.5px', color: 'var(--sidebar-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  Maharashtra Control
                 </span>
               </div>
             </div>
           ) : (
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: 'var(--radius-full)',
               backgroundColor: 'var(--primary)',
               color: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '12px',
+              fontSize: '11px',
               fontWeight: '700',
             }}>
-              MH
+              <Shield size={14} />
             </div>
           )}
 
@@ -300,7 +280,7 @@ export default function AstrixSidebar({
             onClick={onToggleTheme}
             title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
             style={{
-              padding: '7px',
+              padding: '6px',
               borderRadius: 'var(--radius-sm)',
               border: '1px solid var(--border)',
               backgroundColor: 'var(--secondary)',
@@ -311,7 +291,7 @@ export default function AstrixSidebar({
               justifyContent: 'center',
             }}
           >
-            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
           </button>
         </div>
       </aside>

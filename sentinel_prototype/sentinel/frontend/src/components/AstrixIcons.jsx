@@ -1,12 +1,15 @@
 import React from 'react';
 
-export function AstrixLogo({ className = "size-7", ...props }) {
+export function AstrixLogo({ className = "size-7", width = 28, height = 28, style = {}, ...props }) {
   return (
     <svg
       viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      width={width}
+      height={height}
       className={className}
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
       {...props}
     >
       <rect width="32" height="32" rx="8" fill="var(--primary, #F06543)" />
@@ -28,9 +31,18 @@ export function AstrixLogo({ className = "size-7", ...props }) {
   );
 }
 
-export function HomeIcon({ className = "size-5", ...props }) {
+export function HomeIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -41,9 +53,18 @@ export function HomeIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function ClassificationIcon({ className = "size-5", ...props }) {
+export function ClassificationIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -54,9 +75,18 @@ export function ClassificationIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function MapPinIcon({ className = "size-5", ...props }) {
+export function MapPinIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -67,9 +97,18 @@ export function MapPinIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function ComplianceIcon({ className = "size-5", ...props }) {
+export function ComplianceIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -80,9 +119,18 @@ export function ComplianceIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function ReportsIcon({ className = "size-5", ...props }) {
+export function ReportsIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         d="M11.3217 1.66667C11.7637 1.66676 12.1875 1.84242 12.5 2.155L16.1783 5.83333C16.4909 6.14582 16.6666 6.56967 16.6667 7.01167V16.6667C16.6667 17.1087 16.4911 17.5326 16.1785 17.8452C15.8659 18.1577 15.442 18.3333 15 18.3333H5C4.55797 18.3333 4.13405 18.1577 3.82149 17.8452C3.50893 17.5326 3.33333 17.1087 3.33333 16.6667V3.33333C3.33333 2.89131 3.50893 2.46738 3.82149 2.15482C4.13405 1.84226 4.55797 1.66667 5 1.66667H11.3217ZM10 3.33333H5V16.6667H15V8.33333H11.25C10.9185 8.33333 10.6005 8.20164 10.3661 7.96722C10.1317 7.7328 10 7.41485 10 7.08333V3.33333Z"
         fill="currentColor"
@@ -91,9 +139,18 @@ export function ReportsIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function SidebarToggleIcon({ className = "size-5", ...props }) {
+export function SidebarToggleIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         d="M17.3999 4.36406C19.0567 4.36406 20.3999 5.70721 20.3999 7.36406V16.6365C20.3999 18.2934 19.0567 19.6365 17.3999 19.6365H6.60005C4.94319 19.6365 3.60005 18.2934 3.60005 16.6365V7.36406C3.60005 5.70721 4.94319 4.36406 6.60005 4.36406H17.3999ZM12.6254 5.89141C11.5211 5.89156 10.6255 6.78702 10.6254 7.89141V16.1102C10.6257 17.2144 11.5211 18.11 12.6254 18.1102H16.7202C17.8246 18.1102 18.72 17.2145 18.7202 16.1102V7.89141C18.7201 6.78693 17.8247 5.89141 16.7202 5.89141H12.6254Z"
         fill="currentColor"
@@ -102,9 +159,18 @@ export function SidebarToggleIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function SearchIcon({ className = "size-4", ...props }) {
+export function SearchIcon({ className = "size-4", width = 16, height = 16, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 15 15" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, maxWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         d="M10.5376 10.5376C11.0716 10.0036 11.4953 9.36959 11.7843 8.67184C12.0733 7.9741 12.222 7.22626 12.222 6.47102C12.222 5.71579 12.0733 4.96795 11.7843 4.2702C11.4953 3.57245 11.0716 2.93847 10.5376 2.40444C10.0036 1.8704 9.36959 1.44679 8.67184 1.15777C7.9741 0.868754 7.22626 0.72 6.47102 0.72C5.71579 0.72 4.96795 0.868754 4.2702 1.15777C3.57245 1.44679 2.93847 1.8704 2.40443 2.40444C1.32591 3.48296 0.72 4.94576 0.72 6.47102C0.72 7.99629 1.32591 9.45908 2.40443 10.5376C3.48296 11.6161 4.94576 12.222 6.47102 12.222C7.99629 12.222 9.45908 11.6161 10.5376 10.5376ZM10.5376 10.5376L14.1599 14.1599"
         stroke="currentColor"
@@ -116,9 +182,18 @@ export function SearchIcon({ className = "size-4", ...props }) {
   );
 }
 
-export function CmdIcon({ className = "size-3", ...props }) {
+export function CmdIcon({ className = "size-3", width = 11, height = 11, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 11 11" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -129,9 +204,18 @@ export function CmdIcon({ className = "size-3", ...props }) {
   );
 }
 
-export function BellIcon({ className = "size-5", ...props }) {
+export function BellIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         d="M10 2C7.24 2 5 4.24 5 7V11.29L3.71 12.58C3.27 13.02 3.58 13.78 4.2 13.78H15.8C16.42 13.78 16.73 13.02 16.29 12.58L15 11.29V7C15 4.24 12.76 2 10 2ZM10 17.5C11.1 17.5 12 16.6 12 15.5H8C8 16.6 8.9 17.5 10 17.5Z"
         fill="currentColor"
@@ -140,9 +224,18 @@ export function BellIcon({ className = "size-5", ...props }) {
   );
 }
 
-export function MetricCubeIcon({ className = "size-4", ...props }) {
+export function MetricCubeIcon({ className = "size-4", width = 16, height = 16, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         d="M10 2L17.5 6.33V13.67L10 18L2.5 13.67V6.33L10 2Z"
         stroke="currentColor"
@@ -161,9 +254,18 @@ export function MetricCubeIcon({ className = "size-4", ...props }) {
   );
 }
 
-export function TrendingUpIcon({ className = "size-3", ...props }) {
+export function TrendingUpIcon({ className = "size-3", width = 14, height = 14, style = {}, ...props }) {
   return (
-    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+    <svg 
+      viewBox="0 0 16 16" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={width}
+      height={height}
+      className={className} 
+      style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
+      {...props}
+    >
       <path
         d="M14 4.5L8.5 10L5.5 7L1.5 11M14 4.5H9.5M14 4.5V9"
         stroke="currentColor"

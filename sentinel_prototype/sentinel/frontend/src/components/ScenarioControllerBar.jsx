@@ -8,9 +8,7 @@ import {
   ChevronDown, 
   ChevronUp, 
   Sparkles,
-  CheckCircle2,
-  Clock,
-  Play
+  CheckCircle2
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -26,43 +24,39 @@ export default function ScenarioControllerBar({
   const scenarios = [
     {
       id: 'genuine_pune_upi',
-      title: '1. High-Velocity UPI',
-      location: 'Pune Hinjawadi',
+      title: '1. High-Risk UPI Fraud',
+      location: 'Pune (Hinjawadi)',
       amount: '₹78,000',
-      window: '20m Golden Window',
       icon: Zap,
-      badge: 'CRITICAL (0.91)',
-      desc: 'Simulates high-velocity UPI mule cash-out in Pune Hinjawadi (₹78,000); triggers Hawkes ATM cluster excitation.',
+      badge: 'URGENT',
+      desc: 'Simulates genuine fast UPI fraud in Pune (₹78,000); alerts nearby ATMs immediately.',
     },
     {
       id: 'duplicate_utr_fail',
-      title: '2. Duplicate UTR Sybil',
-      location: 'Mumbai Andheri',
+      title: '2. Duplicate Report',
+      location: 'Mumbai (Andheri)',
       amount: '₹65,000',
-      window: 'Window Suspended',
       icon: ShieldAlert,
-      badge: 'HELD FOR REVIEW',
-      desc: 'Detects duplicate UTR claim in Mumbai; Authenticity Gate immediately assigns 0.00 score (zero wrongful freezes).',
+      badge: 'BLOCKED',
+      desc: 'Detects duplicate payment reference in Mumbai; blocks false freeze automatically.',
     },
     {
       id: 'bank_outage_resilience',
-      title: '3. Nodal Gateway Outage',
-      location: 'Mumbai BKC',
+      title: '3. Bank Server Down',
+      location: 'Mumbai (BKC)',
       amount: '₹1,40,000',
-      window: 'SQLite WAL Queue',
       icon: PlugZap,
-      badge: 'OUTBOX QUEUED',
-      desc: 'Simulates bank webhook downtime in BKC: trips CircuitBreaker to OPEN; 0 alerts lost via SQLite queue.',
+      badge: 'QUEUED',
+      desc: 'Simulates bank connection failure in Mumbai; safely stores alert so nothing is lost.',
     },
     {
       id: 'multihop_decay',
-      title: '4. Interstate Corridor',
+      title: '4. Multi-State Transfer',
       location: 'Thane ➔ Ahmedabad',
       amount: '₹1,35,000',
-      window: '45m Bayesian Window',
       icon: RefreshCw,
-      badge: 'BAYESIAN DECAY',
-      desc: 'Layered interstate mule transfer from Thane (MH) to Ahmedabad (GJ); Bayesian belief decays to _missed after 45m window.',
+      badge: 'MONITORED',
+      desc: 'Tracks transfer from Thane (MH) to Ahmedabad (GJ); alerts target police unit.',
     },
   ];
 
@@ -73,7 +67,7 @@ export default function ScenarioControllerBar({
       if (res && res.complaint_id) {
         setLastAction({
           type: 'success',
-          text: `Injected ${scenario.title} (${res.complaint_id})`,
+          text: `Triggered: ${scenario.title} (${res.complaint_id})`,
           cid: res.complaint_id,
         });
         if (onScenarioTriggered) {
@@ -92,7 +86,7 @@ export default function ScenarioControllerBar({
     setLoadingScenario('reset');
     try {
       await api.resetSimulationState();
-      setLastAction({ type: 'success', text: 'Operational baseline restored in <500ms' });
+      setLastAction({ type: 'success', text: 'All data reset to baseline' });
       if (onResetCompleted) {
         onResetCompleted();
       }
@@ -108,24 +102,22 @@ export default function ScenarioControllerBar({
     <div style={{
       backgroundColor: 'var(--card)',
       borderBottom: '1px solid var(--border)',
-      boxShadow: 'var(--shadow-xs)',
       position: 'relative',
-      zIndex: 25,
+      zIndex: 20,
     }}>
+      {/* Top Controller Strip Header */}
       <div style={{
-        maxWidth: '1600px',
-        margin: '0 auto',
-        padding: '6px 28px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        padding: '8px 16px',
         flexWrap: 'wrap',
         gap: '8px',
       }}>
-        {/* Left: Presentation Bar Header & Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Left: Section Title & Feedback */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <div style={{
-            display: 'inline-flex',
+            display: 'flex',
             alignItems: 'center',
             gap: '6px',
             padding: '3px 8px',
@@ -133,15 +125,11 @@ export default function ScenarioControllerBar({
             backgroundColor: 'var(--secondary)',
             border: '1px solid var(--border)',
           }}>
-            <Sparkles size={12} color="var(--primary)" />
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              Live Event Simulation
+            <Sparkles size={12} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Demo Scenarios
             </span>
           </div>
-
-          <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', display: 'none' }} className="md:inline">
-            Interactive Presentation Harness
-          </span>
 
           {lastAction && (
             <div style={{
@@ -152,9 +140,9 @@ export default function ScenarioControllerBar({
               borderRadius: 'var(--radius-full)',
               fontSize: '11px',
               fontWeight: '600',
-              backgroundColor: lastAction.type === 'success' ? 'color-mix(in srgb, var(--success) 12%, transparent)' : 'color-mix(in srgb, var(--destructive) 12%, transparent)',
-              color: lastAction.type === 'success' ? 'var(--success)' : 'var(--destructive)',
-              border: `1px solid ${lastAction.type === 'success' ? 'color-mix(in srgb, var(--success) 35%, transparent)' : 'color-mix(in srgb, var(--destructive) 35%, transparent)'}`,
+              backgroundColor: lastAction.type === 'success' ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+              color: lastAction.type === 'success' ? '#16a34a' : '#ef4444',
+              border: `1px solid ${lastAction.type === 'success' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
             }}>
               <CheckCircle2 size={11} />
               <span>{lastAction.text}</span>
@@ -167,19 +155,21 @@ export default function ScenarioControllerBar({
           <button
             onClick={handleReset}
             disabled={loadingScenario !== null}
-            title="Reset active alerts, dispatches, cooldowns, and outbox back to pristine baseline seed"
-            className="btn btn-secondary"
+            title="Reset alerts and data back to starting state"
+            className="astrix-btn-outline"
             style={{
               padding: '4px 10px',
               borderRadius: 'var(--radius-sm)',
-              fontSize: '11px',
+              fontSize: '11.5px',
               fontWeight: '600',
               cursor: loadingScenario ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
               gap: '6px',
             }}
           >
             <RotateCcw size={12} className={loadingScenario === 'reset' ? 'spin' : ''} />
-            <span>↺ Reset Demo State (&lt;500ms)</span>
+            <span>↺ Reset All Data</span>
           </button>
 
           <button
@@ -188,28 +178,30 @@ export default function ScenarioControllerBar({
             style={{
               padding: '4px 8px',
               borderRadius: 'var(--radius-sm)',
-              fontSize: '11px',
               cursor: 'pointer',
               color: 'var(--muted-foreground)'
             }}
+            aria-label="Toggle demo bar"
           >
             {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
         </div>
       </div>
 
-      {/* Expanded Scenario Buttons Strip (Astrix Pill Bar) */}
+      {/* Expanded Scenario Buttons Strip */}
       {!isCollapsed && (
         <div style={{
           backgroundColor: 'var(--background)',
           borderTop: '1px solid var(--border)',
-          padding: '8px 28px',
+          padding: '8px 16px',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
         }}>
           <div style={{
             maxWidth: '1600px',
             margin: '0 auto',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '8px',
           }}>
             {scenarios.map((sc) => {
@@ -246,15 +238,15 @@ export default function ScenarioControllerBar({
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <IconComp size={13} color="var(--primary)" />
+                      <IconComp size={13} style={{ color: 'var(--primary)', flexShrink: 0 }} />
                       <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--foreground)' }}>
                         {sc.title}
                       </span>
                     </div>
                     <span style={{
-                      fontSize: '9px',
+                      fontSize: '9.5px',
                       fontWeight: '700',
-                      padding: '1px 5px',
+                      padding: '1px 6px',
                       borderRadius: 'var(--radius-full)',
                       backgroundColor: 'var(--secondary)',
                       color: 'var(--muted-foreground)',
@@ -263,9 +255,9 @@ export default function ScenarioControllerBar({
                     </span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '10.5px', color: 'var(--muted-foreground)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '11px', color: 'var(--muted-foreground)' }}>
                     <span>{sc.location}</span>
-                    <span style={{ fontWeight: '600', color: 'var(--foreground)' }}>{sc.amount}</span>
+                    <span style={{ fontWeight: '700', color: 'var(--foreground)' }}>{sc.amount}</span>
                   </div>
                 </button>
               );
