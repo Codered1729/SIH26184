@@ -230,6 +230,7 @@ export default function App() {
         {/* Astrix Topbar with Breadcrumbs, Command Search (Cmd+K), and Global Actions */}
         <AstrixTopbar
           activeTab={activeTab}
+          isSidebarCollapsed={isSidebarCollapsed}
           onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
           searchQuery={searchQuery}

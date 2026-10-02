@@ -8,9 +8,11 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { SidebarToggleIcon } from './AstrixIcons';
 
 export default function AstrixTopbar({
   activeTab,
+  isSidebarCollapsed = false,
   onToggleSidebar,
   onOpenMobileSidebar,
   searchQuery = '',
@@ -46,7 +48,7 @@ export default function AstrixTopbar({
 
   return (
     <header className="astrix-topbar">
-      {/* Left: Mobile Menu Toggle, Desktop Breadcrumbs */}
+      {/* Left: Mobile Menu Toggle, Desktop Toggle, Desktop Breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flexShrink: 0 }}>
         {/* Mobile menu trigger */}
         <button
@@ -57,6 +59,25 @@ export default function AstrixTopbar({
           aria-label="Open Navigation"
         >
           <Menu size={16} />
+        </button>
+
+        {/* Desktop sidebar toggle button */}
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="astrix-btn-outline desktop-only"
+          style={{ 
+            padding: '6px', 
+            cursor: 'pointer', 
+            borderRadius: 'var(--radius-sm)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--foreground)'
+          }}
+          title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label="Toggle Sidebar"
+        >
+          <SidebarToggleIcon width={16} height={16} />
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
