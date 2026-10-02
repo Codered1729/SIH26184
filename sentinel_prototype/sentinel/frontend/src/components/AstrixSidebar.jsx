@@ -5,8 +5,7 @@ import {
   ListIcon, 
   MapPinIcon, 
   ComplianceIcon, 
-  ReportsIcon, 
-  SidebarToggleIcon 
+  ReportsIcon
 } from './AstrixIcons';
 import { 
   Plus, 
@@ -57,75 +56,39 @@ export default function AstrixSidebar({
       )}
 
       <aside className={`astrix-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
-        {/* Brand & Collapse Header - Single line clean SENTINEL brand */}
+        {/* Brand Header - Clean single brand, toggle is handled canonically in topbar */}
         <div style={{
           height: '56px',
-          padding: isCollapsed ? '0 8px' : '0 16px',
+          padding: isCollapsed ? '0 12px' : '0 16px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: isCollapsed ? 'center' : 'space-between',
+          justifyContent: isCollapsed ? 'center' : 'flex-start',
           borderBottom: '1px solid var(--sidebar-border)',
         }}>
-          {isCollapsed ? (
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              title="Expand Sidebar"
-              className="astrix-btn-outline"
-              style={{
-                width: '36px',
-                height: '36px',
-                padding: '0',
-                borderRadius: 'var(--radius-sm)',
+          <div 
+            onClick={isCollapsed ? onToggleCollapse : undefined}
+            title={isCollapsed ? "Click to expand sidebar" : undefined}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '10px', 
+              minWidth: 0,
+              cursor: isCollapsed ? 'pointer' : 'default'
+            }}
+          >
+            <AstrixLogo width={28} height={28} />
+            {!isCollapsed && (
+              <span style={{
+                fontSize: '16px',
+                fontWeight: '800',
+                letterSpacing: '-0.02em',
                 color: 'var(--sidebar-foreground)',
-                backgroundColor: 'var(--sidebar-accent)',
-                border: '1px solid var(--sidebar-border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-              }}
-              aria-label="Expand Sidebar"
-            >
-              <SidebarToggleIcon width={16} height={16} />
-            </button>
-          ) : (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                <AstrixLogo width={28} height={28} />
-                <span style={{
-                  fontSize: '16px',
-                  fontWeight: '800',
-                  letterSpacing: '-0.02em',
-                  color: 'var(--sidebar-foreground)',
-                  whiteSpace: 'nowrap',
-                }}>
-                  SENTINEL
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={onToggleCollapse}
-                title="Collapse Sidebar"
-                className="astrix-btn-outline desktop-only"
-                style={{
-                  padding: '5px',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--sidebar-muted)',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                aria-label="Collapse Sidebar"
-              >
-                <SidebarToggleIcon width={16} height={16} />
-              </button>
-            </>
-          )}
+                whiteSpace: 'nowrap',
+              }}>
+                SENTINEL
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Navigation Section */}
