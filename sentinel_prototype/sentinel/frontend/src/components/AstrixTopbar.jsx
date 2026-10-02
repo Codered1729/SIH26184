@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import { 
-  Search, 
   Plus, 
   RotateCw, 
   Sun, 
@@ -88,10 +87,9 @@ export default function AstrixTopbar({
           backgroundColor: 'var(--secondary)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-md)',
-          padding: '6px 10px',
+          padding: '6px 12px',
           height: '36px',
         }}>
-          <Search size={14} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
           <input
             ref={searchInputRef}
             type="text"
