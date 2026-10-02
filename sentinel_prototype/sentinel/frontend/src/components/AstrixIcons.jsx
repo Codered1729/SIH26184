@@ -53,7 +53,7 @@ export function HomeIcon({ className = "size-5", width = 18, height = 18, style 
   );
 }
 
-export function ClassificationIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
+export function ListIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (
     <svg 
       viewBox="0 0 20 20" 
@@ -65,15 +65,17 @@ export function ClassificationIcon({ className = "size-5", width = 18, height = 
       style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
       {...props}
     >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M5.83333 10.8333C6.25381 10.8332 6.65881 10.992 6.96712 11.2779C7.27544 11.5638 7.4643 11.9557 7.49583 12.375L7.5 12.5V15C7.50013 15.4205 7.34133 15.8255 7.05542 16.1338C6.76951 16.4421 6.37763 16.631 5.95833 16.6625L5.83333 16.6667H3.33333C2.91285 16.6668 2.50786 16.508 2.19954 16.2221C1.89123 15.9362 1.70237 15.5443 1.67083 15.125L1.66667 15V12.5C1.66653 12.0795 1.82534 11.6745 2.11125 11.3662C2.39716 11.0579 2.78904 10.869 3.20833 10.8375L3.33333 10.8333H5.83333ZM13.3333 14.1667H10V15.8333H13.3333V14.1667ZM5.83333 12.5H3.33333V15H5.83333V12.5ZM16.6667 10.8333H10V12.5H16.6667V10.8333ZM5.83333 2.5H3.33333V8.33333H5.83333V2.5ZM13.3333 5.83333H10V7.5H13.3333V5.83333ZM5.83333 4.16667H3.33333V6.66667H5.83333V4.16667ZM16.6667 2.5H10V4.16667H16.6667V2.5Z"
-        fill="currentColor"
-      />
+      <circle cx="4" cy="5" r="1.5" fill="currentColor" />
+      <rect x="7.5" y="4.2" width="9.5" height="1.6" rx="0.8" fill="currentColor" />
+      <circle cx="4" cy="10" r="1.5" fill="currentColor" />
+      <rect x="7.5" y="9.2" width="9.5" height="1.6" rx="0.8" fill="currentColor" />
+      <circle cx="4" cy="15" r="1.5" fill="currentColor" />
+      <rect x="7.5" y="14.2" width="9.5" height="1.6" rx="0.8" fill="currentColor" />
     </svg>
   );
 }
+
+export const ClassificationIcon = ListIcon;
 
 export function MapPinIcon({ className = "size-5", width = 18, height = 18, style = {}, ...props }) {
   return (

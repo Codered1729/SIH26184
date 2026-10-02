@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   AstrixLogo, 
   HomeIcon, 
-  ClassificationIcon, 
+  ListIcon, 
   MapPinIcon, 
   ComplianceIcon, 
   ReportsIcon, 
@@ -34,7 +34,7 @@ export default function AstrixSidebar({
 }) {
   const navItems = [
     { id: 'queue', label: 'Alerts Queue', icon: HomeIcon, count: alertsCount },
-    { id: 'dossier', label: 'Case Details', icon: ClassificationIcon },
+    { id: 'dossier', label: 'Case Details', icon: ListIcon },
     { id: 'map', label: 'ATM Map', icon: MapPinIcon },
     { id: 'bnss', label: 'Freeze Orders', icon: ComplianceIcon },
     { id: 'audit', label: 'Audit Logs', icon: ReportsIcon, count: auditCount },
@@ -193,7 +193,7 @@ export default function AstrixSidebar({
                 }}
               >
                 <Plus size={15} strokeWidth={2.5} />
-                <span>+ Report Incident</span>
+                <span>Report Incident</span>
               </button>
             </div>
           )}
