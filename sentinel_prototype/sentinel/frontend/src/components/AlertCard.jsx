@@ -67,6 +67,29 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
   const isDuplicate = isHeld;
   const isDispatched = alert.status === 'DISPATCHED';
 
+  // Format Target ATM location clearly from backend/mock fields (bank, area, city, atm_id)
+  const targetAtmDisplay = (() => {
+    if (typeof alert.leading_atm === 'string' && alert.leading_atm.trim()) {
+      return alert.leading_atm;
+    }
+    if (alert.leading_atm && typeof alert.leading_atm === 'object') {
+      if (alert.leading_atm.name) return alert.leading_atm.name;
+      const bank = alert.leading_atm.bank;
+      const location = alert.leading_atm.area || alert.leading_atm.city;
+      if (bank && location) return `${bank} — ${location}`;
+      if (bank) return bank;
+      if (location) return location;
+      if (alert.leading_atm.atm_id) return alert.leading_atm.atm_id;
+    }
+    if (typeof alert.target_atm === 'string' && alert.target_atm.trim()) {
+      return alert.target_atm;
+    }
+    if (alert.victim_city) {
+      return `HDFC — ${alert.victim_city}`;
+    }
+    return 'HDFC — Hinjawadi Phase 1';
+  })();
+
   return (
     <article
       className={`card ${isHighlighted ? 'card-highlight-pulse' : ''}`}
@@ -230,10 +253,13 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
           <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Target ATM
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+          <div 
+            style={{ fontSize: '12px', fontWeight: '700', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}
+            title={targetAtmDisplay}
+          >
             <Building size={12} style={{ color: 'var(--primary)', flexShrink: 0 }} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {alert.leading_atm?.name || 'Locating ATM...'}
+              {targetAtmDisplay}
             </span>
           </div>
         </div>

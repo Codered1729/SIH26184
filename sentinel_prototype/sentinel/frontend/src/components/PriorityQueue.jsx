@@ -42,7 +42,9 @@ export default function PriorityQueue({
         const utr = (alert.utr || '').toLowerCase();
         const city = (alert.victim_city || '').toLowerCase();
         const bank = (alert.leading_atm?.bank || '').toLowerCase();
-        return cid.includes(q) || utr.includes(q) || city.includes(q) || bank.includes(q);
+        const area = (alert.leading_atm?.area || '').toLowerCase();
+        const atmId = (alert.leading_atm?.atm_id || '').toLowerCase();
+        return cid.includes(q) || utr.includes(q) || city.includes(q) || bank.includes(q) || area.includes(q) || atmId.includes(q);
       }
 
       return true;
