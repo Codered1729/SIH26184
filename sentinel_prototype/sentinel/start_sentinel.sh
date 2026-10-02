@@ -28,7 +28,7 @@ echo "[3/3] Starting Unified SENTINEL Server on http://localhost:8000 ..."
 echo "- Web Dashboard:         http://localhost:8000/"
 echo "- REST API Docs:         http://localhost:8000/docs"
 echo "- System Health:         http://localhost:8000/health"
-echo "- Presenter Runbook:     docs/DEMO_RUNBOOK.md"
+echo "- Presenter Runbook:     README.md (Section 11)"
 echo ""
 
 cd backend
