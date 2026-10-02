@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { 
+  Search,
   Plus, 
   RotateCw, 
   Sun, 
@@ -7,7 +8,6 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { CmdIcon } from './AstrixIcons';
 
 export default function AstrixTopbar({
   activeTab,
@@ -87,9 +87,10 @@ export default function AstrixTopbar({
           backgroundColor: 'var(--secondary)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-md)',
-          padding: '6px 12px',
+          padding: '6px 10px',
           height: '36px',
         }}>
+          <Search size={14} style={{ color: 'var(--muted-foreground)', flexShrink: 0 }} />
           <input
             ref={searchInputRef}
             type="text"
@@ -107,7 +108,7 @@ export default function AstrixTopbar({
               minWidth: 0,
             }}
           />
-          {searchQuery ? (
+          {searchQuery && (
             <button
               onClick={() => onSearchChange && onSearchChange('')}
               style={{
@@ -122,23 +123,6 @@ export default function AstrixTopbar({
             >
               <X size={13} />
             </button>
-          ) : (
-            <div className="hidden-mobile" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '2px',
-              padding: '2px 5px',
-              borderRadius: 'var(--radius-xs)',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--card)',
-              color: 'var(--muted-foreground)',
-              fontSize: '10px',
-              fontWeight: '700',
-              flexShrink: 0,
-            }}>
-              <CmdIcon width={10} height={10} />
-              <span>K</span>
-            </div>
           )}
         </div>
       </div>
