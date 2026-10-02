@@ -9,7 +9,8 @@ import {
   ChevronUp, 
   Sparkles,
   CheckCircle2,
-  Clock
+  Clock,
+  Play
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -25,43 +26,43 @@ export default function ScenarioControllerBar({
   const scenarios = [
     {
       id: 'genuine_pune_upi',
-      title: '1. High-Velocity UPI Siphon',
-      subtitle: 'Pune Hinjawadi • 20m Window (₹78k)',
+      title: '1. High-Velocity UPI',
+      location: 'Pune Hinjawadi',
+      amount: '₹78,000',
+      window: '20m Golden Window',
       icon: Zap,
       badge: 'CRITICAL (0.91)',
-      color: '#0B1F3A',
-      accentColor: '#00C2A8',
       desc: 'Simulates high-velocity UPI mule cash-out in Pune Hinjawadi (₹78,000); triggers Hawkes ATM cluster excitation.',
     },
     {
       id: 'duplicate_utr_fail',
-      title: '2. Sybil / Duplicate Claim',
-      subtitle: 'Mumbai Andheri • Duplicate UTR (₹65k)',
+      title: '2. Duplicate UTR Sybil',
+      location: 'Mumbai Andheri',
+      amount: '₹65,000',
+      window: 'Window Suspended',
       icon: ShieldAlert,
       badge: 'HELD FOR REVIEW',
-      color: '#581C87',
-      accentColor: '#A855F7',
       desc: 'Detects duplicate UTR claim in Mumbai; Authenticity Gate immediately assigns 0.00 score (zero wrongful freezes).',
     },
     {
       id: 'bank_outage_resilience',
       title: '3. Nodal Gateway Outage',
-      subtitle: 'Mumbai BKC • Nodal API Outage (₹140k)',
+      location: 'Mumbai BKC',
+      amount: '₹1,40,000',
+      window: 'SQLite WAL Queue',
       icon: PlugZap,
       badge: 'OUTBOX QUEUED',
-      color: '#9A3412',
-      accentColor: '#F97316',
       desc: 'Simulates bank webhook downtime in BKC: trips CircuitBreaker to OPEN; 0 alerts lost via SQLite queue.',
     },
     {
       id: 'multihop_decay',
-      title: '4. Inter-JCCT Corridor Decay',
-      subtitle: 'Thane ➔ Ahmedabad • 45m Window (₹135k)',
+      title: '4. Interstate Corridor',
+      location: 'Thane ➔ Ahmedabad',
+      amount: '₹1,35,000',
+      window: '45m Bayesian Window',
       icon: RefreshCw,
       badge: 'BAYESIAN DECAY',
-      color: '#334155',
-      accentColor: '#64748B',
-      desc: 'Layered interstate mule transfer from Thane (MH) to Ahmedabad (GJ) (₹1,35,000); Bayesian belief decays to _missed after 45m window.',
+      desc: 'Layered interstate mule transfer from Thane (MH) to Ahmedabad (GJ); Bayesian belief decays to _missed after 45m window.',
     },
   ];
 
@@ -91,7 +92,7 @@ export default function ScenarioControllerBar({
     setLoadingScenario('reset');
     try {
       await api.resetSimulationState();
-      setLastAction({ type: 'success', text: 'Operational baseline restored' });
+      setLastAction({ type: 'success', text: 'Operational baseline restored in <500ms' });
       if (onResetCompleted) {
         onResetCompleted();
       }
@@ -105,15 +106,15 @@ export default function ScenarioControllerBar({
 
   return (
     <div style={{
-      backgroundColor: '#FFFFFF',
-      borderBottom: '1px solid var(--border-subtle)',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)',
+      backgroundColor: 'var(--card)',
+      borderBottom: '1px solid var(--border)',
+      boxShadow: 'var(--shadow-xs)',
       position: 'relative',
-      zIndex: 990,
+      zIndex: 25,
     }}>
-      <div className="sentinel-scenario-bar-header" style={{
-        maxWidth: '100%',
-        margin: '0',
+      <div style={{
+        maxWidth: '1600px',
+        margin: '0 auto',
         padding: '6px 28px',
         display: 'flex',
         alignItems: 'center',
@@ -122,24 +123,24 @@ export default function ScenarioControllerBar({
         gap: '8px',
       }}>
         {/* Left: Presentation Bar Header & Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '2px 8px',
-            borderRadius: '4px',
-            backgroundColor: '#F0FDFA',
-            border: '1px solid #CCFBF1',
+            padding: '3px 8px',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--secondary)',
+            border: '1px solid var(--border)',
           }}>
-            <Sparkles size={13} color="var(--color-teal-dark)" />
-            <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--color-navy)', letterSpacing: '0.04em' }}>
-              OPERATIONAL SCENARIOS & STRESS DRILLS
+            <Sparkles size={12} color="var(--primary)" />
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              Live Event Simulation
             </span>
           </div>
 
-          <span style={{ fontSize: '11.5px', color: 'var(--color-muted)', fontWeight: '500' }}>
-            Live Incident Telemetry Simulator
+          <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', display: 'none' }} className="md:inline">
+            Interactive Presentation Harness
           </span>
 
           {lastAction && (
@@ -148,12 +149,12 @@ export default function ScenarioControllerBar({
               alignItems: 'center',
               gap: '4px',
               padding: '2px 8px',
-              borderRadius: '12px',
+              borderRadius: 'var(--radius-full)',
               fontSize: '11px',
               fontWeight: '600',
-              backgroundColor: lastAction.type === 'success' ? '#F0FDF4' : '#FEF2F2',
-              color: lastAction.type === 'success' ? '#15803D' : '#B91C1C',
-              border: `1px solid ${lastAction.type === 'success' ? '#BBF7D0' : '#FECACA'}`,
+              backgroundColor: lastAction.type === 'success' ? 'color-mix(in srgb, var(--success) 12%, transparent)' : 'color-mix(in srgb, var(--destructive) 12%, transparent)',
+              color: lastAction.type === 'success' ? 'var(--success)' : 'var(--destructive)',
+              border: `1px solid ${lastAction.type === 'success' ? 'color-mix(in srgb, var(--success) 35%, transparent)' : 'color-mix(in srgb, var(--destructive) 35%, transparent)'}`,
             }}>
               <CheckCircle2 size={11} />
               <span>{lastAction.text}</span>
@@ -167,124 +168,109 @@ export default function ScenarioControllerBar({
             onClick={handleReset}
             disabled={loadingScenario !== null}
             title="Reset active alerts, dispatches, cooldowns, and outbox back to pristine baseline seed"
+            className="btn btn-secondary"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
               padding: '4px 10px',
               borderRadius: 'var(--radius-sm)',
               fontSize: '11px',
-              fontWeight: '700',
-              backgroundColor: '#F8FAFC',
-              color: 'var(--color-navy)',
-              border: '1px solid var(--border-subtle)',
+              fontWeight: '600',
               cursor: loadingScenario ? 'not-allowed' : 'pointer',
-              transition: 'all 0.15s ease',
+              gap: '6px',
             }}
           >
             <RotateCcw size={12} className={loadingScenario === 'reset' ? 'spin' : ''} />
-            <span>Reset Operational Baseline</span>
+            <span>↺ Reset Demo State (&lt;500ms)</span>
           </button>
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
+            className="astrix-btn-outline"
             style={{
-              background: 'none',
-              border: 'none',
+              padding: '4px 8px',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '11px',
               cursor: 'pointer',
-              color: 'var(--color-muted)',
-              display: 'flex',
-              alignItems: 'center',
-              padding: '4px',
+              color: 'var(--muted-foreground)'
             }}
-            title={isCollapsed ? 'Expand Scenario Bar' : 'Collapse Scenario Bar'}
           >
-            {isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
         </div>
       </div>
 
-      {/* Expanded Scenario Buttons Strip */}
+      {/* Expanded Scenario Buttons Strip (Astrix Pill Bar) */}
       {!isCollapsed && (
-        <div className="sentinel-scenario-grid" style={{
-          maxWidth: '100%',
-          margin: '0',
-          padding: '0 28px 8px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '8px',
+        <div style={{
+          backgroundColor: 'var(--background)',
+          borderTop: '1px solid var(--border)',
+          padding: '8px 28px',
         }}>
-          {scenarios.map((sc) => {
-            const Icon = sc.icon;
-            const isLoading = loadingScenario === sc.id;
+          <div style={{
+            maxWidth: '1600px',
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+            gap: '8px',
+          }}>
+            {scenarios.map((sc) => {
+              const IconComp = sc.icon;
+              const isLoading = loadingScenario === sc.id;
 
-            return (
-              <button
-                key={sc.id}
-                onClick={() => handleTrigger(sc)}
-                disabled={loadingScenario !== null}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid var(--border-subtle)',
-                  cursor: loadingScenario ? 'not-allowed' : 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.15s ease',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = sc.accentColor;
-                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '6px',
-                  backgroundColor: `${sc.accentColor}18`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  <Icon size={16} color={sc.accentColor} strokeWidth={2.2} />
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--color-navy)', whiteSpace: 'nowrap' }}>
-                      {sc.title}
-                    </span>
+              return (
+                <button
+                  key={sc.id}
+                  onClick={() => handleTrigger(sc)}
+                  disabled={loadingScenario !== null}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: '4px',
+                    padding: '8px 12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--card)',
+                    textAlign: 'left',
+                    cursor: loadingScenario ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.15s ease',
+                    boxShadow: 'var(--shadow-xs)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--primary)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <IconComp size={13} color="var(--primary)" />
+                      <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--foreground)' }}>
+                        {sc.title}
+                      </span>
+                    </div>
                     <span style={{
                       fontSize: '9px',
-                      fontWeight: '800',
+                      fontWeight: '700',
                       padding: '1px 5px',
-                      borderRadius: '3px',
-                      backgroundColor: `${sc.accentColor}15`,
-                      color: sc.accentColor,
-                      border: `1px solid ${sc.accentColor}40`,
-                      letterSpacing: '0.02em',
-                      whiteSpace: 'nowrap',
+                      borderRadius: 'var(--radius-full)',
+                      backgroundColor: 'var(--secondary)',
+                      color: 'var(--muted-foreground)',
                     }}>
                       {sc.badge}
                     </span>
                   </div>
-                  <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {sc.subtitle}
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '10.5px', color: 'var(--muted-foreground)' }}>
+                    <span>{sc.location}</span>
+                    <span style={{ fontWeight: '600', color: 'var(--foreground)' }}>{sc.amount}</span>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

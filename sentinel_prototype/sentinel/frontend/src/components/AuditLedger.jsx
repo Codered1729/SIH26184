@@ -2,19 +2,17 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   FileClock, 
   Search, 
-  Filter, 
   ShieldCheck, 
-  AlertTriangle, 
   Hash, 
   RefreshCw, 
   Copy, 
   Check, 
   Eye, 
-  X,
-  Database,
-  Lock,
-  Clock
+  X, 
+  Lock, 
+  Clock 
 } from 'lucide-react';
+import { MetricCubeIcon } from './AstrixIcons';
 import { api } from '../services/api';
 
 export default function AuditLedger({ onRefreshParent }) {
@@ -104,17 +102,19 @@ export default function AuditLedger({ onRefreshParent }) {
       });
     }
 
-    if (!searchQuery.trim()) return result;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((log) => {
+        const id = (log.log_id || '').toLowerCase();
+        const cid = (log.complaint_id || '').toLowerCase();
+        const et = (log.event_type || '').toLowerCase();
+        const sum = (log.summary || '').toLowerCase();
+        const hash = (log.chain_hash || '').toLowerCase();
+        return id.includes(q) || cid.includes(q) || et.includes(q) || sum.includes(q) || hash.includes(q);
+      });
+    }
 
-    const q = searchQuery.toLowerCase();
-    return result.filter((log) => {
-      const cid = (log.complaint_id || '').toLowerCase();
-      const etype = (log.event_type || '').toLowerCase();
-      const sum = (log.summary || '').toLowerCase();
-      const chash = (log.chain_hash || '').toLowerCase();
-      const lid = (log.log_id || '').toLowerCase();
-      return cid.includes(q) || etype.includes(q) || sum.includes(q) || chash.includes(q) || lid.includes(q);
-    });
+    return result;
   }, [logs, selectedFilter, searchQuery]);
 
   const stats = useMemo(() => {
@@ -134,18 +134,18 @@ export default function AuditLedger({ onRefreshParent }) {
   const getBadgeStyle = (eventType) => {
     const et = (eventType || '').toUpperCase();
     if (et.includes('HARD_FAIL') || et.includes('TRIPPED') || et.includes('EXPIRED')) {
-      return { bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C' };
+      return { bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.25)', text: '#ef4444' };
     }
     if (et.includes('VERIFIED') || et.includes('INIT') || et.includes('SUCCESS') || et.includes('RESET')) {
-      return { bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D' };
+      return { bg: 'rgba(34, 197, 94, 0.12)', border: 'rgba(34, 197, 94, 0.25)', text: '#22c55e' };
     }
     if (et.includes('BNSS') || et.includes('NOTICE')) {
-      return { bg: '#EFF6FF', border: '#BFDBFE', text: '#1D4ED8' };
+      return { bg: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.25)', text: '#3b82f6' };
     }
     if (et.includes('MODEL') || et.includes('HAWKES') || et.includes('SIMULATION') || et.includes('PREDICTION')) {
-      return { bg: '#F0FDFA', border: '#99F6E4', text: '#0D9488' };
+      return { bg: 'rgba(240, 101, 67, 0.12)', border: 'rgba(240, 101, 67, 0.25)', text: 'var(--primary)' };
     }
-    return { bg: '#F8FAFC', border: '#E2E8F0', text: '#475569' };
+    return { bg: 'var(--secondary)', border: 'var(--border)', text: 'var(--muted-foreground)' };
   };
 
   const filterTabs = [
@@ -158,31 +158,23 @@ export default function AuditLedger({ onRefreshParent }) {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Top Banner & Context */}
-      <div className="card" style={{ padding: '18px 24px', backgroundColor: '#FFFFFF' }}>
+      <div className="astrix-card" style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '6px',
-                backgroundColor: 'rgba(0, 194, 168, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <FileClock size={18} color="var(--color-teal-dark)" />
+              <div className="astrix-metric-icon-box">
+                <FileClock size={18} style={{ color: 'var(--primary)' }} />
               </div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-navy)', letterSpacing: '-0.02em', margin: 0 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.02em', margin: 0 }}>
                 Compliance & Forensic Audit Ledger
               </h2>
               <span className="badge badge-teal" style={{ padding: '4px 8px', fontSize: '11px' }}>
                 SHA-256 Tamper-Evident Chain
               </span>
             </div>
-            <p style={{ fontSize: '12.5px', color: 'var(--color-muted)', marginTop: '6px', margin: 0, lineHeight: 1.4 }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--muted-foreground)', marginTop: '6px', margin: 0, lineHeight: 1.4 }}>
               Immutable chronological record of intake validations, Authenticity Gate scoring, Champion GBDT forecasts, complaint preservation orders, and resilient outbox transitions.
             </p>
           </div>
@@ -190,7 +182,7 @@ export default function AuditLedger({ onRefreshParent }) {
           <button
             onClick={() => fetchLogs(true)}
             disabled={isRefreshing}
-            className="btn btn-secondary"
+            className="astrix-btn-outline"
             style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '8px 14px' }}
           >
             <RefreshCw size={13} className={isRefreshing ? 'spin' : ''} />
@@ -198,57 +190,57 @@ export default function AuditLedger({ onRefreshParent }) {
           </button>
         </div>
 
-        {/* 4 Summary Metric Cards */}
+        {/* 4 Summary Astrix Metric Cards */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: '12px',
           marginTop: '18px',
         }}>
-          <div style={{ padding: '14px 16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div className="astrix-metric-card" style={{ padding: '14px 16px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Total Ledger Records
             </div>
-            <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '3px' }}>
+            <div className="astrix-metric-value" style={{ fontSize: '1.6rem', marginTop: '3px' }}>
               {stats.total}
             </div>
-            <div style={{ fontSize: '11px', color: '#16A34A', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}>
+            <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}>
               <Lock size={11} /> 100% SHA-256 Cryptographically Linked
             </div>
           </div>
 
-          <div style={{ padding: '14px 16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div className="astrix-metric-card" style={{ padding: '14px 16px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Sybil Attempts Hard-Failed
             </div>
-            <div style={{ fontSize: '22px', fontWeight: '800', color: '#7C3AED', marginTop: '3px' }}>
+            <div className="astrix-metric-value" style={{ fontSize: '1.6rem', color: '#7c3aed', marginTop: '3px' }}>
               {stats.hardFails}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-muted)', marginTop: '3px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '3px' }}>
               Score 0.00 • Zero False Freezes
             </div>
           </div>
 
-          <div style={{ padding: '14px 16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div className="astrix-metric-card" style={{ padding: '14px 16px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Complaint Notices
             </div>
-            <div style={{ fontSize: '22px', fontWeight: '800', color: '#2563EB', marginTop: '3px' }}>
+            <div className="astrix-metric-value" style={{ fontSize: '1.6rem', color: '#2563eb', marginTop: '3px' }}>
               {stats.notices}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-muted)', marginTop: '3px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '3px' }}>
               Complaint Notice Courtroom Sealed
             </div>
           </div>
 
-          <div style={{ padding: '14px 16px', borderRadius: 'var(--radius-sm)', backgroundColor: '#F8FAFC', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div className="astrix-metric-card" style={{ padding: '14px 16px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               AI Model Inferences
             </div>
-            <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--color-teal-dark)', marginTop: '3px' }}>
+            <div className="astrix-metric-value" style={{ fontSize: '1.6rem', color: 'var(--primary)', marginTop: '3px' }}>
               {stats.predictions}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-muted)', marginTop: '3px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '3px' }}>
               CatBoost Threshold 0.444 • Sub-ms Latency
             </div>
           </div>
@@ -257,8 +249,8 @@ export default function AuditLedger({ onRefreshParent }) {
 
       {/* Filter Tabs & Instant Search Controls */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-        {/* Instant Category Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        {/* Instant Category Buttons (Astrix Segmented Pills) */}
+        <div className="astrix-pill-nav" style={{ flexWrap: 'wrap' }}>
           {filterTabs.map((tab) => {
             const count = categoryCounts[tab.id] ?? 0;
             const isSelected = selectedFilter === tab.id;
@@ -266,31 +258,10 @@ export default function AuditLedger({ onRefreshParent }) {
               <button
                 key={tab.id}
                 onClick={() => setSelectedFilter(tab.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '20px',
-                  fontSize: '11.5px',
-                  fontWeight: isSelected ? '700' : '600',
-                  border: isSelected ? '1px solid var(--color-navy)' : '1px solid var(--border-subtle)',
-                  backgroundColor: isSelected ? 'var(--color-navy)' : '#FFFFFF',
-                  color: isSelected ? '#FFFFFF' : '#475569',
-                  cursor: 'pointer',
-                  transition: 'all 0.12s ease',
-                  boxShadow: isSelected ? '0 2px 4px rgba(11, 31, 58, 0.1)' : 'none',
-                }}
+                className={`astrix-pill-btn ${isSelected ? 'active' : ''}`}
               >
                 <span>{tab.label}</span>
-                <span style={{
-                  padding: '1px 6px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: '700',
-                  backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.22)' : '#F1F5F9',
-                  color: isSelected ? '#FFFFFF' : '#64748B',
-                }}>
+                <span className={`astrix-pill-badge ${isSelected ? 'active' : ''}`}>
                   {count}
                 </span>
               </button>
@@ -300,7 +271,7 @@ export default function AuditLedger({ onRefreshParent }) {
 
         {/* Live Filter Search Input */}
         <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
-          <Search size={14} color="var(--color-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
           <input
             type="text"
             placeholder="Search Complaint ID, Event, Hash..."
@@ -311,10 +282,11 @@ export default function AuditLedger({ onRefreshParent }) {
               padding: '8px 12px 8px 34px',
               fontSize: '12px',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border-medium)',
+              border: '1px solid var(--border)',
               outline: 'none',
-              backgroundColor: '#FFFFFF',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+              backgroundColor: 'var(--card)',
+              color: 'var(--foreground)',
+              fontFamily: 'var(--font-sans)',
             }}
           />
           {searchQuery && (
@@ -327,7 +299,7 @@ export default function AuditLedger({ onRefreshParent }) {
                 transform: 'translateY(-50%)',
                 background: 'none',
                 border: 'none',
-                color: 'var(--color-muted)',
+                color: 'var(--muted-foreground)',
                 cursor: 'pointer',
                 padding: '2px',
               }}
@@ -338,33 +310,33 @@ export default function AuditLedger({ onRefreshParent }) {
         </div>
       </div>
 
-      {/* Audit Log Table - Spacious & High Readability */}
-      <div className="card" style={{ padding: 0, overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
+      {/* Audit Log Table - Astrix Styled Container */}
+      <div className="astrix-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+          <table className="astrix-table" style={{ textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: 'var(--color-navy)', color: '#FFFFFF', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                <th style={{ padding: '12px 16px', fontWeight: '700' }}>Log ID & Time</th>
-                <th style={{ padding: '12px 16px', fontWeight: '700' }}>Event Classification</th>
-                <th style={{ padding: '12px 16px', fontWeight: '700' }}>Complaint ID</th>
-                <th style={{ padding: '12px 16px', fontWeight: '700' }}>Audit Summary Description</th>
-                <th style={{ padding: '12px 16px', fontWeight: '700' }}>SHA-256 Attestation Chain</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '700' }}>Payload</th>
+              <tr>
+                <th style={{ padding: '12px 16px' }}>Log ID & Time</th>
+                <th style={{ padding: '12px 16px' }}>Event Classification</th>
+                <th style={{ padding: '12px 16px' }}>Complaint ID</th>
+                <th style={{ padding: '12px 16px' }}>Audit Summary Description</th>
+                <th style={{ padding: '12px 16px' }}>SHA-256 Attestation Chain</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Payload</th>
               </tr>
             </thead>
             <tbody>
               {isLoading && logs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--color-muted)' }}>
-                    <RefreshCw size={20} className="spin" style={{ margin: '0 auto 8px', color: 'var(--color-teal)' }} />
+                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                    <RefreshCw size={20} className="spin" style={{ margin: '0 auto 8px', color: 'var(--primary)' }} />
                     <div style={{ fontSize: '13px', fontWeight: '600' }}>Loading Cryptographic Ledger Records...</div>
                   </td>
                 </tr>
               ) : filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: 'var(--color-muted)' }}>
-                    <FileClock size={24} style={{ margin: '0 auto 8px', color: '#94A3B8' }} />
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-navy)' }}>
+                  <td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+                    <FileClock size={24} style={{ margin: '0 auto 8px', color: 'var(--muted-foreground)' }} />
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--foreground)' }}>
                       No matching records found
                     </div>
                     <div style={{ fontSize: '11.5px', marginTop: '4px' }}>
@@ -378,20 +350,13 @@ export default function AuditLedger({ onRefreshParent }) {
                   const isCopied = copiedHash === log.chain_hash;
 
                   return (
-                    <tr 
-                      key={log.log_id || idx}
-                      style={{ 
-                        borderBottom: '1px solid var(--border-subtle)',
-                        backgroundColor: idx % 2 === 0 ? '#FFFFFF' : '#FAFCFF',
-                        transition: 'background-color 0.1s ease',
-                      }}
-                    >
+                    <tr key={log.log_id || idx}>
                       {/* Log ID & Time */}
                       <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
-                        <div style={{ fontWeight: '700', color: 'var(--color-navy)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ fontWeight: '700', color: 'var(--foreground)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
                           {log.log_id}
                         </div>
-                        <div style={{ fontSize: '10.5px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
+                        <div style={{ fontSize: '10.5px', color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
                           <Clock size={10} />
                           <span>{log.iso_time || 'Just now'}</span>
                         </div>
@@ -415,12 +380,12 @@ export default function AuditLedger({ onRefreshParent }) {
                       </td>
 
                       {/* Complaint ID */}
-                      <td style={{ padding: '12px 16px', whiteSpace: 'nowrap', fontWeight: '700', color: 'var(--color-navy)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
+                      <td style={{ padding: '12px 16px', whiteSpace: 'nowrap', fontWeight: '700', color: 'var(--foreground)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
                         {log.complaint_id || 'SYSTEM'}
                       </td>
 
                       {/* Audit Summary Description */}
-                      <td style={{ padding: '12px 16px', color: 'var(--color-ink)', maxWidth: '420px' }}>
+                      <td style={{ padding: '12px 16px', color: 'var(--foreground)', maxWidth: '420px' }}>
                         <div style={{ fontSize: '12px', lineHeight: 1.45, fontWeight: '500' }}>
                           {log.summary}
                         </div>
@@ -436,27 +401,27 @@ export default function AuditLedger({ onRefreshParent }) {
                             alignItems: 'center',
                             gap: '5px',
                             padding: '3px 8px',
-                            borderRadius: '4px',
-                            backgroundColor: '#F8FAFC',
-                            border: '1px solid var(--border-subtle)',
+                            borderRadius: 'var(--radius-sm)',
+                            backgroundColor: 'var(--secondary)',
+                            border: '1px solid var(--border)',
                             fontSize: '11px',
                             fontFamily: 'var(--font-mono)',
-                            color: '#334155',
+                            color: 'var(--foreground)',
                             cursor: 'pointer',
                           }}
                         >
-                          <Hash size={10} color="var(--color-muted)" />
+                          <Hash size={10} style={{ color: 'var(--muted-foreground)' }} />
                           <span>
                             {log.chain_hash 
                               ? `${log.chain_hash.slice(0, 8)}...${log.chain_hash.slice(-6)}` 
                               : 'e3b0c442...'}
                           </span>
                           {isCopied ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', color: '#16A34A', fontSize: '9.5px', fontWeight: '700' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', color: '#16a34a', fontSize: '9.5px', fontWeight: '700' }}>
                               <Check size={10} /> Copied
                             </span>
                           ) : (
-                            <Copy size={10} color="#94A3B8" />
+                            <Copy size={10} style={{ color: 'var(--muted-foreground)' }} />
                           )}
                         </button>
                       </td>
@@ -465,18 +430,14 @@ export default function AuditLedger({ onRefreshParent }) {
                       <td style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <button
                           onClick={() => setInspectLog(log)}
+                          className="astrix-btn-outline"
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '4px',
                             padding: '4px 10px',
-                            borderRadius: '4px',
                             fontSize: '11.5px',
                             fontWeight: '600',
-                            backgroundColor: '#F0FDFA',
-                            color: 'var(--color-teal-dark)',
-                            border: '1px solid #CCFBF1',
-                            cursor: 'pointer',
                           }}
                         >
                           <Eye size={12} />
@@ -497,25 +458,26 @@ export default function AuditLedger({ onRefreshParent }) {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(11, 31, 58, 0.45)',
+          backgroundColor: 'rgba(0, 0, 0, 0.55)',
+          backdropFilter: 'blur(4px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 2000,
           padding: '20px',
         }}>
-          <div className="card" style={{ width: '100%', maxWidth: '640px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: 0 }}>
+          <div className="astrix-card" style={{ width: '100%', maxWidth: '640px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: 0 }}>
             {/* Modal Header */}
-            <div style={{ padding: '14px 20px', backgroundColor: 'var(--color-navy)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShieldCheck size={18} color="var(--color-teal)" />
-                <span style={{ fontSize: '13px', fontWeight: '800' }}>
+                <ShieldCheck size={18} style={{ color: 'var(--primary)' }} />
+                <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--foreground)' }}>
                   Cryptographic Ledger Entry: {inspectLog.log_id}
                 </span>
               </div>
               <button
                 onClick={() => setInspectLog(null)}
-                style={{ background: 'none', border: 'none', color: '#FFFFFF', cursor: 'pointer', padding: '2px' }}
+                style={{ background: 'none', border: 'none', color: 'var(--muted-foreground)', cursor: 'pointer', padding: '2px' }}
               >
                 <X size={18} />
               </button>
@@ -524,27 +486,27 @@ export default function AuditLedger({ onRefreshParent }) {
             {/* Modal Body */}
             <div style={{ padding: '18px 22px', overflowY: 'auto', flex: 1 }}>
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Event Type & Timestamp
                 </div>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-navy)', marginTop: '3px' }}>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--foreground)', marginTop: '3px' }}>
                   {inspectLog.event_type} • {inspectLog.iso_time}
                 </div>
               </div>
 
               <div style={{ marginBottom: '14px' }}>
-                <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Full SHA-256 Attestation Chain Hash
                 </div>
                 <div style={{
                   padding: '8px 12px',
-                  borderRadius: '4px',
-                  backgroundColor: '#F8FAFC',
-                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-sm)',
+                  backgroundColor: 'var(--secondary)',
+                  border: '1px solid var(--border)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '11px',
                   wordBreak: 'break-all',
-                  color: 'var(--color-navy)',
+                  color: 'var(--foreground)',
                   marginTop: '4px',
                 }}>
                   {inspectLog.chain_hash}
@@ -552,14 +514,15 @@ export default function AuditLedger({ onRefreshParent }) {
               </div>
 
               <div>
-                <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+                <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
                   Raw Log Entry & Cryptographic Payload
                 </div>
                 <pre style={{
                   padding: '12px 14px',
                   borderRadius: 'var(--radius-sm)',
-                  backgroundColor: '#0B1F3A',
-                  color: '#A7F3D0',
+                  backgroundColor: 'var(--secondary)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--foreground)',
                   fontSize: '11.5px',
                   fontFamily: 'var(--font-mono)',
                   overflowX: 'auto',
@@ -572,10 +535,10 @@ export default function AuditLedger({ onRefreshParent }) {
             </div>
 
             {/* Modal Footer */}
-            <div style={{ padding: '12px 20px', backgroundColor: '#F8FAFC', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', backgroundColor: 'var(--card)' }}>
               <button
                 onClick={() => setInspectLog(null)}
-                className="btn btn-secondary"
+                className="astrix-btn-outline"
                 style={{ fontSize: '12px', padding: '6px 14px' }}
               >
                 Close

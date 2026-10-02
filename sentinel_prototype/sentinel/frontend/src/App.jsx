@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
+import AstrixSidebar from './components/AstrixSidebar';
+import AstrixTopbar from './components/AstrixTopbar';
 import ScenarioControllerBar from './components/ScenarioControllerBar';
 import PriorityQueue from './components/PriorityQueue';
 import CaseDetail from './components/CaseDetail';
@@ -21,6 +22,36 @@ export default function App() {
   const [auditCount, setAuditCount] = useState(8);
   const [backendOnline, setBackendOnline] = useState(true);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
+
+  // Astrix Dashboard UI Layout & Theme State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('astrix_theme') || 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  // Sync theme with document element class
+  useEffect(() => {
+    try {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      localStorage.setItem('astrix_theme', theme);
+    } catch (e) {
+      console.warn('Could not persist theme preference:', e);
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   // Load active alerts, outbox telemetry, and audit counts
   const loadData = async () => {
@@ -112,6 +143,15 @@ export default function App() {
     setActiveTab('bnss');
   };
 
+  const handleReplayOutbox = async () => {
+    try {
+      await api.replayOutbox();
+      loadData();
+    } catch (err) {
+      console.error('Replay outbox failed:', err);
+    }
+  };
+
   const handleComplaintSubmitted = (newResult) => {
     // 0ms instant optimistic UI state update: put newly ingested incident directly into queue state
     if (newResult && newResult.alert) {
@@ -166,76 +206,102 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-canvas)' }}>
-      {/* Top Command Navbar with Authority Badge & Live Telemetry */}
-      <Navbar
+    <div className="astrix-root">
+      {/* Astrix Collapsible Sidebar */}
+      <AstrixSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         alertsCount={alerts.length}
         auditCount={auditCount}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        onOpenIntake={() => setIsIntakeOpen(true)}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         backendOnline={backendOnline}
         outboxStatus={outboxStatus}
-        onOpenIntake={() => setIsIntakeOpen(true)}
-        onRefresh={loadData}
+        onReplayOutbox={handleReplayOutbox}
       />
 
-      {/* Global Top Presentation Command Bar across all screens */}
-      <ScenarioControllerBar
-        onScenarioTriggered={handleScenarioTriggered}
-        onResetCompleted={handleResetCompleted}
-        activeCaseId={selectedComplaintId}
-      />
+      {/* Main Column: Topbar + Simulator Ribbon + Fluid Workspace */}
+      <div className="astrix-main">
+        {/* Astrix Topbar with Breadcrumbs, Command Search (Cmd+K), and Global Actions */}
+        <AstrixTopbar
+          activeTab={activeTab}
+          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
+          onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          backendOnline={backendOnline}
+          outboxStatus={outboxStatus}
+          onOpenIntake={() => setIsIntakeOpen(true)}
+          onRefresh={loadData}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          onReplayOutbox={handleReplayOutbox}
+        />
 
-      {/* Main 5-Screen Operational Command Workspace - Fluid Widescreen Layout */}
-      <main className="sentinel-main" style={{ flex: 1, width: '100%', maxWidth: '100%', margin: '0', padding: '16px 28px' }}>
-        {/* Screen 1: Priority Queue & Alert Feed */}
-        {activeTab === 'queue' && (
-          <PriorityQueue
-            alerts={alerts}
-            selectedComplaintId={selectedComplaintId}
-            highlightedAlertId={highlightedAlertId}
-            onSelectAlert={handleSelectAlert}
-            onDispatchAlert={handleDispatchAlert}
-            onRefresh={loadData}
-          />
-        )}
+        {/* Global Live Scenario Simulation Controller with Astrix Segmented Controls */}
+        <ScenarioControllerBar
+          onScenarioTriggered={handleScenarioTriggered}
+          onResetCompleted={handleResetCompleted}
+          activeCaseId={selectedComplaintId}
+        />
 
-        {/* Screen 2: Forensic Case Dossier & Syndicate Graph */}
-        {activeTab === 'dossier' && (
-          <CaseDetail
-            complaintId={selectedComplaintId}
-            onBack={() => setActiveTab('queue')}
-            onOpenNotice={handleOpenNotice}
-            onDispatch={handleDispatchAlert}
-          />
-        )}
+        {/* Operational Workspace with Astrix Technical Dot Matrix Background */}
+        <main className="astrix-content pipeline-dots">
+          {/* Screen 1: Priority Queue & Real-Time Alert Feed */}
+          {activeTab === 'queue' && (
+            <PriorityQueue
+              alerts={alerts}
+              selectedComplaintId={selectedComplaintId}
+              highlightedAlertId={highlightedAlertId}
+              onSelectAlert={handleSelectAlert}
+              onDispatchAlert={handleDispatchAlert}
+              onRefresh={loadData}
+              searchQuery={searchQuery}
+            />
+          )}
 
-        {/* Screen 3: Pan-India Spatiotemporal Map & Maharashtra Hotspots */}
-        {activeTab === 'map' && (
-          <GeospatialMap
-            alerts={alerts}
-            onSelectAlert={handleSelectAlert}
-            onSelectAtm={(atm) => console.log('Selected ATM:', atm)}
-            onDispatchAlert={handleDispatchAlert}
-          />
-        )}
+          {/* Screen 2: Forensic Case Dossier & XAI Analysis */}
+          {activeTab === 'dossier' && (
+            <CaseDetail
+              complaintId={selectedComplaintId}
+              onBack={() => setActiveTab('queue')}
+              onOpenNotice={handleOpenNotice}
+              onDispatch={handleDispatchAlert}
+            />
+          )}
 
-        {/* Screen 4: Complaint Notice Ledger & Outbox Terminal */}
-        {activeTab === 'bnss' && (
-          <BNSSNoticeTerminal
-            complaintId={selectedComplaintId || "CYB-MAH-2026-0819"}
-          />
-        )}
+          {/* Screen 3: Spatiotemporal Hawkes ATM Interception & Cluster Map */}
+          {activeTab === 'map' && (
+            <GeospatialMap
+              alerts={alerts}
+              onSelectAlert={handleSelectAlert}
+              onSelectAtm={(atm) => console.log('Selected ATM:', atm)}
+              onDispatchAlert={handleDispatchAlert}
+            />
+          )}
 
-        {/* Screen 5: Cryptographic Audit & Event Ledger */}
-        {activeTab === 'audit' && (
-          <AuditLedger
-            onRefreshParent={loadData}
-          />
-        )}
-      </main>
+          {/* Screen 4: Section 105 BNSS Statutory Notice Terminal */}
+          {activeTab === 'bnss' && (
+            <BNSSNoticeTerminal
+              complaintId={selectedComplaintId || BASELINE_COMPLAINT_ID}
+            />
+          )}
 
-      {/* Live Raw Incident Intake Modal */}
+          {/* Screen 5: Tamper-Evident SHA-256 Audit Ledger */}
+          {activeTab === 'audit' && (
+            <AuditLedger
+              onRefreshParent={loadData}
+            />
+          )}
+        </main>
+      </div>
+
+      {/* Live Incident Intake Modal */}
       <IntakeModal
         isOpen={isIntakeOpen}
         onClose={() => setIsIntakeOpen(false)}

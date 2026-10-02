@@ -62,67 +62,45 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
   const outbox = outboxData?.outbox || { pending_count: 0, delivered_count: 14 };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Top Header */}
-      <div className="card" style={{ padding: '12px 16px', backgroundColor: '#FFFFFF' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+      <div className="astrix-card" style={{ padding: '16px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h2 style={{ fontSize: '1.15rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <FileText size={18} color="var(--color-teal)" />
+            <h2 style={{ fontSize: '1.25rem', color: 'var(--foreground)', fontWeight: '800', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <FileText size={18} style={{ color: 'var(--primary)' }} />
               Complaint Notice Ledger & Outbox Directives
             </h2>
-            <p style={{ color: 'var(--color-muted)', fontSize: '11.5px', marginTop: '1px' }}>
+            <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginTop: '4px', margin: 0 }}>
               Court-admissible statutory freeze directives & zero-loss dispatch gateway.
             </p>
           </div>
 
           {/* Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{
-              display: 'flex',
-              backgroundColor: '#F1F5F9',
-              padding: '2px',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border-medium)',
-            }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="astrix-pill-nav">
               <button
                 onClick={() => setViewMode('html')}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '2px',
-                  fontSize: '11.5px',
-                  fontWeight: '700',
-                  border: 'none',
-                  cursor: 'pointer',
-                  backgroundColor: viewMode === 'html' ? 'var(--color-navy)' : 'transparent',
-                  color: viewMode === 'html' ? '#FFFFFF' : 'var(--color-muted)',
-                }}
+                className={`astrix-pill-btn ${viewMode === 'html' ? 'active' : ''}`}
+                style={{ fontSize: '11.5px', padding: '5px 12px' }}
               >
                 Court Notice (Sec. 63 BSA)
               </button>
               <button
                 onClick={() => setViewMode('text')}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '2px',
-                  fontSize: '11.5px',
-                  fontWeight: '700',
-                  border: 'none',
-                  cursor: 'pointer',
-                  backgroundColor: viewMode === 'text' ? 'var(--color-navy)' : 'transparent',
-                  color: viewMode === 'text' ? '#FFFFFF' : 'var(--color-muted)',
-                }}
+                className={`astrix-pill-btn ${viewMode === 'text' ? 'active' : ''}`}
+                style={{ fontSize: '11.5px', padding: '5px 12px' }}
               >
                 Wireless Message / Telex
               </button>
             </div>
 
-            <button onClick={handleCopyNotice} className="btn btn-secondary" style={{ padding: '5px 10px', fontSize: '11.5px' }}>
-              {copied ? <Check size={12} color="var(--color-teal)" /> : <Copy size={12} />}
+            <button onClick={handleCopyNotice} className="astrix-btn-outline" style={{ padding: '6px 12px', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              {copied ? <Check size={12} style={{ color: 'var(--primary)' }} /> : <Copy size={12} />}
               <span>{copied ? 'Copied' : 'Copy Text'}</span>
             </button>
 
-            <button onClick={handlePrint} className="btn btn-navy" style={{ padding: '5px 10px', fontSize: '11.5px' }}>
+            <button onClick={handlePrint} className="astrix-btn-outline" style={{ padding: '6px 12px', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
               <Printer size={12} />
               <span>Print Order</span>
             </button>
@@ -130,32 +108,31 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
         </div>
       </div>
 
-      {/* Main Grid: Notice Document on Left (Full Width), Resilient Outbox on Right */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '14px', alignItems: 'start' }}>
-        {/* Notice Document Viewer - Full Widescreen Width */}
+      {/* Main Grid: Notice Document on Left, Resilient Outbox on Right */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: '16px', alignItems: 'start' }}>
+        {/* Notice Document Viewer */}
         <div style={{ width: '100%', minHeight: '480px' }}>
           {viewMode === 'html' ? (
             notice ? (
               <div 
+                className="astrix-card"
                 dangerouslySetInnerHTML={{ __html: notice.html_content }}
-                style={{ width: '100%' }}
+                style={{ width: '100%', overflow: 'hidden' }}
               />
             ) : (
-              <div className="card" style={{ padding: '30px', textAlign: 'center', color: 'var(--color-muted)', backgroundColor: '#FFFFFF' }}>
+              <div className="astrix-card" style={{ padding: '36px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
                 Loading Complaint Notice Directive...
               </div>
             )
           ) : (
-            <div className="card" style={{
-              backgroundColor: '#F8FAFC',
-              border: '1px solid var(--border-medium)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '16px',
+            <div className="astrix-card" style={{
+              padding: '18px',
               fontFamily: 'var(--font-mono)',
               fontSize: '11.5px',
-              lineHeight: 1.55,
+              lineHeight: 1.6,
               whiteSpace: 'pre-wrap',
-              color: 'var(--color-navy)',
+              color: 'var(--foreground)',
+              backgroundColor: 'var(--secondary)',
             }}>
               {notice?.plain_text || 'Loading Plain-Text Telex Notice...'}
             </div>
@@ -163,13 +140,13 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
         </div>
 
         {/* Resilient Outbox Telemetry & Circuit Breaker Inspector */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {/* Circuit Breaker Status Card */}
-          <div className="card" style={{ padding: '14px', backgroundColor: '#FFFFFF' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <div className="astrix-card" style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Activity size={16} color="var(--color-navy)" />
-                <h3 style={{ fontSize: '13px', color: 'var(--color-navy)' }}>
+                <Activity size={16} style={{ color: 'var(--primary)' }} />
+                <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--foreground)', margin: 0 }}>
                   CFCFRMS Gateway
                 </h3>
               </div>
@@ -178,23 +155,23 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
               </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', padding: '3px 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Failure Count:</span>
-                <strong>{cb.failure_count} / {cb.failure_threshold || 3}</strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--muted-foreground)' }}>Failure Count:</span>
+                <strong style={{ color: 'var(--foreground)' }}>{cb.failure_count} / {cb.failure_threshold || 3}</strong>
               </div>
 
               {cb.state === 'OPEN' && (
                 <div style={{
-                  padding: '6px 8px',
-                  backgroundColor: '#FEF2F2',
+                  padding: '8px 10px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid #FCA5A5',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
                   fontSize: '11px',
-                  color: '#B91C1C',
+                  color: '#ef4444',
                 }}>
                   <Clock size={13} />
                   <span>
@@ -203,7 +180,7 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
                 </div>
               )}
 
-              <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span className="indicator-dot dot-teal" style={{ width: '6px', height: '6px' }}></span>
                 <span>Auto-queuing to SQLite buffer during gateway drop</span>
               </div>
@@ -211,34 +188,34 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
           </div>
 
           {/* Durable Outbox Queue Monitor */}
-          <div className="card" style={{ padding: '14px', backgroundColor: '#FFFFFF' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <div className="astrix-card" style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Database size={16} color="var(--color-teal)" />
-                <h3 style={{ fontSize: '13px', color: 'var(--color-navy)' }}>
+                <Database size={16} style={{ color: 'var(--primary)' }} />
+                <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--foreground)', margin: 0 }}>
                   Durable SQLite Outbox Buffer
                 </h3>
               </div>
               <span className="badge badge-teal">DURABLE QUEUE</span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: '6px',
+                gap: '8px',
                 textAlign: 'center',
               }}>
-                <div style={{ padding: '8px 6px', backgroundColor: 'var(--bg-canvas)', borderRadius: 'var(--radius-sm)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--color-muted)', fontWeight: '700' }}>BUFFERED ALERTS</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: '800', color: outbox.pending_count > 0 ? '#D97706' : 'var(--color-navy)', marginTop: '1px' }}>
+                <div style={{ padding: '10px 8px', backgroundColor: 'var(--secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700' }}>BUFFERED ALERTS</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: '800', color: outbox.pending_count > 0 ? '#d97706' : 'var(--foreground)', marginTop: '2px' }}>
                     {outbox.pending_count}
                   </div>
                 </div>
 
-                <div style={{ padding: '8px 6px', backgroundColor: 'var(--bg-canvas)', borderRadius: 'var(--radius-sm)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--color-muted)', fontWeight: '700' }}>TOTAL DELIVERED</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#15803D', marginTop: '1px' }}>
+                <div style={{ padding: '10px 8px', backgroundColor: 'var(--secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700' }}>TOTAL DELIVERED</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: '800', color: '#16a34a', marginTop: '2px' }}>
                     {outbox.delivered_count}
                   </div>
                 </div>
@@ -246,15 +223,15 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
 
               {replayResult && (
                 <div style={{
-                  padding: '6px 10px',
-                  backgroundColor: '#F0FDF4',
+                  padding: '8px 10px',
+                  backgroundColor: 'rgba(34, 197, 94, 0.1)',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid #86EFAC',
+                  border: '1px solid rgba(34, 197, 94, 0.25)',
                   fontSize: '11px',
-                  color: '#15803D',
+                  color: '#16a34a',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '6px',
                 }}>
                   <CheckCircle2 size={13} />
                   <span>Replay complete: {replayResult.replayed_count} notices transmitted to nodal banks.</span>
@@ -265,8 +242,8 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
               <button
                 onClick={handleReplay}
                 disabled={replaying}
-                className="btn btn-navy"
-                style={{ width: '100%', padding: '7px', fontSize: '11.5px', marginTop: '2px' }}
+                className="astrix-btn-primary"
+                style={{ width: '100%', padding: '9px', fontSize: '11.5px', marginTop: '4px', justifyContent: 'center' }}
               >
                 <RotateCw size={12} className={replaying ? 'spin' : ''} />
                 <span>{replaying ? 'Replaying Buffer...' : 'Execute Manual Outbox Replay'}</span>

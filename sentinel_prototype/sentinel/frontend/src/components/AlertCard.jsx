@@ -7,7 +7,9 @@ import {
   Send, 
   ChevronRight, 
   AlertTriangle,
-  Building
+  Building,
+  Zap,
+  TrendingUp
 } from 'lucide-react';
 
 export default function AlertCard({ alert, onSelect, onDispatch, isSelected = false, isHighlighted = false }) {
@@ -45,21 +47,21 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  let timerColor = 'var(--color-teal-dark)';
-  let timerBg = '#F0FDF4';
-  let timerStage = 'INTERCEPTION WINDOW ACTIVE';
+  let timerColor = 'var(--success)';
+  let timerBg = 'color-mix(in srgb, var(--success) 12%, transparent)';
+  let timerStage = 'GOLDEN WINDOW ACTIVE';
 
   if (secondsLeft === 0) {
-    timerColor = '#64748B';
-    timerBg = '#F1F5F9';
+    timerColor = 'var(--muted-foreground)';
+    timerBg = 'var(--secondary)';
     timerStage = 'WINDOW CONCLUDED';
   } else if (pct < 20) {
-    timerColor = '#B91C1C';
-    timerBg = '#FEF2F2';
-    timerStage = 'WINDOW CLOSING (<20%)';
+    timerColor = 'var(--destructive)';
+    timerBg = 'color-mix(in srgb, var(--destructive) 12%, transparent)';
+    timerStage = 'WINDOW EXPIRING (<20%)';
   } else if (pct <= 50) {
-    timerColor = '#B45309';
-    timerBg = '#FFFBEB';
+    timerColor = 'var(--warning)';
+    timerBg = 'color-mix(in srgb, var(--warning) 12%, transparent)';
     timerStage = 'HIGH URGENCY';
   }
 
@@ -67,33 +69,32 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
   const isDispatched = alert.status === 'DISPATCHED';
 
   return (
-    <div
-      className={`card flip-item ${isHighlighted ? 'card-highlight-pulse' : ''}`}
+    <article
+      className={`card ${isHighlighted ? 'card-highlight-pulse' : ''}`}
       style={{
-        padding: '12px 16px',
-        backgroundColor: '#FFFFFF',
-        border: isSelected ? '1.5px solid var(--color-teal)' : isHighlighted ? '2px solid var(--color-teal)' : '1px solid var(--border-medium)',
-        borderLeft: isDuplicate ? '4px solid #7C3AED' : (alert.risk_tier === 'CRITICAL' ? '4px solid #DC2626' : '4px solid var(--color-teal)'),
+        padding: '16px 20px',
+        backgroundColor: 'var(--card)',
+        borderRadius: 'var(--radius-lg)',
+        border: isSelected 
+          ? '1.5px solid var(--primary)' 
+          : isHighlighted 
+          ? '2px solid var(--primary)' 
+          : '1px solid var(--border)',
+        boxShadow: isSelected ? 'var(--shadow-md)' : 'var(--shadow-xs)',
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'all 0.18s ease',
       }}
     >
-      {/* Header Row: Identifiers & Status */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-navy)', letterSpacing: '-0.01em' }}>
+      {/* Top Header: Identifiers, Badges & Timer */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.02em' }}>
             {alert.complaint_id}
           </span>
-          <span style={{ fontSize: '11px', color: 'var(--color-muted)', fontFamily: 'var(--font-mono)' }}>
+          <span style={{ fontSize: '11px', color: 'var(--muted-foreground)', fontFamily: 'var(--font-mono)' }}>
             UTR: {alert.utr}
           </span>
-          {isDuplicate ? (
-            <span className="badge badge-held" style={{ backgroundColor: '#FAF5FF', color: '#7C3AED', border: '1px solid #D8B4FE', fontWeight: '700' }}>
-              WINDOW SUSPENDED (GATE REJECTED)
-            </span>
-          ) : (
-            <span className="badge badge-teal">
-              {alert.situational_baseline || 'Standard Window'}
-            </span>
-          )}
           {isDuplicate ? (
             <span className="badge badge-held">
               <AlertTriangle size={11} />
@@ -101,36 +102,33 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
             </span>
           ) : (
             <span className={`badge ${alert.risk_tier === 'CRITICAL' ? 'badge-critical' : 'badge-elevated'}`}>
+              <Zap size={11} />
               {alert.risk_tier} RISK ({(alert.cashout_probability * 100).toFixed(0)}%)
             </span>
           )}
           {isDispatched && (
             <span className="badge badge-cooldown">
-              PATROL ALERTED
+              <ShieldCheck size={11} />
+              PATROL DISPATCHED
             </span>
           )}
         </div>
 
-        {/* Clean Flat Countdown Indicator or Gate Halted Banner */}
+        {/* Dynamic Countdown Timer Pill */}
         {isDuplicate ? (
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
             padding: '4px 10px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: '#FAF5FF',
-            border: '1px solid #D8B4FE',
+            borderRadius: 'var(--radius-full)',
+            backgroundColor: 'rgba(139, 92, 246, 0.12)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
           }}>
-            <ShieldAlert size={13} color="#7C3AED" />
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-              <span style={{ fontSize: '10px', fontWeight: '800', color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                INTERCEPTION HALTED:
-              </span>
-              <span style={{ fontSize: '11px', fontWeight: '700', color: '#6B21A8' }}>
-                DISPATCH BLOCKED
-              </span>
-            </div>
+            <ShieldAlert size={12} color="#8B5CF6" />
+            <span style={{ fontSize: '10px', fontWeight: '800', color: '#8B5CF6', textTransform: 'uppercase' }}>
+              DISPATCH BLOCKED (SYBIL)
+            </span>
           </div>
         ) : (alert.status === 'EXPIRED' || secondsLeft === 0) ? (
           <div style={{
@@ -138,63 +136,56 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
             alignItems: 'center',
             gap: '6px',
             padding: '4px 10px',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: '#F1F5F9',
-            border: '1px solid #CBD5E1',
+            borderRadius: 'var(--radius-full)',
+            backgroundColor: 'var(--secondary)',
+            border: '1px solid var(--border)',
           }}>
-            <Clock size={12} color="#64748B" />
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-              <span style={{ fontSize: '10px', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                WINDOW CONCLUDED:
-              </span>
-              <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748B' }}>
-                {alert.total_window_seconds ? `${Math.round(alert.total_window_seconds / 60)}M ELAPSED` : '45M ELAPSED'} (BAYESIAN DECAYED)
-              </span>
-            </div>
+            <Clock size={12} color="var(--muted-foreground)" />
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted-foreground)' }}>
+              WINDOW CONCLUDED (BAYESIAN DECAYED)
+            </span>
           </div>
         ) : (
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '4px 8px',
-            borderRadius: 'var(--radius-sm)',
+            padding: '4px 10px',
+            borderRadius: 'var(--radius-full)',
             backgroundColor: timerBg,
-            border: `1px solid ${timerColor}30`,
+            border: `1px solid color-mix(in srgb, ${timerColor} 40%, transparent)`,
           }}>
             <Clock size={12} color={timerColor} />
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-              <span style={{ fontSize: '10px', fontWeight: '700', color: timerColor }}>
-                {timerStage}:
-              </span>
-              <span style={{ fontSize: '12px', fontWeight: '800', color: timerColor, fontFamily: 'var(--font-mono)' }}>
-                {formatTime(secondsLeft)}
-              </span>
-            </div>
+            <span style={{ fontSize: '10.5px', fontWeight: '700', color: timerColor }}>
+              {timerStage}:
+            </span>
+            <span style={{ fontSize: '12px', fontWeight: '800', color: timerColor, fontFamily: 'var(--font-mono)' }}>
+              {formatTime(secondsLeft)}
+            </span>
           </div>
         )}
       </div>
 
-      {/* Dispatch Cooldown Notification Banner if Active */}
+      {/* Suppression Cooldown Indicator */}
       {isDispatched && (
         <div style={{
-          padding: '4px 10px',
-          marginBottom: '8px',
+          padding: '6px 12px',
+          marginBottom: '12px',
           borderRadius: 'var(--radius-sm)',
-          backgroundColor: '#EFF6FF',
-          border: '1px solid #BFDBFE',
-          color: '#1E40AF',
-          fontSize: '11px',
+          backgroundColor: 'color-mix(in srgb, var(--info) 10%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--info) 30%, transparent)',
+          color: 'var(--info)',
+          fontSize: '11.5px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <ShieldCheck size={12} color="#1E40AF" />
-            <span>Patrol unit alerted. 15-minute suppression cooldown in effect.</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ShieldCheck size={13} />
+            <span>Patrol unit mobilized. 15-minute suppression cooldown in effect.</span>
           </div>
           <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '700' }}>
-            {cooldownLeft > 0 ? `${formatTime(cooldownLeft)} remaining` : 'PATROL EN ROUTE'}
+            {cooldownLeft > 0 ? `${formatTime(cooldownLeft)} suppression remaining` : 'PATROL EN ROUTE'}
           </span>
         </div>
       )}
@@ -202,99 +193,92 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
       {/* Grid of Key Transaction & Hotspot Metrics */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: '8px',
-        padding: '8px 10px',
-        backgroundColor: '#F8FAFC',
-        borderRadius: 'var(--radius-sm)',
-        marginBottom: '8px',
-        border: '1px solid var(--border-subtle)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+        gap: '10px',
+        padding: '12px 14px',
+        backgroundColor: 'var(--secondary)',
+        borderRadius: 'var(--radius-md)',
+        marginBottom: '12px',
+        border: '1px solid var(--border)',
       }}>
         <div>
-          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', fontWeight: '600', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Complainant District
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
-            <MapPin size={12} color="var(--color-teal)" />
+          <div style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+            <MapPin size={13} color="var(--primary)" />
             {alert.victim_city} ({alert.area})
           </div>
         </div>
 
         <div>
-          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', fontWeight: '600', textTransform: 'uppercase' }}>
-            Defrauded Amount
+          <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Disputed Loss (₹)
           </div>
-          <div style={{ fontSize: '13px', fontWeight: '800', color: '#B91C1C' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--foreground)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
             ₹{alert.amount?.toLocaleString('en-IN')}
           </div>
         </div>
 
         <div>
-          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', fontWeight: '600', textTransform: 'uppercase' }}>
-            Suspected Cash-Out ATM
+          <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            CatBoost ML Risk
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: isDuplicate ? '#64748B' : 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
-            <Building size={12} color={isDuplicate ? '#94A3B8' : 'var(--color-navy)'} />
-            {isDuplicate ? (
-              <span style={{ fontStyle: 'italic', color: '#64748B' }}>Interception Suppressed</span>
-            ) : (
-              `${alert.leading_atm?.bank} — ${alert.leading_atm?.area}`
-            )}
+          <div style={{ fontSize: '12.5px', fontWeight: '700', color: alert.risk_tier === 'CRITICAL' ? 'var(--destructive)' : 'var(--warning)', marginTop: '2px' }}>
+            {alert.risk_tier} (Score: {alert.priority_score})
           </div>
         </div>
 
         <div>
-          <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', fontWeight: '600', textTransform: 'uppercase' }}>
-            Authenticity Validation
+          <div style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Predicted Cash-Out ATM
           </div>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: isDuplicate ? '#7C3AED' : '#15803D', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
-            {isDuplicate ? <ShieldAlert size={12} color="#7C3AED" /> : <ShieldCheck size={12} />}
-            {isDuplicate ? 'Duplicate UTR Rejected (0.00)' : `Verified (${(alert.authenticity_score * 100).toFixed(0)}%)`}
+          <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+            <Building size={13} color="var(--primary)" />
+            {alert.leading_atm?.name || 'Evaluating Cluster...'}
           </div>
         </div>
       </div>
 
-      {/* Triage Basis Line */}
-      <div style={{ fontSize: '11.5px', color: 'var(--color-muted)', marginBottom: '8px' }}>
-        <strong style={{ color: isDuplicate ? '#7C3AED' : 'var(--color-navy)' }}>
-          {isDuplicate ? 'Authenticity Protection:' : 'Triage Basis:'}
-        </strong>{' '}
-        {isDuplicate
-          ? 'Duplicate transaction UTR detected by Authenticity Gate (Score: 0.00). Interception window deactivated and patrol dispatch blocked to prevent wrongful citizen account freeze.'
-          : (alert.top_reasons && alert.top_reasons.length > 0 ? alert.top_reasons[0] : 'High-risk velocity transaction pattern')}
-      </div>
-
-      {/* Card Actions Footer */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '8px' }}>
+      {/* Action Footer Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '11px', color: 'var(--color-muted)', fontWeight: '600' }}>Triage Priority Score:</span>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--color-navy)' }}>
-            {(alert.priority_score * 100).toFixed(0)}%
+          <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>
+            Channel: <strong style={{ color: 'var(--foreground)' }}>{alert.channel || 'UPI'}</strong> · Hop Depth: <strong style={{ color: 'var(--foreground)' }}>{alert.mule_fan_out || 1}</strong>
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
-            onClick={() => onSelect(alert)}
+            type="button"
+            onClick={onSelect}
             className="btn btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '11.5px' }}
+            style={{ padding: '6px 12px', fontSize: '12px', gap: '4px' }}
           >
-            <span>View Case Dossier</span>
+            <span>Inspect Dossier</span>
             <ChevronRight size={13} />
           </button>
 
-          {!isDispatched && !isDuplicate && (
+          {!isDuplicate && (
             <button
-              onClick={() => onDispatch(alert)}
+              type="button"
+              onClick={onDispatch}
+              disabled={isDispatched || cooldownLeft > 0}
               className="btn btn-primary"
-              style={{ padding: '4px 10px', fontSize: '11.5px' }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                gap: '5px',
+                opacity: isDispatched || cooldownLeft > 0 ? 0.65 : 1,
+                cursor: isDispatched || cooldownLeft > 0 ? 'not-allowed' : 'pointer',
+              }}
             >
               <Send size={12} />
-              <span>Alert Patrol Unit</span>
+              <span>{isDispatched ? 'Patrol Alerted' : 'Dispatch Patrol Unit'}</span>
             </button>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

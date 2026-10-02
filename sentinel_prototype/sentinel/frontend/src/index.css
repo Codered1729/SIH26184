@@ -1,44 +1,119 @@
 /* ==========================================================================
-   SENTINEL — Law Enforcement & GovTech Operational Design System
-   Clean, High-Legibility, High-Contrast Flat Aesthetic (Strict Light Theme)
-   No Gradients • Flat Crisp Borders • High Data Density • Tactical Typography
+   SENTINEL — Astrix Cyber Intelligence & Command Dashboard
+   Inspired by Astrix Dashboard (Watermelon UI)
+   Trade Compliance / Cyber Crime Tactical Edge Design System
+   Dual Light & Dark Themes • Precision Micro-Typography • Dot Matrix Canvas
    ========================================================================== */
 
 :root {
+  /* Heritage / Law Enforcement GovTech Compliance Tokens (Preserved for Verification) */
   --bg-canvas: #F4F6F9;
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #F8FAFC;
   --bg-surface-active: #EDF2F7;
-  
   --color-navy: #0B1F3A;
   --color-navy-dark: #071526;
   --color-navy-light: #162E52;
-  --color-teal: #00A896;
-  --color-teal-dark: #028071;
+  --color-teal: #00C2A8;
+  --color-teal-dark: #00A896;
   --color-teal-subtle: #E6F7F5;
-  
-  --color-ink: #111827;
-  --color-muted: #475569;
+  --color-ink: #0F172A;
+  --color-muted: #64748B;
   --color-faint: #94A3B8;
-  
-  --border-subtle: #E2E8F0;
-  --border-medium: #CBD5E1;
-  --border-strong: #94A3B8;
-  
-  /* Minimal, crisp, flat borders instead of soft blurry floaty shadows */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 2px 4px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 4px 8px rgba(15, 23, 42, 0.08);
-  --shadow-xl: 0 8px 16px rgba(15, 23, 42, 0.10);
-  
-  /* Crisp, professional administrative radiuses (no oversized bubbly pills) */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+
+  /* Astrix Core Light Palette (Watermelon UI Specification) */
+  --background: #FAFAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #F06543;
+  --primary-hover: #E25330;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #1E293B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+  --success: #10B981;
+  --info: #3B82F6;
+  --warning: #F59E0B;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --input: rgba(15, 23, 42, 0.08);
+  --input-addon-foreground: #94A3B8;
+  --ring: #F06543;
+
+  /* Sidebar Tokens (Light) */
+  --sidebar: #FAFAFC;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #F06543;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFFFFF;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: rgba(15, 23, 42, 0.08);
+  --sidebar-muted: #64748B;
+
+  /* Astrix Shadows & Geometries */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
-  
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-sidebar: 1px 0 12px rgba(15, 23, 42, 0.03);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+/* Astrix Dark Theme */
+.dark, html.dark {
+  --background: #101216;
+  --foreground: #F8FAFC;
+  --card: #171A21;
+  --card-foreground: #F8FAFC;
+  --popover: #1A1D26;
+  --popover-foreground: #F8FAFC;
+  --primary: #F06543;
+  --primary-hover: #FA7858;
+  --primary-foreground: #FFFFFF;
+  --secondary: #222632;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1E222D;
+  --muted-foreground: #94A3B8;
+  --accent: #222632;
+  --accent-foreground: #F8FAFC;
+  --destructive: #F87171;
+  --success: #10B981;
+  --info: #38BDF8;
+  --warning: #FBBF24;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --input: rgba(255, 255, 255, 0.09);
+  --input-addon-foreground: #64748B;
+  --ring: #F06543;
+
+  /* Sidebar Tokens (Dark) */
+  --sidebar: #13151B;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #F06543;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1D212B;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-muted: #94A3B8;
+
+  --shadow-sidebar: 1px 0 20px rgba(0, 0, 0, 0.35);
 }
 
 * {
@@ -49,399 +124,395 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-canvas);
-  color: var(--color-ink);
-  line-height: 1.45;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.5;
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Typography Utilities */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-navy);
-  font-weight: 700;
-  letter-spacing: -0.015em;
+/* Astrix Technical Dot Matrix Background Pattern */
+.pipeline-dots {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--foreground) 7%, transparent) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 16px 16px;
 }
 
-code, pre, .font-mono {
-  font-family: var(--font-mono);
+/* Astrix App Layout */
+.astrix-root {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
-/* Card Surfaces — Crisp 1px Borders, Flat Solid White */
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.15s ease;
+.astrix-sidebar {
+  width: 260px;
+  background-color: var(--sidebar);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 40;
+  transition: width 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: var(--shadow-sidebar);
 }
 
-.card:hover {
-  border-color: #94A3B8;
+.astrix-sidebar.collapsed {
+  width: 72px;
 }
 
-.card-elevated {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
+.astrix-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background-color: var(--background);
+}
+
+.astrix-topbar {
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.astrix-content {
+  flex: 1;
+  padding: 20px 28px 36px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Astrix Cards */
+.card, .astrix-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card:hover, .astrix-card:hover {
+  border-color: var(--border-strong);
+}
+
+.astrix-card-elevated {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 }
 
-/* FLIP Animations & Smooth Transitions */
-.flip-item {
-  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+/* Metric Cards (Astrix Overview) */
+.astrix-metric-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
 }
 
-/* Badges & Status Indicators (Strict Flat Design) */
-.badge {
+.astrix-metric-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.astrix-metric-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+}
+
+.astrix-metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Astrix Pill Filter Bar & Navigation */
+.astrix-pill-nav {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 7px;
-  border-radius: var(--radius-sm);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 3px;
 }
 
-.badge-critical {
-  background-color: #FEF2F2;
-  border: 1px solid #FCA5A5;
-  color: #B91C1C;
-}
-
-.badge-elevated {
-  background-color: #FFFBEB;
-  border: 1px solid #FCD34D;
-  color: #B45309;
-}
-
-.badge-verified {
-  background-color: #F0FDF4;
-  border: 1px solid #86EFAC;
-  color: #15803D;
-}
-
-.badge-held {
-  background-color: #FAF5FF;
-  border: 1px solid #D8B4FE;
-  color: #6B21A8;
-}
-
-.badge-expired {
-  background-color: #F1F5F9;
-  border: 1px solid #CBD5E1;
-  color: #475569;
-}
-
-.badge-cooldown {
-  background-color: #EFF6FF;
-  border: 1px solid #93C5FD;
-  color: #1D4ED8;
-}
-
-.badge-teal {
-  background-color: var(--color-teal-subtle);
-  border: 1px solid #5EEAD4;
-  color: #0F766E;
-}
-
-/* Buttons — Solid, Flat, Crisp */
-.btn {
+.astrix-pill-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 600;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  background: transparent;
+  color: var(--muted-foreground);
+  transition: all 0.15s ease;
+}
+
+.astrix-pill-btn:hover {
+  color: var(--foreground);
+}
+
+.astrix-pill-btn.active {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-xs);
+}
+
+.astrix-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  font-weight: 700;
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+.astrix-pill-btn.active .astrix-pill-badge {
+  background-color: var(--card);
+  color: var(--primary);
+}
+
+/* Astrix Buttons */
+.btn, .astrix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
   border: 1px solid transparent;
-  outline: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.btn-primary {
-  background-color: var(--color-teal);
-  color: #FFFFFF;
+.btn-primary, .astrix-btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
-.btn-primary:hover {
-  background-color: var(--color-teal-dark);
+.btn-primary:hover, .astrix-btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-0.5px);
 }
 
-.btn-navy {
-  background-color: var(--color-navy);
-  color: #FFFFFF;
+.btn-secondary, .astrix-btn-secondary {
+  background-color: var(--secondary);
+  color: var(--foreground);
+  border-color: var(--border);
 }
 
-.btn-navy:hover {
-  background-color: var(--color-navy-light);
+.btn-secondary:hover, .astrix-btn-secondary:hover {
+  background-color: color-mix(in srgb, var(--secondary) 80%, var(--foreground));
+  border-color: var(--border-strong);
 }
 
-.btn-secondary {
-  background-color: #FFFFFF;
-  color: var(--color-navy);
-  border-color: var(--border-medium);
+.btn-outline, .astrix-btn-outline {
+  background-color: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
 }
 
-.btn-secondary:hover {
-  background-color: #F8FAFC;
-  border-color: var(--color-navy);
+.btn-outline:hover, .astrix-btn-outline:hover {
+  background-color: var(--secondary);
+  border-color: var(--border-strong);
 }
 
 .btn-danger {
-  background-color: #DC2626;
+  background-color: var(--destructive);
   color: #FFFFFF;
 }
 
 .btn-danger:hover {
-  background-color: #B91C1C;
+  filter: brightness(0.92);
 }
 
-/* Crisp Indicator Dot */
-.indicator-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.indicator-dot.dot-teal {
-  background-color: var(--color-teal);
-}
-
-.indicator-dot.dot-red {
-  background-color: #DC2626;
-}
-
-.indicator-dot.dot-amber {
-  background-color: #D97706;
-}
-
-.indicator-dot.dot-blue {
-  background-color: #2563EB;
-}
-
-/* Tabs */
-.tab-btn {
-  display: flex;
+/* Astrix Status Badges */
+.badge, .astrix-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  font-size: 12px;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
   font-weight: 600;
-  color: var(--color-muted);
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  border: 1px solid transparent;
 }
 
-.tab-btn:hover {
-  color: var(--color-navy);
+.badge-critical {
+  background-color: color-mix(in srgb, var(--destructive) 12%, transparent);
+  border-color: color-mix(in srgb, var(--destructive) 35%, transparent);
+  color: var(--destructive);
 }
 
-.tab-btn.active {
-  color: var(--color-navy);
-  border-bottom-color: var(--color-teal);
-  background-color: rgba(0, 168, 150, 0.05);
+.badge-elevated {
+  background-color: color-mix(in srgb, var(--warning) 12%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+  color: var(--warning);
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+.badge-verified {
+  background-color: color-mix(in srgb, var(--success) 12%, transparent);
+  border-color: color-mix(in srgb, var(--success) 35%, transparent);
+  color: var(--success);
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-canvas);
+.badge-held {
+  background-color: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.35);
+  color: #8B5CF6;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 2px;
+.badge-expired {
+  background-color: var(--secondary);
+  border-color: var(--border);
+  color: var(--muted-foreground);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+.badge-cooldown {
+  background-color: color-mix(in srgb, var(--info) 12%, transparent);
+  border-color: color-mix(in srgb, var(--info) 35%, transparent);
+  color: var(--info);
 }
 
-/* Presentation Luminous Highlight Pulse */
-@keyframes pulseTealGlow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 194, 168, 0.7);
-    border-color: #00C2A8;
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(0, 194, 168, 0.2);
-    border-color: #00C2A8;
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 194, 168, 0);
-    border-color: #00C2A8;
-  }
+.badge-teal {
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  color: var(--primary);
+}
+
+/* Astrix Curved Table */
+.astrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.astrix-table th {
+  background-color: var(--secondary);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 16px;
+  text-align: left;
+}
+
+.astrix-table th:first-child {
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.astrix-table th:last-child {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.astrix-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  vertical-align: middle;
+}
+
+.astrix-table tr:hover td {
+  background-color: color-mix(in srgb, var(--secondary) 40%, transparent);
+}
+
+/* Astrix Pulse Animations */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s infinite ease-in-out;
 }
 
 .card-highlight-pulse {
-  animation: pulseTealGlow 2s infinite ease-in-out !important;
-  border: 2px solid #00C2A8 !important;
-  background-color: #F0FDFA !important;
+  animation: border-pulse 1.8s infinite alternate;
 }
 
-/* Leaflet GovTech Custom Popup & Marker Styling */
-.leaflet-popup-content-wrapper {
-  background: #FFFFFF !important;
-  color: var(--color-ink) !important;
-  border-radius: var(--radius-md) !important;
-  border: 1px solid var(--border-medium) !important;
-  box-shadow: 0 4px 14px rgba(11, 31, 58, 0.15) !important;
-  padding: 0 !important;
-  overflow: hidden;
+@keyframes border-pulse {
+  0% { box-shadow: 0 0 0 1px var(--primary); border-color: var(--primary); }
+  100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent); border-color: var(--primary); }
 }
 
-.leaflet-popup-content {
-  margin: 0 !important;
-  line-height: 1.4 !important;
+/* Leaflet Container Overrides */
+.leaflet-container {
+  font-family: var(--font-sans);
+  border-radius: var(--radius-md);
+  z-index: 10;
 }
 
-.leaflet-popup-tip {
-  background: #FFFFFF !important;
-  border: 1px solid var(--border-medium) !important;
-  box-shadow: none !important;
+.dark .leaflet-tile-pane {
+  filter: brightness(0.85) invert(1) contrast(1.15) hue-rotate(200deg) saturate(0.6);
 }
 
-.custom-atm-marker {
-  background: transparent;
-  border: none;
-}
-
-.custom-cluster-badge {
-  background: transparent;
-  border: none;
-}
-
-/* ==========================================================================
-   RESPONSIVE — Mobile & Tablet Breakpoints
-   ========================================================================== */
-
-/* Tablet (≤1024px) */
+/* Responsive Utilities */
 @media (max-width: 1024px) {
-  body {
-    font-size: 12px;
+  .astrix-sidebar {
+    position: fixed;
+    transform: translateX(-100%);
   }
-
-  .sentinel-main {
-    padding: 12px 16px !important;
+  .astrix-sidebar.mobile-open {
+    transform: translateX(0);
   }
-
-  .sentinel-navbar-header {
-    padding: 8px 16px !important;
-  }
-
-  .sentinel-nav-tabs {
-    padding: 0 12px !important;
-  }
-
-  .sentinel-scenario-bar-header {
-    padding: 6px 16px !important;
-    flex-wrap: wrap !important;
-  }
-
-  .sentinel-scenario-grid {
-    padding: 0 16px 8px !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+  .astrix-content {
+    padding: 16px;
   }
 }
-
-/* Mobile (≤640px) */
-@media (max-width: 640px) {
-  body {
-    font-size: 12px;
-  }
-
-  .sentinel-main {
-    padding: 8px 10px !important;
-  }
-
-  /* Navbar */
-  .sentinel-navbar-header {
-    padding: 8px 12px !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
-  }
-
-  .sentinel-navbar-telemetry {
-    width: 100% !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-  }
-
-  .sentinel-navbar-telemetry .sentinel-officer-badge {
-    flex: 1 !important;
-    min-width: 0 !important;
-  }
-
-  .sentinel-navbar-brand-sub {
-    display: none !important; /* hide long subtitle on mobile */
-  }
-
-  .sentinel-nav-tabs {
-    padding: 0 8px !important;
-    gap: 0 !important;
-  }
-
-  .sentinel-nav-tab {
-    padding: 8px 10px !important;
-    font-size: 11px !important;
-  }
-
-  .sentinel-nav-tab .sentinel-tab-label {
-    display: none !important; /* icon-only on mobile */
-  }
-
-  /* Scenario bar */
-  .sentinel-scenario-bar-header {
-    padding: 6px 12px !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-  }
-
-  .sentinel-scenario-grid {
-    padding: 0 12px 8px !important;
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Alert cards */
-  .card {
-    padding: 10px 12px !important;
-  }
-
-  /* Buttons — larger touch targets */
-  .btn {
-    padding: 8px 14px !important;
-    font-size: 13px !important;
-  }
-
-  /* Tab buttons touch targets */
-  .tab-btn {
-    padding: 10px 12px !important;
-  }
-}
-
-/* Spin animation for loading spinners */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-

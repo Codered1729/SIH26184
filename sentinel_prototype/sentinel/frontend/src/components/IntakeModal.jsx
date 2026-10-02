@@ -57,92 +57,94 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
   return (
     <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(11, 31, 58, 0.65)',
+      inset: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(6px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 2000,
       padding: '16px',
     }}>
-      <div className="card" style={{
+      <div className="astrix-card" style={{
         width: '100%',
-        maxWidth: '520px',
-        backgroundColor: '#FFFFFF',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: 'var(--shadow-lg)',
-        padding: '18px 20px',
+        maxWidth: '540px',
+        padding: '24px',
         position: 'relative',
-        border: '1px solid var(--border-medium)',
+        boxShadow: 'var(--shadow-lg)',
       }}>
         {/* Close Button */}
         <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '14px',
-            right: '14px',
+            top: '18px',
+            right: '18px',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            color: 'var(--color-muted)',
+            color: 'var(--muted-foreground)',
           }}
+          aria-label="Close dialog"
         >
           <X size={18} />
         </button>
 
         {/* Modal Header */}
-        <div style={{ marginBottom: '12px' }}>
-          <h3 style={{ fontSize: '1.15rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Plus size={18} color="var(--color-teal)" />
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--foreground)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            <Plus size={18} style={{ color: 'var(--primary)' }} />
             Register Cyber Incident / SMS Ingestion
           </h3>
-          <p style={{ fontSize: '11.5px', color: 'var(--color-muted)', marginTop: '1px' }}>
+          <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '4px', margin: 0 }}>
             Paste complainant SMS debit advice or enter incident parameters for automated triage and UTR deduplication.
           </p>
         </div>
 
         {/* Sample Records Strip */}
-        <div style={{ marginBottom: '12px', padding: '8px 10px', backgroundColor: 'var(--bg-canvas)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-          <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--color-muted)', textTransform: 'uppercase', marginBottom: '5px' }}>
-            Sample Incident Records:
+        <div style={{
+          marginBottom: '16px',
+          padding: '10px 12px',
+          backgroundColor: 'var(--secondary)',
+          borderRadius: 'var(--radius-sm)',
+          border: '1px solid var(--border)',
+        }}>
+          <div style={{ fontSize: '10.5px', fontWeight: '700', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+            Quick Sample Templates:
           </div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={() => handleLoadDemo('genuine')}
-              className="btn btn-secondary"
-              style={{ padding: '3px 8px', fontSize: '11px' }}
+              className="astrix-btn-outline"
+              style={{ padding: '4px 8px', fontSize: '11px' }}
             >
               1. Genuine UPI (₹78k - Pune)
             </button>
             <button
               type="button"
               onClick={() => handleLoadDemo('duplicate')}
-              className="btn btn-secondary"
-              style={{ padding: '3px 8px', fontSize: '11px', borderColor: '#FCA5A5', color: '#B91C1C' }}
+              className="astrix-btn-outline"
+              style={{ padding: '4px 8px', fontSize: '11px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#ef4444' }}
             >
               2. Duplicate UTR (Sybil Rejection)
             </button>
             <button
               type="button"
               onClick={() => handleLoadDemo('neft')}
-              className="btn btn-secondary"
-              style={{ padding: '3px 8px', fontSize: '11px' }}
+              className="astrix-btn-outline"
+              style={{ padding: '4px 8px', fontSize: '11px' }}
             >
-              3. Multi-Hop IMPS (₹1.35L - Thane ➔ Ahmedabad)
+              3. Multi-Hop IMPS (₹1.35L - Thane)
             </button>
           </div>
         </div>
 
         {/* Ingestion Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Raw Text Input */}
           <div>
-            <label style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--color-navy)', display: 'block', marginBottom: '3px' }}>
+            <label style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--foreground)', display: 'block', marginBottom: '4px' }}>
               Complainant Debit SMS / Notification Text
             </label>
             <textarea
@@ -153,9 +155,11 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               required
               style={{
                 width: '100%',
-                padding: '6px 10px',
+                padding: '8px 12px',
                 borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-medium)',
+                border: '1px solid var(--border)',
+                backgroundColor: 'var(--secondary)',
+                color: 'var(--foreground)',
                 fontSize: '12px',
                 fontFamily: 'var(--font-sans)',
                 outline: 'none',
@@ -164,9 +168,9 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
           </div>
 
           {/* Form Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
             <div>
-              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--color-muted)', display: 'block', marginBottom: '2px' }}>
+              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                 Victim District
               </label>
               <select
@@ -174,11 +178,13 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                 onChange={(e) => setVictimCity(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '5px 6px',
+                  padding: '7px 8px',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  fontSize: '11.5px',
-                  backgroundColor: '#FFFFFF',
+                  border: '1px solid var(--border)',
+                  fontSize: '12px',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
+                  outline: 'none',
                 }}
               >
                 <option value="Pune">Pune</option>
@@ -190,7 +196,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             </div>
 
             <div>
-              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--color-muted)', display: 'block', marginBottom: '2px' }}>
+              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                 Payment Channel
               </label>
               <select
@@ -198,11 +204,13 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                 onChange={(e) => setChannel(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '5px 6px',
+                  padding: '7px 8px',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  fontSize: '11.5px',
-                  backgroundColor: '#FFFFFF',
+                  border: '1px solid var(--border)',
+                  fontSize: '12px',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
+                  outline: 'none',
                 }}
               >
                 <option value="UPI">UPI</option>
@@ -213,7 +221,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             </div>
 
             <div>
-              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--color-muted)', display: 'block', marginBottom: '2px' }}>
+              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                 Amount (INR)
               </label>
               <input
@@ -222,10 +230,13 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                 onChange={(e) => setAmount(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '5px 6px',
+                  padding: '7px 8px',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  fontSize: '11.5px',
+                  border: '1px solid var(--border)',
+                  fontSize: '12px',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
+                  outline: 'none',
                 }}
               />
             </div>
@@ -234,17 +245,17 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
           {/* Result Banner if submitted */}
           {result && (
             <div style={{
-              padding: '8px 10px',
+              padding: '10px 12px',
               borderRadius: 'var(--radius-sm)',
-              backgroundColor: result.decision === 'DUPLICATE_UTR' ? '#FAF5FF' : '#F0FDF4',
-              border: `1px solid ${result.decision === 'DUPLICATE_UTR' ? '#D8B4FE' : '#86EFAC'}`,
-              color: result.decision === 'DUPLICATE_UTR' ? '#6B21A8' : '#15803D',
+              backgroundColor: result.decision === 'DUPLICATE_UTR' ? 'rgba(124, 58, 237, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+              border: `1px solid ${result.decision === 'DUPLICATE_UTR' ? 'rgba(124, 58, 237, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+              color: result.decision === 'DUPLICATE_UTR' ? '#7c3aed' : '#16a34a',
               fontSize: '11.5px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '8px',
             }}>
-              <CheckCircle2 size={14} />
+              <CheckCircle2 size={16} />
               <span>
                 <strong>Triage Evaluated:</strong> {result.complaint_id} recorded as <strong>{result.decision}</strong> ({result.risk_tier} Risk).
               </span>
@@ -252,20 +263,20 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
           )}
 
           {/* Actions */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '11.5px' }}
+              className="astrix-btn-outline"
+              style={{ padding: '7px 14px', fontSize: '12px' }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="btn btn-primary"
-              style={{ padding: '6px 14px', fontSize: '11.5px' }}
+              className="astrix-btn-primary"
+              style={{ padding: '7px 16px', fontSize: '12px' }}
             >
               {submitting ? 'Running Authenticity Gate...' : 'Process Incident & Triage'}
             </button>
