@@ -12,7 +12,7 @@ export function AstrixLogo({ className = "size-7", width = 28, height = 28, styl
       style={{ width: `${width}px`, height: `${height}px`, minWidth: `${width}px`, flexShrink: 0, ...style }}
       {...props}
     >
-      <rect width="32" height="32" rx="8" fill="var(--primary, #F06543)" />
+      <rect width="32" height="32" rx="8" fill="var(--primary, #00A896)" />
       <path
         d="M16 6L24 10.5V21.5L16 26L8 21.5V10.5L16 6Z"
         stroke="#FFFFFF"

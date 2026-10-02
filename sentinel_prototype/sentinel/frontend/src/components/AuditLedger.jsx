@@ -143,7 +143,7 @@ export default function AuditLedger({ onRefreshParent }) {
       return { bg: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.25)', text: '#3b82f6' };
     }
     if (et.includes('MODEL') || et.includes('HAWKES') || et.includes('SIMULATION') || et.includes('PREDICTION')) {
-      return { bg: 'rgba(240, 101, 67, 0.12)', border: 'rgba(240, 101, 67, 0.25)', text: 'var(--primary)' };
+      return { bg: 'rgba(0, 168, 150, 0.12)', border: 'rgba(0, 168, 150, 0.25)', text: 'var(--primary)' };
     }
     return { bg: 'var(--secondary)', border: 'var(--border)', text: 'var(--muted-foreground)' };
   };

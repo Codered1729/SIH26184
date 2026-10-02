@@ -21,15 +21,15 @@
   --color-muted: #64748B;
   --color-faint: #94A3B8;
 
-  /* Astrix Core Light Palette (Watermelon UI Specification) */
+  /* Core Light Palette */
   --background: #FAFAFC;
   --foreground: #0F172A;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --primary: #F06543;
-  --primary-hover: #E25330;
+  --primary: #00A896;
+  --primary-hover: #008f80;
   --primary-foreground: #FFFFFF;
   --secondary: #F3F4F6;
   --secondary-foreground: #1E293B;
@@ -45,12 +45,12 @@
   --border-strong: rgba(15, 23, 42, 0.16);
   --input: rgba(15, 23, 42, 0.08);
   --input-addon-foreground: #94A3B8;
-  --ring: #F06543;
+  --ring: #00A896;
 
   /* Sidebar Tokens (Light) */
   --sidebar: #FAFAFC;
   --sidebar-foreground: #0F172A;
-  --sidebar-primary: #F06543;
+  --sidebar-primary: #00A896;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #FFFFFF;
   --sidebar-accent-foreground: #0F172A;
@@ -76,7 +76,7 @@
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
-/* Astrix Dark Theme */
+/* Dark Theme */
 .dark, html.dark {
   --background: #101216;
   --foreground: #F8FAFC;
@@ -84,9 +84,9 @@
   --card-foreground: #F8FAFC;
   --popover: #1A1D26;
   --popover-foreground: #F8FAFC;
-  --primary: #F06543;
-  --primary-hover: #FA7858;
-  --primary-foreground: #FFFFFF;
+  --primary: #00C2A8;
+  --primary-hover: #00D6BA;
+  --primary-foreground: #071526;
   --secondary: #222632;
   --secondary-foreground: #F8FAFC;
   --muted: #1E222D;
@@ -101,13 +101,13 @@
   --border-strong: rgba(255, 255, 255, 0.18);
   --input: rgba(255, 255, 255, 0.09);
   --input-addon-foreground: #64748B;
-  --ring: #F06543;
+  --ring: #00C2A8;
 
   /* Sidebar Tokens (Dark) */
   --sidebar: #13151B;
   --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #F06543;
-  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-primary: #00C2A8;
+  --sidebar-primary-foreground: #071526;
   --sidebar-accent: #1D212B;
   --sidebar-accent-foreground: #F8FAFC;
   --sidebar-border: rgba(255, 255, 255, 0.08);
