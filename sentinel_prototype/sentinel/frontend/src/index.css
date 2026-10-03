@@ -127,7 +127,7 @@
 }
 
 /* Optional Light Theme Override */
-.light, html.light, body.light {
+.light, html.light, body.light, html[data-theme="light"], body[data-theme="light"], html:not(.dark), .astrix-root.light {
   --bg-canvas: #F4F6F9;
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #F8FAFC;
@@ -141,7 +141,7 @@
   --color-ink: #0F172A;
   --color-muted: #64748B;
   --color-faint: #94A3B8;
-  --background: #FAFAFC;
+  --background: #F4F6F9;
   --foreground: #0F172A;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
@@ -150,7 +150,7 @@
   --primary: #00A896;
   --primary-hover: #008f80;
   --primary-foreground: #FFFFFF;
-  --secondary: #F3F4F6;
+  --secondary: #F1F5F9;
   --secondary-foreground: #1E293B;
   --muted: #F1F5F9;
   --muted-foreground: #64748B;
@@ -160,21 +160,26 @@
   --success: #10B981;
   --info: #3B82F6;
   --warning: #F59E0B;
-  --border: rgba(15, 23, 42, 0.08);
-  --border-strong: rgba(15, 23, 42, 0.16);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.2);
   --border-medium: #CBD5E1;
   --border-subtle: #E2E8F0;
   --input: rgba(15, 23, 42, 0.08);
   --input-addon-foreground: #94A3B8;
   --ring: #00A896;
-  --sidebar: #FAFAFC;
+  --sidebar: #FFFFFF;
   --sidebar-foreground: #0F172A;
   --sidebar-primary: #00A896;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
   --sidebar-accent-foreground: #0F172A;
   --sidebar-border: rgba(15, 23, 42, 0.08);
   --sidebar-muted: #64748B;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-sidebar: 1px 0 20px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -304,6 +309,46 @@ body.dark .astrix-metric-card {
   background-color: #171A21 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #F8FAFC !important;
+}
+
+/* Bulletproof Light Theme Card & Container Rules */
+.light .card,
+.light .astrix-card,
+.light .astrix-metric-card,
+html.light .card,
+html.light .astrix-card,
+html.light .astrix-metric-card,
+html[data-theme="light"] .card,
+html[data-theme="light"] .astrix-card,
+html[data-theme="light"] .astrix-metric-card,
+body.light .card,
+body.light .astrix-card,
+body.light .astrix-metric-card,
+.astrix-root.light .card,
+.astrix-root.light .astrix-card,
+.astrix-root.light .astrix-metric-card {
+  background-color: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.09) !important;
+  color: #0F172A !important;
+}
+
+.light .svg-node-card,
+html.light .svg-node-card,
+html[data-theme="light"] .svg-node-card,
+body.light .svg-node-card,
+.astrix-root.light .svg-node-card {
+  fill: #FFFFFF !important;
+  stroke: rgba(15, 23, 42, 0.12) !important;
+}
+
+.light .leaflet-legend-box,
+html.light .leaflet-legend-box,
+html[data-theme="light"] .leaflet-legend-box,
+body.light .leaflet-legend-box,
+.astrix-root.light .leaflet-legend-box {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
 }
 
 /* Bulletproof BNSS Notice Ledger in Dark Mode */

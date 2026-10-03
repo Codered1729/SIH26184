@@ -59,9 +59,15 @@ export default function App() {
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
         document.body.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+        document.documentElement.setAttribute('data-theme', 'dark');
       } else {
         document.documentElement.classList.remove('dark');
         document.body.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+        document.documentElement.setAttribute('data-theme', 'light');
       }
       localStorage.setItem('astrix_theme', theme);
     } catch (e) {
@@ -275,7 +281,7 @@ export default function App() {
   }
 
   return (
-    <div className={`astrix-root ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`astrix-root ${theme === 'dark' ? 'dark' : 'light'}`}>
       {/* Astrix Collapsible Sidebar */}
       <AstrixSidebar
         activeTab={activeTab}
