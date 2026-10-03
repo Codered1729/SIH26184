@@ -10,6 +10,7 @@ import AuditLedger from './components/AuditLedger';
 import IntakeModal from './components/IntakeModal';
 import DutyOfficerLogin, { DEFAULT_OFFICER_PROFILES } from './components/DutyOfficerLogin';
 import DispatchConfirmationModal from './components/DispatchConfirmationModal';
+import Toast from './components/Toast';
 import { api, initAlertsWebSocket } from './services/api';
 
 // Baseline complaint ID constant for resilient resets across seed modifications
@@ -32,6 +33,7 @@ export default function App() {
   // Active Duty Officer session state: Login page is default entry homepage
   const [currentUser, setCurrentUser] = useState(null);
   const [isSessionLocked, setIsSessionLocked] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // Astrix Dashboard UI Layout & Theme State (Default to Light Mode)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -272,6 +274,13 @@ export default function App() {
     await loadData();
     setHighlightedAlertId(null);
     setSelectedComplaintId(BASELINE_COMPLAINT_ID);
+    setToast({
+      id: Date.now(),
+      type: 'success',
+      title: 'Data Reset Complete',
+      message: 'All fraud cases, ATM queues, and demo states have been reset to baseline defaults.',
+      duration: 10000,
+    });
     setTimeout(() => {
       setIsRefreshing(false);
     }, 750);
@@ -428,6 +437,9 @@ export default function App() {
           }}
         />
       )}
+
+      {/* Global Toast Notification */}
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }
