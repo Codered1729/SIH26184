@@ -175,7 +175,7 @@ export default function AuditLedger({ onRefreshParent }) {
               </span>
             </div>
             <p style={{ fontSize: '12.5px', color: 'var(--muted-foreground)', marginTop: '6px', margin: 0, lineHeight: 1.4 }}>
-              Immutable chronological record of intake validations, Authenticity Gate scoring, Champion GBDT forecasts, complaint preservation orders, and resilient outbox transitions.
+              Tamper-evident activity log tracking all fraud reports, AI risk scores, police freeze notices, and system events.
             </p>
           </div>
 

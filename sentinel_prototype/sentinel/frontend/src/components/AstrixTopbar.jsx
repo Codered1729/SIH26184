@@ -219,12 +219,16 @@ export default function AstrixTopbar({
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
             fontWeight: '600',
-            gap: '5px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            lineHeight: 1,
           }}
           title="Register new cyber incident"
         >
-          <Plus size={14} strokeWidth={2.5} />
-          <span className="hidden-xs">New Report</span>
+          <Plus size={14} strokeWidth={2.5} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+          <span className="hidden-xs" style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>New Report</span>
         </button>
 
         {/* Theme Switcher Toggle */}

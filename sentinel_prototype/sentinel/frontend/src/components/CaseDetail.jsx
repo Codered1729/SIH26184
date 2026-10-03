@@ -135,10 +135,19 @@ export default function CaseDetail({
                   );
                 }}
                 className="astrix-btn-primary"
-                style={{ padding: '8px 16px', fontSize: '12.5px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+                style={{ 
+                  padding: '8px 16px', 
+                  fontSize: '12.5px', 
+                  fontWeight: '600', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  gap: '6px',
+                  lineHeight: 1,
+                }}
               >
-                <Send size={14} />
-                <span>Dispatch Patrol Unit</span>
+                <Send size={14} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+                <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Dispatch Patrol Unit</span>
               </button>
             )}
             {isDispatched && (

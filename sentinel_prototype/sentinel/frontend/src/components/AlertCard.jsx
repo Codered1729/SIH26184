@@ -97,6 +97,8 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
 
   return (
     <article
+      id={`alert-card-${alert.complaint_id}`}
+      data-complaint-id={alert.complaint_id}
       className={`card ${isHighlighted ? 'card-highlight-pulse' : ''}`}
       style={{
         padding: '14px 18px',
@@ -304,16 +306,18 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
               }}
               className="astrix-btn-primary"
               style={{
-                padding: '5px 12px',
+                padding: '6px 12px',
                 fontSize: '11.5px',
                 fontWeight: '600',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '5px',
+                justifyContent: 'center',
+                gap: '6px',
+                lineHeight: 1,
               }}
             >
-              <Send size={12} />
-              <span>Dispatch Police</span>
+              <Send size={12} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+              <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Dispatch Police</span>
             </button>
           )}
 

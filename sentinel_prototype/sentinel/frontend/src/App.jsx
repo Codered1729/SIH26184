@@ -29,27 +29,19 @@ export default function App() {
   const [dispatchedCids, setDispatchedCids] = useState(() => new Set());
   const dispatchedCidsRef = useRef(new Set());
 
-  // Active Duty Officer session state with local persistence
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sentinel_officer');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.warn('Could not parse officer session from storage:', e);
-    }
-    return DEFAULT_OFFICER_PROFILES[0];
-  });
+  // Active Duty Officer session state: Login page is default entry homepage
+  const [currentUser, setCurrentUser] = useState(null);
   const [isSessionLocked, setIsSessionLocked] = useState(false);
 
-  // Astrix Dashboard UI Layout & Theme State
+  // Astrix Dashboard UI Layout & Theme State (Default to Light Mode)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem('astrix_theme') || 'dark';
+      return localStorage.getItem('astrix_theme') || 'light';
     } catch {
-      return 'dark';
+      return 'light';
     }
   });
 
@@ -256,16 +248,44 @@ export default function App() {
     setHighlightedAlertId(complaintId);
     setActiveTab('queue');
 
+    // Smoothly scroll down to the targeted incident case card
+    setTimeout(() => {
+      const cardEl = document.getElementById(`alert-card-${complaintId}`);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        const contentEl = document.querySelector('.astrix-content') || document.querySelector('main');
+        if (contentEl) {
+          contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }, 150);
+
     // Remove pulse highlight after 7 seconds
     setTimeout(() => {
       setHighlightedAlertId((current) => (current === complaintId ? null : current));
     }, 7000);
   };
 
-  const handleResetCompleted = () => {
-    loadData();
+  const handleResetCompleted = async () => {
+    setIsRefreshing(true);
+    await loadData();
     setHighlightedAlertId(null);
     setSelectedComplaintId(BASELINE_COMPLAINT_ID);
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 750);
+  };
+
+  const handleLockSession = () => {
+    try {
+      localStorage.removeItem('sentinel_officer');
+      sessionStorage.removeItem('sentinel_officer_session');
+    } catch (e) {
+      console.warn('Could not clear officer storage:', e);
+    }
+    setCurrentUser(null);
+    setIsSessionLocked(true);
   };
 
   // If duty officer locked the terminal or is unauthenticated, present official command login
@@ -275,6 +295,9 @@ export default function App() {
         onLoginSuccess={(officer) => {
           setCurrentUser(officer);
           setIsSessionLocked(false);
+          try {
+            sessionStorage.setItem('sentinel_officer_session', JSON.stringify(officer));
+          } catch (e) {}
         }}
       />
     );
@@ -299,7 +322,7 @@ export default function App() {
         outboxStatus={outboxStatus}
         onReplayOutbox={handleReplayOutbox}
         currentUser={currentUser}
-        onLockSession={() => setIsSessionLocked(true)}
+        onLockSession={handleLockSession}
       />
 
       {/* Main Column: Topbar + Simulator Ribbon + Fluid Workspace */}
@@ -318,7 +341,7 @@ export default function App() {
           onRefresh={handleManualRefresh}
           isRefreshing={isRefreshing}
           currentUser={currentUser}
-          onLockSession={() => setIsSessionLocked(true)}
+          onLockSession={handleLockSession}
           theme={theme}
           onToggleTheme={handleToggleTheme}
           onReplayOutbox={handleReplayOutbox}

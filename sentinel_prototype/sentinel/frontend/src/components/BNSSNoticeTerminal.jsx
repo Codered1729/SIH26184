@@ -144,10 +144,10 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
           <div>
             <h2 style={{ fontSize: '1.25rem', color: 'var(--foreground)', fontWeight: '800', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               <FileText size={18} style={{ color: 'var(--primary)' }} />
-              Section 105 BNSS Court Notice & Resilient Gateway
+              Bank Freeze Orders & Legal Directives (BNSS Section 105)
             </h2>
             <p style={{ color: 'var(--muted-foreground)', fontSize: '12px', marginTop: '4px', margin: 0 }}>
-              Official court-admissible statutory freeze directives & zero-loss resilient outbox buffer.
+              Official court-admissible bank freeze notices and zero-loss dispatch gateway.
             </p>
           </div>
 
@@ -197,25 +197,26 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
               overflow: 'hidden',
               boxShadow: 'var(--shadow-md)',
             }}>
-              {/* Official Warrant Emblem Header */}
-              <div style={{
-                background: 'linear-gradient(135deg, #071526 0%, #0B1F3A 100%)',
-                color: '#FFFFFF',
-                padding: '20px 24px',
-                borderBottom: '3px solid var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '12px'
-              }}>
+              {/* Official Warrant Emblem Header (Theme Adaptive) */}
+              <div 
+                className="warrant-emblem-header"
+                style={{
+                  padding: '20px 24px',
+                  borderBottom: '3px solid var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px'
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   {/* National Ashok Stambh / Cyber Emblem SVG */}
                   <div style={{
                     width: '44px',
                     height: '44px',
                     borderRadius: 'var(--radius-sm)',
-                    backgroundColor: 'rgba(0, 194, 168, 0.15)',
+                    backgroundColor: 'var(--color-teal-subtle)',
                     border: '1.5px solid var(--primary)',
                     display: 'flex',
                     alignItems: 'center',
@@ -226,13 +227,13 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
                     <ShieldCheck size={26} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.08em', color: '#94A3B8', textTransform: 'uppercase' }}>
+                    <div className="warrant-dept-title" style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                       GOVERNMENT OF MAHARASHTRA • HOME DEPARTMENT
                     </div>
-                    <h2 style={{ fontSize: '15px', fontWeight: '900', color: '#FFFFFF', margin: '2px 0 0 0', letterSpacing: '-0.01em' }}>
+                    <h2 className="warrant-wing-title" style={{ fontSize: '15px', fontWeight: '900', margin: '2px 0 0 0', letterSpacing: '-0.01em' }}>
                       STATE CYBER CRIME INVESTIGATION WING
                     </h2>
-                    <div style={{ fontSize: '11px', color: '#38BDF8', marginTop: '2px' }}>
+                    <div className="warrant-subtitle" style={{ fontSize: '11px', marginTop: '2px' }}>
                       Special Cyber Nodal Directive • Bharatiya Nagarik Suraksha Sanhita, 2023
                     </div>
                   </div>
@@ -242,7 +243,7 @@ export default function BNSSNoticeTerminal({ complaintId = "CYB-MAH-2026-0819" }
                   <span className="badge badge-teal" style={{ padding: '4px 10px', fontSize: '11px', fontWeight: '800' }}>
                     COURT-ADMISSIBLE (Sec. 63 BSA)
                   </span>
-                  <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
+                  <div className="warrant-ref-id" style={{ fontSize: '10.5px', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
                     REF: {notice?.notice_id || `BNSS-105-${complaintId}`}
                   </div>
                 </div>
@@ -553,10 +554,19 @@ END MESSAGE`}
                 onClick={handleReplay}
                 disabled={replaying}
                 className="astrix-btn-primary"
-                style={{ width: '100%', padding: '9px', fontSize: '11.5px', justifyContent: 'center', gap: '6px' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '9px 14px', 
+                  fontSize: '11.5px', 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center', 
+                  gap: '6px',
+                  lineHeight: 1,
+                }}
               >
-                <RotateCw size={13} className={replaying ? 'spin-refresh' : ''} />
-                <span>{replaying ? 'Replaying Outbox Queue...' : 'Execute Outbox Replay & Flush'}</span>
+                <RotateCw size={13} className={replaying ? 'spin-refresh' : ''} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+                <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>{replaying ? 'Replaying Outbox Queue...' : 'Execute Outbox Replay & Flush'}</span>
               </button>
 
               {/* Real-time Outbox Transactions Stream Table */}

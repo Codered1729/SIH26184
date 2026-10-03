@@ -88,7 +88,7 @@ export default function ScenarioControllerBar({
       await api.resetSimulationState();
       setLastAction({ type: 'success', text: 'All data reset to baseline' });
       if (onResetCompleted) {
-        onResetCompleted();
+        await onResetCompleted();
       }
     } catch (err) {
       console.error('Failed to reset demo state:', err);
@@ -158,18 +158,20 @@ export default function ScenarioControllerBar({
             title="Reset alerts and data back to starting state"
             className="astrix-btn-outline"
             style={{
-              padding: '4px 10px',
+              padding: '5px 12px',
               borderRadius: 'var(--radius-sm)',
               fontSize: '11.5px',
               fontWeight: '600',
               cursor: loadingScenario ? 'not-allowed' : 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '6px',
+              lineHeight: 1,
             }}
           >
-            <RotateCcw size={12} className={loadingScenario === 'reset' ? 'spin' : ''} />
-            <span>↺ Reset All Data</span>
+            <RotateCcw size={12} className={loadingScenario === 'reset' ? 'spin' : ''} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+            <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Reset All Data</span>
           </button>
 
           <button

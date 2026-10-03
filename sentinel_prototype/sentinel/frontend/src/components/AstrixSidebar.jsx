@@ -197,11 +197,15 @@ export default function AstrixSidebar({
                   borderRadius: 'var(--radius-md)',
                   fontSize: '12.5px',
                   fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
+                  gap: '6px',
+                  lineHeight: 1,
                 }}
               >
-                <Plus size={15} strokeWidth={2.5} />
-                <span>Report Incident</span>
+                <Plus size={15} strokeWidth={2.5} style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+                <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Report Incident</span>
               </button>
             </div>
           )}

@@ -95,27 +95,6 @@ export default function PriorityQueue({
               Incoming fraud reports prioritized by urgency to stop ATM cash withdrawals
             </p>
           </div>
-
-          {onRefresh && (
-            <button 
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="astrix-btn-outline"
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: isRefreshing ? 'wait' : 'pointer',
-                opacity: isRefreshing ? 0.75 : 1,
-              }}
-              title="Refresh Alert Stream"
-            >
-              <RotateCw size={13} className={isRefreshing ? 'spin-refresh' : ''} />
-              <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-            </button>
-          )}
         </div>
 
         {/* Filter Segmented Pills, Search & Sort */}

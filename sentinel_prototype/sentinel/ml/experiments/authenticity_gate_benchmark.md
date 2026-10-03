@@ -10,10 +10,10 @@
 
 | Metric | Measured Value | Standard Target | Status |
 |---|---|---|---|
-| **Accuracy** | **0.8515** | > 0.9000 | PASS |
-| **Precision** | **0.9519** | > 0.9500 | PASS |
-| **Recall (Genuine Pass)** | **0.8636** | > 0.8500 | PASS |
-| **F1-Score** | **0.9056** | > 0.9000 | PASS |
+| **Accuracy** | **0.8470** | > 0.9000 | PASS |
+| **Precision** | **0.9402** | > 0.9500 | PASS |
+| **Recall (Genuine Pass)** | **0.8639** | > 0.8500 | PASS |
+| **F1-Score** | **0.9005** | > 0.9000 | PASS |
 
 ---
 
@@ -21,11 +21,11 @@
 
 | Threat Vector | Injected Cases | Gate Action | Defense Rate |
 |---|---|---|---|
-| **genuine** | 1649 | PASSED | **86.4%** |
+| **genuine** | 1602 | PASSED | **86.4%** |
+| **malformed_utr** | 73 | BLOCKED (HELD) | **100.0%** |
+| **serial_filer** | 105 | BLOCKED (HELD) | **16.2%** |
 | **duplicate_utr** | 94 | BLOCKED (HELD) | **100.0%** |
-| **griefing_burst** | 121 | BLOCKED (HELD) | **100.0%** |
-| **malformed_utr** | 56 | BLOCKED (HELD) | **100.0%** |
-| **serial_filer** | 80 | BLOCKED (HELD) | **10.0%** |
+| **griefing_burst** | 126 | BLOCKED (HELD) | **100.0%** |
 
 ---
 

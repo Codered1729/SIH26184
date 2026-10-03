@@ -367,9 +367,19 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               type="submit"
               disabled={submitting}
               className="astrix-btn-primary"
-              style={{ padding: '8px 18px', fontSize: '12px' }}
+              style={{ 
+                padding: '8px 18px', 
+                fontSize: '12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                lineHeight: 1,
+              }}
             >
-              {submitting ? 'Running Authenticity Gate...' : 'Process Incident & Triage'}
+              <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>
+                {submitting ? 'Running Authenticity Gate...' : 'Process Incident & Triage'}
+              </span>
             </button>
           </div>
         </form>

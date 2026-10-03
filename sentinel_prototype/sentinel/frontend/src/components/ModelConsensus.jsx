@@ -53,12 +53,12 @@ export default function ModelConsensus({ consensusData, championModel, details =
   // Primary Champion Model configuration
   const champ = championModel || {
     model_name: "Automated Fraud Forecaster",
-    f1_optimal_threshold: 0.444,
-    pr_auc: 0.875,
-    roc_auc: 0.906,
-    brier_score: 0.1233,
-    f1_score: 0.790,
-    latency_ms: 0.0006,
+    f1_optimal_threshold: 0.301,
+    pr_auc: 0.681,
+    roc_auc: 0.826,
+    brier_score: 0.1432,
+    f1_score: 0.636,
+    latency_ms: 0.0018,
     cashout_probability: caseData?.cashout_probability || 0.89,
     risk_tier: caseData?.risk_tier || "CRITICAL",
     top_features: [
@@ -72,8 +72,8 @@ export default function ModelConsensus({ consensusData, championModel, details =
 
   const cashoutProb = Number(champ.cashout_probability ?? caseData?.cashout_probability ?? 0.89);
   const probPct = Math.round(cashoutProb * 100);
-  const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.444) * 100);
-  const exceeds = cashoutProb >= (champ.f1_optimal_threshold || 0.444);
+  const thresholdPct = Math.round((champ.f1_optimal_threshold || 0.301) * 100);
+  const exceeds = cashoutProb >= (champ.f1_optimal_threshold || 0.301);
   const isExpired = caseData?.status === 'EXPIRED';
 
   // 1. Calculate Priority Score factors
@@ -154,11 +154,11 @@ export default function ModelConsensus({ consensusData, championModel, details =
 
   // Benchmark Models for collapsible comparison
   const benchmarkModels = consensusData?.models || {
-    "SENTINEL Primary AI Engine": { score: 0.91, latency: "0.0006 ms", status: "Active (Best Accuracy)", accuracy: "91%" },
-    "Secondary Decision Tree": { score: 0.89, latency: "0.0070 ms", status: "Verified Backup", accuracy: "89%" },
-    "Fast Gradient Model": { score: 0.89, latency: "0.0095 ms", status: "Verified Backup", accuracy: "89%" },
-    "Random Forest Engine": { score: 0.87, latency: "0.0479 ms", status: "Verified Backup", accuracy: "87%" },
-    "Statistical Baseline": { score: 0.85, latency: "0.0018 ms", status: "Standard Check", accuracy: "85%" },
+    "SENTINEL Primary AI Engine": { score: 0.72, latency: "0.0018 ms", status: "Active (Best Accuracy)", accuracy: "80%" },
+    "Secondary Decision Tree": { score: 0.70, latency: "0.0037 ms", status: "Verified Backup", accuracy: "79%" },
+    "Fast Gradient Model": { score: 0.68, latency: "0.0076 ms", status: "Verified Backup", accuracy: "79%" },
+    "Random Forest Engine": { score: 0.71, latency: "0.0472 ms", status: "Verified Backup", accuracy: "78%" },
+    "Statistical Baseline": { score: 0.73, latency: "0.0018 ms", status: "Standard Check", accuracy: "76%" },
   };
 
   return (
@@ -383,7 +383,7 @@ export default function ModelConsensus({ consensusData, championModel, details =
               color: '#16a34a',
               border: '1px solid rgba(34, 197, 94, 0.25)',
             }}>
-              Accuracy: 88%
+              Accuracy: 80%
             </span>
           </div>
         </div>

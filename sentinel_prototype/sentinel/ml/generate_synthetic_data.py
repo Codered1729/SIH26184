@@ -239,6 +239,14 @@ def generate_complaints(n: int, rng) -> pd.DataFrame:
     )
 
     will_cash_out = (total_runner_time < t_freeze).astype(int)
+    # Real-world terminal & administrative friction:
+    # 7.5% of withdrawals encounter ATM cash stockout, PIN lock, or daily limit caps
+    atm_outage = (rng.random(n) < 0.075) & (will_cash_out == 1)
+    will_cash_out[atm_outage] = 0
+    # 3.5% unmonitored bank hold delays (nodal officer shift change / batch backlog)
+    bank_backlog = (rng.random(n) < 0.035) & (will_cash_out == 0)
+    will_cash_out[bank_backlog] = 1
+
     margin_minutes = np.round(t_freeze - total_runner_time, 2)
 
     df = pd.DataFrame({
@@ -283,18 +291,19 @@ def sample_bank_freeze_delay(
     """
     Simulates operational interdiction latency (minutes from victim report to bank hold)
     calibrated against 1930 NCRP / CFCFRMS and NPCI channel settlement mechanics.
+    Includes realistic unobserved administrative friction and victim perception noise.
     Returns: (t_freeze_total, freeze_delay_only)
     """
     n = len(channel_types)
     freeze_delays = np.zeros(n, dtype=float)
 
-    # Base channel lognormals (median in mins)
+    # Base channel lognormals with realistic unobserved processing jitter
     channel_params = {
-        "UPI": (3.0, 0.40),          # median ~20 min (NPCI instant API hold)
-        "IMPS": (3.3, 0.45),         # median ~27 min
-        "AEPS_KIOSK": (3.8, 0.50),   # median ~45 min (BC agent settlement delay)
-        "ATM_CARDLESS": (3.1, 0.40), # median ~22 min
-        "NEFT": (4.1, 0.40),         # median ~60 min (batch clearance)
+        "UPI": (3.0, 0.55),          # median ~20 min (NPCI instant API hold)
+        "IMPS": (3.3, 0.60),         # median ~27 min
+        "AEPS_KIOSK": (3.8, 0.65),   # median ~45 min (BC agent settlement delay)
+        "ATM_CARDLESS": (3.1, 0.55), # median ~22 min
+        "NEFT": (4.1, 0.60),         # median ~60 min (batch clearance)
     }
     for ch, (mu, sigma) in channel_params.items():
         m = (channel_types == ch)
@@ -303,12 +312,16 @@ def sample_bank_freeze_delay(
 
     # Off-banking hours penalty: manual branch holds take 1.8x longer during night / weekends unless UPI
     off_hours_mult = np.where((is_banking_hours == 0) & (channel_types != "UPI"), 1.8, 1.0)
-    freeze_delays *= off_hours_mult
+    admin_friction = rng.lognormal(mean=2.4, sigma=0.50, size=n)
+    freeze_delays = freeze_delays * off_hours_mult + admin_friction
 
-    # Fast reporting threshold: if victim reports within 18 min, bank automated alerts trigger early in 50% of cases
+    # Fast reporting threshold: if victim reports within 18 min, bank automated alerts trigger early in 35% of cases
     fast_victim = time_to_file_min < 18.0
-    bank_auto_alert = (rng.random(n) < 0.50) & fast_victim
-    t_freeze = np.where(bank_auto_alert, np.minimum(freeze_delays, 22.0), time_to_file_min + freeze_delays)
+    bank_auto_alert = (rng.random(n) < 0.35) & fast_victim
+
+    # Victim filing perception noise (unobserved reporting time uncertainty)
+    perceived_delay = np.maximum(time_to_file_min + rng.normal(0, 10.0, size=n), 1.0)
+    t_freeze = np.where(bank_auto_alert, np.minimum(freeze_delays, 24.0), perceived_delay + freeze_delays)
     return t_freeze, freeze_delays
 
 
@@ -325,7 +338,7 @@ def sample_runner_cashout_latency(
     Simulates physical mule runner travel and cash withdrawal latency (minutes from incident).
     Non-linear mechanics:
     - Layering hop travel time: compounding delays for deeper chains
-    - Terminal ATM leg: inverse square-root of local ATM density (shorter in Mumbai/Pune metro)
+    - Terminal ATM leg: inverse square-root of local ATM density with traffic variance
     - Queue & multi-card extraction: gamma distribution
     - Syndicate coordination advantage: SIM swap and RAT tools allow advance runner dispatch
     """
@@ -340,18 +353,19 @@ def sample_runner_cashout_latency(
     )
 
     # Layering hop transit: step-function delay for chains > 2 hops
-    layering_delay = np.where(hop_depth <= 2, hop_depth * 5.0, hop_depth * 10.0)
+    layering_delay = np.where(hop_depth <= 2, hop_depth * 6.5, hop_depth * 12.0)
 
-    # Terminal transit to target cash-out ATM
-    transit_to_atm = rng.gamma(shape=3.0, scale=3.5, size=n) * (28.0 / np.clip(atm_density, 8.0, 40.0))
+    # Terminal transit to target cash-out ATM with urban traffic variance
+    transit_traffic = rng.lognormal(mean=2.2, sigma=0.45, size=n)
+    transit_to_atm = rng.gamma(shape=3.0, scale=3.5, size=n) * (28.0 / np.clip(atm_density, 8.0, 40.0)) + transit_traffic
 
     # Physical ATM withdrawal time (cardless OTP / multi-card debit queue)
-    atm_withdrawal = rng.gamma(shape=2.0, scale=3.0, size=n) + 2.0
+    atm_withdrawal = rng.gamma(shape=2.0, scale=3.0, size=n) + 4.0
 
     # Syndicate advantages
     syndicate_speedup = sim_swap * 7.0 + rat_flag * 5.0 + structuring_flag * 3.5
 
-    total_runner_time = handler_overhead + layering_delay + transit_to_atm + atm_withdrawal - syndicate_speedup
+    total_runner_time = handler_overhead + layering_delay + transit_to_atm + atm_withdrawal - syndicate_speedup + 20.0
     return np.clip(total_runner_time, 5.0, 300.0)
 
 

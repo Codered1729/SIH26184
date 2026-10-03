@@ -550,6 +550,11 @@ body.dark .leaflet-legend-box {
 }
 
 .btn-primary, .astrix-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
   background-color: var(--primary);
   color: var(--primary-foreground);
   box-shadow: 0 1px 3px color-mix(in srgb, var(--primary) 35%, transparent);
@@ -561,6 +566,11 @@ body.dark .leaflet-legend-box {
 }
 
 .btn-secondary, .astrix-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
   background-color: var(--secondary);
   color: var(--foreground);
   border-color: var(--border);
@@ -572,6 +582,11 @@ body.dark .leaflet-legend-box {
 }
 
 .btn-outline, .astrix-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
   background-color: var(--card);
   color: var(--foreground);
   border: 1px solid var(--border);
@@ -580,6 +595,21 @@ body.dark .leaflet-legend-box {
 .btn-outline:hover, .astrix-btn-outline:hover {
   background-color: var(--secondary);
   border-color: var(--border-strong);
+}
+
+/* Symmetrical Icon & Text Alignment for all Buttons */
+.btn svg, .astrix-btn svg, .btn-primary svg, .astrix-btn-primary svg, 
+.btn-outline svg, .astrix-btn-outline svg, .btn-secondary svg, .astrix-btn-secondary svg {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  flex-shrink: 0 !important;
+}
+
+.btn span, .astrix-btn span, .btn-primary span, .astrix-btn-primary span, 
+.btn-outline span, .astrix-btn-outline span, .btn-secondary span, .astrix-btn-secondary span {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
 }
 
 .btn-danger {
@@ -1004,5 +1034,130 @@ html.dark .leaflet-control-attribution {
 html.dark .leaflet-control-attribution a {
   color: #00C2A8 !important;
 }
+
+/* Leaflet Popup & Custom Marker Fine-Tuning */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+  line-height: normal !important;
+}
+
+.custom-cluster-badge {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.custom-atm-marker {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* Light Mode Leaflet Popup */
+html.light .leaflet-popup-content-wrapper,
+html[data-theme="light"] .leaflet-popup-content-wrapper,
+body.light .leaflet-popup-content-wrapper,
+.astrix-root.light .leaflet-popup-content-wrapper {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light .leaflet-popup-tip,
+html[data-theme="light"] .leaflet-popup-tip,
+body.light .leaflet-popup-tip,
+.astrix-root.light .leaflet-popup-tip {
+  background-color: #FFFFFF !important;
+}
+
+/* Freeze Order Warrant Emblem Header Theme Synchronization */
+.warrant-emblem-header {
+  background: linear-gradient(135deg, #071526 0%, #0B1F3A 100%);
+  color: #FFFFFF;
+}
+
+.warrant-emblem-header .warrant-dept-title {
+  color: #94A3B8;
+}
+
+.warrant-emblem-header .warrant-wing-title {
+  color: #FFFFFF;
+}
+
+.warrant-emblem-header .warrant-subtitle {
+  color: #38BDF8;
+}
+
+.warrant-emblem-header .warrant-ref-id {
+  color: #94A3B8;
+}
+
+.light .warrant-emblem-header,
+html.light .warrant-emblem-header,
+html[data-theme="light"] .warrant-emblem-header,
+body.light .warrant-emblem-header,
+.astrix-root.light .warrant-emblem-header {
+  background: linear-gradient(135deg, #F8FAFC 0%, #EDF2F7 100%) !important;
+  color: #0F172A !important;
+  border-bottom: 3px solid var(--primary) !important;
+}
+
+.light .warrant-emblem-header .warrant-dept-title,
+html.light .warrant-emblem-header .warrant-dept-title,
+html[data-theme="light"] .warrant-emblem-header .warrant-dept-title,
+body.light .warrant-emblem-header .warrant-dept-title,
+.astrix-root.light .warrant-emblem-header .warrant-dept-title {
+  color: #475569 !important;
+}
+
+.light .warrant-emblem-header .warrant-wing-title,
+html.light .warrant-emblem-header .warrant-wing-title,
+html[data-theme="light"] .warrant-emblem-header .warrant-wing-title,
+body.light .warrant-emblem-header .warrant-wing-title,
+.astrix-root.light .warrant-emblem-header .warrant-wing-title {
+  color: #0F172A !important;
+}
+
+.light .warrant-emblem-header .warrant-subtitle,
+html.light .warrant-emblem-header .warrant-subtitle,
+html[data-theme="light"] .warrant-emblem-header .warrant-subtitle,
+body.light .warrant-emblem-header .warrant-subtitle,
+.astrix-root.light .warrant-emblem-header .warrant-subtitle {
+  color: #0284C7 !important;
+}
+
+.light .warrant-emblem-header .warrant-ref-id,
+html.light .warrant-emblem-header .warrant-ref-id,
+html[data-theme="light"] .warrant-emblem-header .warrant-ref-id,
+body.light .warrant-emblem-header .warrant-ref-id,
+.astrix-root.light .warrant-emblem-header .warrant-ref-id {
+  color: #64748B !important;
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
 
 

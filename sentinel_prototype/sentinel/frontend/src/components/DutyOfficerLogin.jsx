@@ -325,7 +325,7 @@ export default function DutyOfficerLogin({ onLoginSuccess }) {
           {/* Officer Name Field */}
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', marginBottom: '5px' }}>
-              OFFICER NAME & DESIGNATION
+              Officer Name & Designation
             </label>
             <div style={{
               display: 'flex',
@@ -355,12 +355,10 @@ export default function DutyOfficerLogin({ onLoginSuccess }) {
                 }}
               />
             </div>
-          </div>
-
-          {/* Officer Service Badge ID */}
+          </div>          {/* Officer Service Badge ID */}
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', marginBottom: '5px' }}>
-              GOVERNMENT SERVICE BADGE ID
+              Police Officer Badge ID
             </label>
             <div style={{
               display: 'flex',
@@ -383,7 +381,7 @@ export default function DutyOfficerLogin({ onLoginSuccess }) {
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
-                  fontSize: '12.5px',
+                  fontSize: '12px',
                   fontWeight: '700',
                   color: 'var(--foreground)',
                   fontFamily: 'var(--font-mono)',
@@ -396,7 +394,7 @@ export default function DutyOfficerLogin({ onLoginSuccess }) {
           {/* Jurisdiction Station */}
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', marginBottom: '5px' }}>
-              STATION CYBER COMMAND JURISDICTION
+              Police Station Jurisdiction
             </label>
             <div style={{
               display: 'flex',
@@ -438,7 +436,7 @@ export default function DutyOfficerLogin({ onLoginSuccess }) {
           {/* Security PIN and Token */}
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', marginBottom: '5px' }}>
-              OFFICER SECURITY PIN / 2FA TOKEN
+              Security PIN (6 Digits)
             </label>
             <div style={{
               display: 'flex',
@@ -526,7 +524,7 @@ export default function DutyOfficerLogin({ onLoginSuccess }) {
               </>
             ) : (
               <>
-                <span>Access SENTINEL Command Terminal</span>
+                <span>Authenticate & Access Command Center</span>
                 <ArrowRight size={15} />
               </>
             )}
