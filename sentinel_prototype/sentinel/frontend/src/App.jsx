@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AstrixSidebar from './components/AstrixSidebar';
 import AstrixTopbar from './components/AstrixTopbar';
 import ScenarioControllerBar from './components/ScenarioControllerBar';
@@ -8,6 +8,8 @@ import GeospatialMap from './components/GeospatialMap';
 import BNSSNoticeTerminal from './components/BNSSNoticeTerminal';
 import AuditLedger from './components/AuditLedger';
 import IntakeModal from './components/IntakeModal';
+import DutyOfficerLogin, { DEFAULT_OFFICER_PROFILES } from './components/DutyOfficerLogin';
+import DispatchConfirmationModal from './components/DispatchConfirmationModal';
 import { api, initAlertsWebSocket } from './services/api';
 
 // Baseline complaint ID constant for resilient resets across seed modifications
@@ -22,6 +24,22 @@ export default function App() {
   const [auditCount, setAuditCount] = useState(8);
   const [backendOnline, setBackendOnline] = useState(true);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [dispatchConfirmation, setDispatchConfirmation] = useState(null);
+  const [dispatchedCids, setDispatchedCids] = useState(() => new Set());
+  const dispatchedCidsRef = useRef(new Set());
+
+  // Active Duty Officer session state with local persistence
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sentinel_officer');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.warn('Could not parse officer session from storage:', e);
+    }
+    return DEFAULT_OFFICER_PROFILES[0];
+  });
+  const [isSessionLocked, setIsSessionLocked] = useState(false);
 
   // Astrix Dashboard UI Layout & Theme State
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -29,19 +47,21 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem('astrix_theme') || 'light';
+      return localStorage.getItem('astrix_theme') || 'dark';
     } catch {
-      return 'light';
+      return 'dark';
     }
   });
 
-  // Sync theme with document element class
+  // Sync theme with document element and body classes
   useEffect(() => {
     try {
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
       }
       localStorage.setItem('astrix_theme', theme);
     } catch (e) {
@@ -58,7 +78,18 @@ export default function App() {
     try {
       const alertsData = await api.getAlerts();
       if (alertsData && alertsData.alerts) {
-        setAlerts(alertsData.alerts);
+        setAlerts((prev) => {
+          return alertsData.alerts.map((a) => {
+            if (dispatchedCidsRef.current.has(a.complaint_id) || a.status === 'DISPATCHED' || (a.dispatch_cooldown_remaining > 0)) {
+              return {
+                ...a,
+                status: 'DISPATCHED',
+                dispatch_cooldown_remaining: a.dispatch_cooldown_remaining || 900,
+              };
+            }
+            return a;
+          });
+        });
         if (!selectedComplaintId && alertsData.alerts.length > 0) {
           setSelectedComplaintId(alertsData.alerts[0].complaint_id);
         }
@@ -116,6 +147,14 @@ export default function App() {
     };
   }, []);
 
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await loadData();
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 650);
+  };
+
   const handleSelectAlert = (alert) => {
     setSelectedComplaintId(alert.complaint_id);
     setActiveTab('dossier');
@@ -123,16 +162,34 @@ export default function App() {
 
   const handleDispatchAlert = async (alert) => {
     try {
-      await api.dispatchAlert(alert.complaint_id);
-      // Immediately mark as dispatched with 15-minute suppression cooldown
+      const cid = typeof alert === 'string'
+        ? alert
+        : (alert?.complaint_id || alert?.complaintId || selectedComplaintId || BASELINE_COMPLAINT_ID);
+
+      // Add to persistent dispatched set so background short polling never reverts it
+      dispatchedCidsRef.current.add(cid);
+      setDispatchedCids((prev) => new Set([...prev, cid]));
+
+      await api.dispatchAlert(cid);
+
+      // Immediately mark as dispatched with 15-minute suppression cooldown in state
       setAlerts((prev) =>
         prev.map((a) =>
-          a.complaint_id === alert.complaint_id
+          a.complaint_id === cid
             ? { ...a, status: 'DISPATCHED', dispatch_cooldown_remaining: 900 }
             : a
         )
       );
-      loadData();
+
+      // Find full alert details for rich modal display
+      const targetAlert = alerts.find((a) => a.complaint_id === cid) || (typeof alert === 'object' ? alert : { complaint_id: cid });
+      setDispatchConfirmation({
+        ...targetAlert,
+        complaint_id: cid,
+        cooldown_remaining: 900,
+      });
+
+      await loadData();
     } catch (err) {
       console.error('Dispatch failed:', err);
     }
@@ -205,8 +262,20 @@ export default function App() {
     setSelectedComplaintId(BASELINE_COMPLAINT_ID);
   };
 
+  // If duty officer locked the terminal or is unauthenticated, present official command login
+  if (isSessionLocked || !currentUser) {
+    return (
+      <DutyOfficerLogin
+        onLoginSuccess={(officer) => {
+          setCurrentUser(officer);
+          setIsSessionLocked(false);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="astrix-root">
+    <div className={`astrix-root ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Astrix Collapsible Sidebar */}
       <AstrixSidebar
         activeTab={activeTab}
@@ -223,6 +292,8 @@ export default function App() {
         backendOnline={backendOnline}
         outboxStatus={outboxStatus}
         onReplayOutbox={handleReplayOutbox}
+        currentUser={currentUser}
+        onLockSession={() => setIsSessionLocked(true)}
       />
 
       {/* Main Column: Topbar + Simulator Ribbon + Fluid Workspace */}
@@ -238,7 +309,10 @@ export default function App() {
           backendOnline={backendOnline}
           outboxStatus={outboxStatus}
           onOpenIntake={() => setIsIntakeOpen(true)}
-          onRefresh={loadData}
+          onRefresh={handleManualRefresh}
+          isRefreshing={isRefreshing}
+          currentUser={currentUser}
+          onLockSession={() => setIsSessionLocked(true)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
           onReplayOutbox={handleReplayOutbox}
@@ -251,8 +325,8 @@ export default function App() {
           activeCaseId={selectedComplaintId}
         />
 
-        {/* Operational Workspace with Astrix Technical Dot Matrix Background */}
-        <main className="astrix-content pipeline-dots">
+        {/* Operational Workspace with Astrix Technical Dot Matrix Background and Refresh Pulse */}
+        <main className={`astrix-content pipeline-dots ${isRefreshing ? 'site-refreshing' : ''}`}>
           {/* Screen 1: Priority Queue & Real-Time Alert Feed */}
           {activeTab === 'queue' && (
             <PriorityQueue
@@ -261,7 +335,8 @@ export default function App() {
               highlightedAlertId={highlightedAlertId}
               onSelectAlert={handleSelectAlert}
               onDispatchAlert={handleDispatchAlert}
-              onRefresh={loadData}
+              onRefresh={handleManualRefresh}
+              isRefreshing={isRefreshing}
               searchQuery={searchQuery}
             />
           )}
@@ -308,6 +383,22 @@ export default function App() {
         onClose={() => setIsIntakeOpen(false)}
         onComplaintSubmitted={handleComplaintSubmitted}
       />
+
+      {/* Law Enforcement Interceptor Dispatch Confirmation Modal */}
+      {dispatchConfirmation && (
+        <DispatchConfirmationModal
+          dispatchInfo={dispatchConfirmation}
+          onClose={() => setDispatchConfirmation(null)}
+          onNavigateToMap={() => {
+            setActiveTab('map');
+            setDispatchConfirmation(null);
+          }}
+          onNavigateToNotice={(cid) => {
+            handleOpenNotice(cid);
+            setDispatchConfirmation(null);
+          }}
+        />
+      )}
     </div>
   );
 }

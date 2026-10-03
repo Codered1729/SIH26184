@@ -1,16 +1,39 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
-import { X, Plus, CheckCircle2, AlertTriangle, FileInput } from 'lucide-react';
+import { X, Plus, CheckCircle2, AlertTriangle, FileInput, GitFork, MapPin } from 'lucide-react';
 
 export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
   const [rawText, setRawText] = useState('');
   const [victimCity, setVictimCity] = useState('Pune');
   const [channel, setChannel] = useState('UPI');
   const [amount, setAmount] = useState('78000');
+  const [hopDepth, setHopDepth] = useState('auto');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
 
   if (!isOpen) return null;
+
+  const districtOptions = [
+    { group: 'Maharashtra Command', list: [
+      { id: 'Pune', name: 'Pune (Hinjawadi / Cyber HQ)' },
+      { id: 'Mumbai', name: 'Mumbai (BKC Financial Center)' },
+      { id: 'Thane', name: 'Thane (West Urban Corridor)' },
+      { id: 'Navi Mumbai', name: 'Navi Mumbai (Vashi Cyber Hub)' },
+      { id: 'Nashik', name: 'Nashik (Old City Commercial)' },
+      { id: 'Nagpur', name: 'Nagpur (Sitabuldi Metro Axis)' },
+      { id: 'Chhatrapati Sambhajinagar', name: 'Chhatrapati Sambhajinagar' },
+      { id: 'Kolhapur', name: 'Kolhapur (Shahupuri Hub)' },
+      { id: 'Solapur', name: 'Solapur (Textile Zone)' },
+      { id: 'Amravati', name: 'Amravati (Cotton City)' },
+      { id: 'Nanded', name: 'Nanded (Marathwada Axis)' },
+    ]},
+    { group: 'Inter-State JCCT (Gujarat)', list: [
+      { id: 'Ahmedabad', name: 'Ahmedabad (SG Highway Tech Hub)' },
+      { id: 'Surat', name: 'Surat (Ring Road Diamond Market)' },
+      { id: 'Vadodara', name: 'Vadodara (Alkapuri Commercial)' },
+      { id: 'Rajkot', name: 'Rajkot (Industrial Corridor)' },
+    ]}
+  ];
 
   const handleLoadDemo = (type) => {
     if (type === 'genuine') {
@@ -18,35 +41,49 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
       setVictimCity('Pune');
       setChannel('UPI');
       setAmount('78000');
+      setHopDepth('1');
     } else if (type === 'duplicate') {
       setRawText("Rs 65000.00 debited from a/c **9999 via UPI on 25-09-2026. UTR: 429104829102. Repeated duplicate complaint.");
       setVictimCity('Mumbai');
       setChannel('UPI');
       setAmount('65000');
+      setHopDepth('1');
     } else if (type === 'neft') {
       setRawText("IMPS transaction of Rs 135000.00 credited to account 1029481920. Layered transfer from Thane corridor to Ahmedabad hub.");
       setVictimCity('Thane');
       setChannel('IMPS');
       setAmount('135000');
+      setHopDepth('3');
     }
+  };
+
+  const getComputedHopDepth = (amt) => {
+    if (hopDepth !== 'auto') return parseInt(hopDepth, 10);
+    const parsedAmt = parseFloat(amt) || 50000;
+    if (parsedAmt < 50000) return 1;
+    if (parsedAmt <= 100000) return 2;
+    if (parsedAmt <= 200000) return 3;
+    return 4;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const chosenDepth = getComputedHopDepth(amount);
     try {
       const res = await api.submitComplaint({
         raw_text: rawText,
         victim_city: victimCity,
         channel: channel,
         amount: parseFloat(amount) || 50000.0,
+        hop_depth: chosenDepth,
       });
       setResult(res);
       if (onComplaintSubmitted) onComplaintSubmitted(res);
       setTimeout(() => {
         onClose();
         setResult(null);
-      }, 1200);
+      }, 1400);
     } catch (err) {
       console.error('Submission error:', err);
     } finally {
@@ -55,21 +92,31 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
-      backdropFilter: 'blur(6px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 2000,
-      padding: '16px',
-    }}>
-      <div className="astrix-card intake-modal-card" style={{
-        position: 'relative',
-        boxShadow: 'var(--shadow-lg)',
-      }}>
+    <div 
+      className="animate-modal-backdrop"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2000,
+        padding: '16px',
+      }}
+    >
+      <div 
+        className="astrix-card intake-modal-card animate-modal-content" 
+        style={{
+          position: 'relative',
+          boxShadow: 'var(--shadow-lg)',
+          backgroundColor: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          maxWidth: '580px',
+        }}
+      >
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -85,6 +132,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            borderRadius: 'var(--radius-sm)',
           }}
           aria-label="Close dialog"
         >
@@ -98,7 +146,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             Register Cyber Incident / SMS Ingestion
           </h3>
           <p style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '4px', margin: 0 }}>
-            Paste complainant SMS debit advice or enter incident parameters for automated triage and UTR deduplication.
+            Paste complainant SMS debit advice or configure incident parameters for automated multi-hop triage.
           </p>
         </div>
 
@@ -120,7 +168,7 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               className="astrix-btn-outline"
               style={{ padding: '5px 9px', fontSize: '11px', flex: '1 1 auto', textAlign: 'center' }}
             >
-              1. Genuine UPI (₹78k - Pune)
+              1. Genuine UPI (₹78k - Pune • 1-Hop)
             </button>
             <button
               type="button"
@@ -136,23 +184,23 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
               className="astrix-btn-outline"
               style={{ padding: '5px 9px', fontSize: '11px', flex: '1 1 auto', textAlign: 'center' }}
             >
-              3. Multi-Hop IMPS (₹1.35L - Thane)
+              3. Inter-State IMPS (₹1.35L • 3-Hop)
             </button>
           </div>
         </div>
 
         {/* Ingestion Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {/* Raw Text Input */}
           <div>
             <label style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--foreground)', display: 'block', marginBottom: '4px' }}>
-              Complainant Debit SMS / Notification Text
+              Complainant Debit SMS / Notification Advice
             </label>
             <textarea
               rows={3}
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
-              placeholder="e.g. Rs 65000 debited from a/c **4123 via UPI on 25-09-2026. UTR: 429104829102"
+              placeholder="e.g. Rs 78000 debited from a/c **4123 via UPI on 25-09-2026. UTR: 429104829105. Hinjawadi IT Corridor victim reporting unauthorized debit."
               required
               style={{
                 width: '100%',
@@ -169,8 +217,8 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             />
           </div>
 
-          {/* Form Grid */}
-          <div className="intake-form-grid">
+          {/* Form Grid: District, Channel, Amount, and Hop Depth */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
             <div>
               <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
                 Victim District
@@ -188,13 +236,18 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                   color: 'var(--foreground)',
                   outline: 'none',
                   boxSizing: 'border-box',
+                  cursor: 'pointer',
                 }}
               >
-                <option value="Pune">Pune</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Nagpur">Nagpur</option>
-                <option value="Nashik">Nashik</option>
-                <option value="Thane">Thane</option>
+                {districtOptions.map((grp) => (
+                  <optgroup key={grp.group} label={grp.group}>
+                    {grp.list.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
             </div>
 
@@ -215,12 +268,15 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                   color: 'var(--foreground)',
                   outline: 'none',
                   boxSizing: 'border-box',
+                  cursor: 'pointer',
                 }}
               >
-                <option value="UPI">UPI</option>
-                <option value="IMPS">IMPS</option>
-                <option value="NEFT">NEFT</option>
-                <option value="RTGS">RTGS</option>
+                <option value="UPI">UPI (Instant Fast Exit)</option>
+                <option value="IMPS">IMPS (Immediate Transfer)</option>
+                <option value="NEFT">NEFT (Batch Layering)</option>
+                <option value="RTGS">RTGS (High-Value Wholesale)</option>
+                <option value="AEPS_KIOSK">AePS Micro-ATM / CSP Terminal</option>
+                <option value="ATM_CARDLESS">Cardless ATM Pull</option>
               </select>
             </div>
 
@@ -242,8 +298,38 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
                   color: 'var(--foreground)',
                   outline: 'none',
                   boxSizing: 'border-box',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: '700',
                 }}
               />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted-foreground)', display: 'block', marginBottom: '4px' }}>
+                Structuring Topology
+              </label>
+              <select
+                value={hopDepth}
+                onChange={(e) => setHopDepth(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '7px 8px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border)',
+                  fontSize: '12px',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="auto">Auto-Detect by Capital (N={getComputedHopDepth(amount)})</option>
+                <option value="1">1-Hop Direct Flow (Single Exit)</option>
+                <option value="2">2-Hop Layering Smurfing</option>
+                <option value="3">3-Hop Multi-Jurisdiction Relay</option>
+                <option value="4">4-Hop Syndicate Smurfing Ring</option>
+              </select>
             </div>
           </div>
 
@@ -252,9 +338,9 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             <div style={{
               padding: '10px 12px',
               borderRadius: 'var(--radius-sm)',
-              backgroundColor: result.decision === 'DUPLICATE_UTR' ? 'rgba(124, 58, 237, 0.1)' : 'rgba(34, 197, 94, 0.1)',
-              border: `1px solid ${result.decision === 'DUPLICATE_UTR' ? 'rgba(124, 58, 237, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
-              color: result.decision === 'DUPLICATE_UTR' ? '#7c3aed' : '#16a34a',
+              backgroundColor: result.decision === 'DUPLICATE_UTR' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+              border: `1px solid ${result.decision === 'DUPLICATE_UTR' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+              color: result.decision === 'DUPLICATE_UTR' ? '#ef4444' : '#16a34a',
               fontSize: '11.5px',
               display: 'flex',
               alignItems: 'center',
@@ -262,13 +348,13 @@ export default function IntakeModal({ isOpen, onClose, onComplaintSubmitted }) {
             }}>
               <CheckCircle2 size={16} />
               <span>
-                <strong>Triage Evaluated:</strong> {result.complaint_id} recorded as <strong>{result.decision}</strong> ({result.risk_tier} Risk).
+                <strong>Triage Evaluated:</strong> {result.complaint_id} recorded as <strong>{result.decision}</strong> ({result.risk_tier} Risk • {getComputedHopDepth(amount)}-Hop Subgraph).
               </span>
             </div>
           )}
 
           {/* Actions */}
-          <div className="intake-modal-actions">
+          <div className="intake-modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
             <button
               type="button"
               onClick={onClose}

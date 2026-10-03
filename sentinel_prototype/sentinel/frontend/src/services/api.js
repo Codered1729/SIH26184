@@ -47,7 +47,7 @@ const OFFLINE_FALLBACK = {
       chain_hash: "a4f8e9102c4b82d710f293847291a4b5c6d7e8f90123456789abcdef01234567",
       top_reasons: [
         "Fresh UPI incident logged 90s ago with zero ATM extraction dispensed",
-        "100% of disputed capital active in transit or lien-preservable under BNSS §106",
+        "100% of disputed capital active in transit or lien-preservable under BNSS Sec. 106",
         "Target ATM exhibits high spatiotemporal Hawkes excitation (0.92)",
       ],
     },
@@ -175,7 +175,7 @@ const OFFLINE_FALLBACK = {
       chain_hash: "d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90123456789",
       top_reasons: [
         "AEPS Aadhaar biometric spoofing extraction flagged in commercial zone",
-        "Target ATM kiosk cluster within high-density textile market corridor",
+        "Target ATM cluster within high-density textile market corridor",
         "Linked to duplicate mule accounts in Gujarat southern zone",
       ],
     },
@@ -353,7 +353,28 @@ const OFFLINE_FALLBACK = {
 
 async function safeFetch(url, options = {}) {
   try {
-    const res = await fetch(url, options);
+    let officerToken = 'MH-CYBER-8842';
+    let officerBadge = 'MH-CYB-1930-4482';
+    let officerRole = 'CYBER_OFFICER';
+    try {
+      const saved = localStorage.getItem('sentinel_officer');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.token) officerToken = parsed.token;
+        else if (parsed.badge) officerToken = parsed.badge;
+        if (parsed.badge) officerBadge = parsed.badge;
+        if (parsed.role) officerRole = parsed.role;
+      }
+    } catch {}
+
+    const headers = {
+      'X-Officer-Token': officerToken,
+      'X-Officer-Badge': officerBadge,
+      'X-Officer-Role': officerRole,
+      ...(options.headers || {}),
+    };
+
+    const res = await fetch(url, { ...options, headers });
     if (!res.ok) {
       throw new Error(`HTTP error ${res.status}`);
     }
@@ -580,7 +601,7 @@ export const api = {
             event_time: `Completed ${Math.max(1, Math.round(4 * k))}m ago`,
             hawkes_impact: `Injected Hawkes excitation impulse (α=0.8) from ${siphonAtm.area} to ${targetArea}`,
             lien_status: "Drained prior to report",
-            description: `Immediate partial ATM withdrawal executed at Hop ${k} mule kiosk.`
+            description: `Immediate partial ATM withdrawal executed at Hop ${k} mule terminal.`
           });
         }
 
@@ -714,7 +735,7 @@ export const api = {
         channel: "NEFT",
         velocity_min: Number((2.5 + N * 2.0).toFixed(1)),
         status: "PRESERVED",
-        status_label: "BNSS §106 Lien Applied",
+        status_label: "BNSS Sec. 106 Lien Applied",
         status_color: "#059669",
         mule_account: muleNBAcc,
         mule_city: targetCity,
@@ -992,13 +1013,29 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, notes }),
     });
+
+    const isDeploy = action === 'DISPATCH_PATROL';
+    const newStatus = isDeploy ? 'PATROL_DEPLOYED' : 'NORMAL_SURVEILLANCE';
+    const cooldown = isDeploy ? 900 : 0;
+
+    // Mutate offline fallback data so polling reflects the dispatch
+    if (OFFLINE_FALLBACK.atms) {
+      const match = OFFLINE_FALLBACK.atms.find(a => a.atm_id === atmId);
+      if (match) {
+        match.status = newStatus;
+        match.is_in_cooldown = isDeploy;
+        match.cooldown_remaining_sec = cooldown;
+        match.status_label = isDeploy ? 'Patrol Dispatched (15m cooldown)' : 'Surveillance Baseline Nominal';
+      }
+    }
+
     if (data) return data;
     return {
       status: 'success',
       atm_id: atmId,
       action,
-      new_status: action === 'DISPATCH_PATROL' ? 'PATROL_DEPLOYED' : 'NORMAL_SURVEILLANCE',
-      cooldown_remaining_sec: action === 'DISPATCH_PATROL' ? 900 : 0,
+      new_status: newStatus,
+      cooldown_remaining_sec: cooldown,
       message: `Offline mode: ATM ${atmId} status updated to ${action}`,
     };
   },
@@ -1094,6 +1131,20 @@ export const api = {
 
   async dispatchAlert(complaintId) {
     const data = await safeFetch(`${API_BASE}/alerts/${complaintId}/dispatch`, { method: 'POST' });
+
+    // Mutate OFFLINE_FALLBACK alerts so local polling never reverts DISPATCHED
+    if (OFFLINE_FALLBACK.alerts) {
+      const target = OFFLINE_FALLBACK.alerts.find(a => a.complaint_id === complaintId);
+      if (target) {
+        target.status = 'DISPATCHED';
+        target.dispatch_cooldown_remaining = 900;
+        target.dispatched_at = Date.now();
+        if (target.leading_atm && target.leading_atm.atm_id) {
+          this.updateAtmStatus(target.leading_atm.atm_id, 'DISPATCH_PATROL');
+        }
+      }
+    }
+
     if (data) return data;
     return { status: 'success', complaint_id: complaintId, cooldown_seconds: 900 };
   },
@@ -1108,14 +1159,14 @@ export const api = {
       statutory_act: "Section 105, Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)",
       issuing_authority: "Maharashtra State Cyber Police / I4C Special Cyber Cell",
       html_content: `
-        <div style="font-family: sans-serif; color: #1A1A1A; padding: 24px; border: 2px solid #0B1F3A; border-radius: 8px;">
+        <div style="font-family: 'Inter', sans-serif; color: #F8FAFC; background-color: #171A21; padding: 24px; border: 2px solid rgba(0, 194, 168, 0.4); border-radius: 8px;">
           <div style="text-align: center; border-bottom: 2px solid #00C2A8; padding-bottom: 12px; margin-bottom: 16px;">
-            <h2 style="color: #0B1F3A; margin: 0;">GOVERNMENT OF MAHARASHTRA — STATE CYBER CRIME INVESTIGATION WING</h2>
-            <h4 style="color: #64748B; margin: 4px 0;">SPECIAL DIRECTIVE UNDER SECTION 105 BHARATIYA NAGARIK SURAKSHA SANHITA, 2023</h4>
+            <h2 style="color: #00C2A8; margin: 0; font-weight: 800;">GOVERNMENT OF MAHARASHTRA — STATE CYBER CRIME INVESTIGATION WING</h2>
+            <h4 style="color: #94A3B8; margin: 4px 0;">SPECIAL DIRECTIVE UNDER SECTION 105 BHARATIYA NAGARIK SURAKSHA SANHITA, 2023</h4>
           </div>
-          <p><strong>CASE REF:</strong> ${complaintId} | <strong>STATUTORY SEAL:</strong> SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</p>
-          <p>TO: <strong>NODAL OFFICER, BENEFICIARY SCHEDULED COMMERCIAL BANK</strong></p>
-          <p>Under statutory powers vested in the Superintendent of Police under Section 105 BNSS, 2023, you are hereby directed to immediately place an <strong>ADMINISTRATIVE DEBIT FREEZE</strong> on the beneficiary mule account identified in this notice, to prevent unlawful ATM physical cash extraction within the Maharashtra operational corridor.</p>
+          <p style="color: #CBD5E1;"><strong style="color: #F8FAFC;">CASE REF:</strong> ${complaintId} | <strong style="color: #F8FAFC;">STATUTORY SEAL:</strong> SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</p>
+          <p style="color: #CBD5E1;">TO: <strong style="color: #00C2A8;">NODAL OFFICER, BENEFICIARY SCHEDULED COMMERCIAL BANK</strong></p>
+          <p style="color: #E2E8F0; line-height: 1.6;">Under statutory powers vested in the Superintendent of Police under Section 105 BNSS, 2023, you are hereby directed to immediately place an <strong style="color: #EF4444;">ADMINISTRATIVE DEBIT FREEZE</strong> on the beneficiary mule account identified in this notice, to prevent unlawful ATM physical cash extraction within the Maharashtra operational corridor.</p>
         </div>
       `,
       plain_text: `GOVERNMENT OF MAHARASHTRA - CYBER CELL\nSTATUTORY NOTICE U/S 105 BNSS 2023\nCASE: ${complaintId}\nDIRECTIVE: IMMEDIATE DEBIT FREEZE ON BENEFICIARY ACCOUNT.\nISSUING AUTHORITY: SUPT OF POLICE, CYBER COMMAND.`,
@@ -1229,6 +1280,38 @@ export const api = {
 
   async resetSimulationState() {
     const data = await safeFetch(`${API_BASE}/simulation/reset`, { method: 'POST' });
+
+    if (OFFLINE_FALLBACK.alerts) {
+      OFFLINE_FALLBACK.alerts.forEach((a) => {
+        if (a.complaint_id === 'CYB-INT-2026-0822') {
+          a.status = 'DISPATCHED';
+          a.dispatch_cooldown_remaining = 720;
+        } else if (a.complaint_id === 'CYB-MAH-2026-0904') {
+          a.status = 'EXPIRED';
+          a.dispatch_cooldown_remaining = 0;
+        } else {
+          a.status = 'PENDING_DISPATCH';
+          a.dispatch_cooldown_remaining = 0;
+        }
+      });
+    }
+
+    if (OFFLINE_FALLBACK.atms) {
+      OFFLINE_FALLBACK.atms.forEach((atm) => {
+        if (atm.atm_id === 'ATM-MAH-MUM-00101') {
+          atm.status = 'PATROL_DEPLOYED';
+          atm.is_in_cooldown = true;
+          atm.cooldown_remaining_sec = 720;
+          atm.status_label = 'Patrol Dispatched (12m cooldown)';
+        } else {
+          atm.status = atm.hawkes_intensity > 0.8 ? 'ACTIVE_THREAT' : 'SUSPICIOUS_VELOCITY';
+          atm.is_in_cooldown = false;
+          atm.cooldown_remaining_sec = 0;
+          atm.status_label = atm.hawkes_intensity > 0.8 ? 'Active Cash-Out Threat' : 'Elevated Velocity Corridor';
+        }
+      });
+    }
+
     if (data) return data;
     return { status: 'success', message: 'Demo state reset' };
   },

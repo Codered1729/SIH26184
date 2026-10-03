@@ -6,56 +6,57 @@
    ========================================================================== */
 
 :root {
-  /* Heritage / Law Enforcement GovTech Compliance Tokens (Preserved for Verification) */
-  --bg-canvas: #F4F6F9;
-  --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #F8FAFC;
-  --bg-surface-active: #EDF2F7;
-  --color-navy: #0B1F3A;
-  --color-navy-dark: #071526;
-  --color-navy-light: #162E52;
+  /* Default Dark Tactical Command Palette */
+  --bg-canvas: #101216;
+  --bg-surface: #171A21;
+  --bg-surface-elevated: #222632;
+  --bg-surface-active: #1E222D;
+  --color-navy: #F8FAFC;
+  --color-navy-dark: #E2E8F0;
+  --color-navy-light: #94A3B8;
   --color-teal: #00C2A8;
   --color-teal-dark: #00A896;
-  --color-teal-subtle: #E6F7F5;
-  --color-ink: #0F172A;
-  --color-muted: #64748B;
-  --color-faint: #94A3B8;
+  --color-teal-subtle: rgba(0, 194, 168, 0.15);
+  --color-ink: #F8FAFC;
+  --color-muted: #94A3B8;
+  --color-faint: #64748B;
 
-  /* Core Light Palette */
-  --background: #FAFAFC;
-  --foreground: #0F172A;
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #00A896;
-  --primary-hover: #008f80;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F3F4F6;
-  --secondary-foreground: #1E293B;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F1F5F9;
-  --accent-foreground: #0F172A;
-  --destructive: #EF4444;
+  --background: #101216;
+  --foreground: #F8FAFC;
+  --card: #171A21;
+  --card-foreground: #F8FAFC;
+  --popover: #1A1D26;
+  --popover-foreground: #F8FAFC;
+  --primary: #00C2A8;
+  --primary-hover: #00D6BA;
+  --primary-foreground: #071526;
+  --secondary: #222632;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1E222D;
+  --muted-foreground: #94A3B8;
+  --accent: #222632;
+  --accent-foreground: #F8FAFC;
+  --destructive: #F87171;
   --success: #10B981;
-  --info: #3B82F6;
-  --warning: #F59E0B;
-  --border: rgba(15, 23, 42, 0.08);
-  --border-strong: rgba(15, 23, 42, 0.16);
-  --input: rgba(15, 23, 42, 0.08);
-  --input-addon-foreground: #94A3B8;
-  --ring: #00A896;
+  --info: #38BDF8;
+  --warning: #FBBF24;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.09);
+  --input-addon-foreground: #64748B;
+  --ring: #00C2A8;
 
-  /* Sidebar Tokens (Light) */
-  --sidebar: #FAFAFC;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #00A896;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #FFFFFF;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: rgba(15, 23, 42, 0.08);
-  --sidebar-muted: #64748B;
+  /* Sidebar Tokens (Dark) */
+  --sidebar: #13151B;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #00C2A8;
+  --sidebar-primary-foreground: #071526;
+  --sidebar-accent: #1D212B;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-muted: #94A3B8;
 
   /* Astrix Shadows & Geometries */
   --radius-xs: 4px;
@@ -66,18 +67,18 @@
   --radius-2xl: 24px;
   --radius-full: 9999px;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-sidebar: 1px 0 12px rgba(15, 23, 42, 0.03);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-sidebar: 1px 0 20px rgba(0, 0, 0, 0.35);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
-/* Dark Theme */
-.dark, html.dark {
+/* Explicit Dark Theme Reinforcement */
+.dark, html.dark, body.dark {
   --background: #101216;
   --foreground: #F8FAFC;
   --card: #171A21;
@@ -102,8 +103,6 @@
   --input: rgba(255, 255, 255, 0.09);
   --input-addon-foreground: #64748B;
   --ring: #00C2A8;
-
-  /* Sidebar Tokens (Dark) */
   --sidebar: #13151B;
   --sidebar-foreground: #F8FAFC;
   --sidebar-primary: #00C2A8;
@@ -112,8 +111,70 @@
   --sidebar-accent-foreground: #F8FAFC;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-muted: #94A3B8;
+  --bg-canvas: #101216;
+  --bg-surface: #171A21;
+  --bg-surface-elevated: #222632;
+  --bg-surface-active: #1E222D;
+  --color-navy: #F8FAFC;
+  --color-navy-dark: #E2E8F0;
+  --color-navy-light: #94A3B8;
+  --color-ink: #F8FAFC;
+  --color-muted: #94A3B8;
+  --color-faint: #64748B;
+  --color-teal-subtle: rgba(0, 194, 168, 0.15);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+}
 
-  --shadow-sidebar: 1px 0 20px rgba(0, 0, 0, 0.35);
+/* Optional Light Theme Override */
+.light, html.light, body.light {
+  --bg-canvas: #F4F6F9;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F8FAFC;
+  --bg-surface-active: #EDF2F7;
+  --color-navy: #0B1F3A;
+  --color-navy-dark: #071526;
+  --color-navy-light: #162E52;
+  --color-teal: #00C2A8;
+  --color-teal-dark: #00A896;
+  --color-teal-subtle: #E6F7F5;
+  --color-ink: #0F172A;
+  --color-muted: #64748B;
+  --color-faint: #94A3B8;
+  --background: #FAFAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #00A896;
+  --primary-hover: #008f80;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #1E293B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+  --success: #10B981;
+  --info: #3B82F6;
+  --warning: #F59E0B;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --border-medium: #CBD5E1;
+  --border-subtle: #E2E8F0;
+  --input: rgba(15, 23, 42, 0.08);
+  --input-addon-foreground: #94A3B8;
+  --ring: #00A896;
+  --sidebar: #FAFAFC;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #00A896;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFFFFF;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: rgba(15, 23, 42, 0.08);
+  --sidebar-muted: #64748B;
 }
 
 * {
@@ -157,7 +218,7 @@ body {
 }
 
 .astrix-sidebar {
-  width: 260px;
+  width: 280px;
   background-color: var(--sidebar);
   border-right: 1px solid var(--sidebar-border);
   display: flex;
@@ -228,6 +289,107 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+}
+
+/* Bulletproof Dark Theme Card & Container Rules */
+.dark .card,
+.dark .astrix-card,
+.dark .astrix-metric-card,
+html.dark .card,
+html.dark .astrix-card,
+html.dark .astrix-metric-card,
+body.dark .card,
+body.dark .astrix-card,
+body.dark .astrix-metric-card {
+  background-color: #171A21 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #F8FAFC !important;
+}
+
+/* Bulletproof BNSS Notice Ledger in Dark Mode */
+.dark .bnss-notice-html,
+.dark .bnss-notice-container,
+html.dark .bnss-notice-html,
+html.dark .bnss-notice-container,
+body.dark .bnss-notice-html,
+body.dark .bnss-notice-container {
+  color: #F8FAFC !important;
+}
+
+.dark .bnss-notice-html div,
+.dark .bnss-notice-html .notice-card,
+html.dark .bnss-notice-html div,
+html.dark .bnss-notice-html .notice-card {
+  background-color: #131720 !important;
+  border-color: rgba(0, 194, 168, 0.4) !important;
+  color: #F8FAFC !important;
+}
+
+.dark .bnss-notice-html h1,
+.dark .bnss-notice-html h2,
+.dark .bnss-notice-html h3,
+.dark .bnss-notice-html strong,
+html.dark .bnss-notice-html h1,
+html.dark .bnss-notice-html h2,
+html.dark .bnss-notice-html h3,
+html.dark .bnss-notice-html strong {
+  color: #F8FAFC !important;
+}
+
+.dark .bnss-notice-html h4,
+.dark .bnss-notice-html p,
+.dark .bnss-notice-html td,
+html.dark .bnss-notice-html h4,
+html.dark .bnss-notice-html p,
+html.dark .bnss-notice-html td {
+  color: #CBD5E1 !important;
+}
+
+.dark .bnss-notice-html .meta-grid,
+html.dark .bnss-notice-html .meta-grid {
+  background-color: #1E222D !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .bnss-notice-html .declaration,
+html.dark .bnss-notice-html .declaration {
+  background-color: rgba(0, 194, 168, 0.12) !important;
+  color: #F8FAFC !important;
+  border-left-color: #00C2A8 !important;
+}
+
+.dark .bnss-notice-html th,
+html.dark .bnss-notice-html th {
+  background-color: #071526 !important;
+  color: #FFFFFF !important;
+}
+
+/* SVG Node Card and Element Rules for Guaranteed High Contrast */
+.svg-node-card {
+  fill: var(--card);
+  stroke: var(--border);
+}
+
+.dark .svg-node-card,
+html.dark .svg-node-card,
+body.dark .svg-node-card {
+  fill: #171A21 !important;
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Leaflet Map Legend Dark Container */
+.leaflet-legend-box {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.dark .leaflet-legend-box,
+html.dark .leaflet-legend-box,
+body.dark .leaflet-legend-box {
+  background-color: #171A21 !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 /* Metric Cards (Astrix Overview) */
@@ -659,4 +821,143 @@ body {
     font-size: 1.5rem;
   }
 }
+
+/* ==========================================================================
+   Tactile Micro-Interactions, Refresh & Modal Animations
+   ========================================================================== */
+
+/* Universal tactile button feedback */
+button {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.96) !important;
+}
+
+.astrix-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.astrix-btn-outline:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+}
+
+/* Refresh / Reload Visual State Animation */
+.site-refreshing {
+  animation: siteRefreshPulse 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes siteRefreshPulse {
+  0% {
+    opacity: 0.55;
+    filter: blur(1px) brightness(1.15);
+  }
+  50% {
+    opacity: 0.85;
+    filter: blur(0.5px) brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+  }
+}
+
+.spin-refresh {
+  animation: spinSmooth 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes spinSmooth {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* High-Fidelity Modal Spring Animations */
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes modalCardPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.01) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modalBackdropFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-modal-content {
+  animation: modalCardPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Police Beacon Pulse Animation */
+@keyframes policeBeacon {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6), 0 0 0 0 rgba(37, 99, 235, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(220, 38, 38, 0.4), 0 0 24px 8px rgba(37, 99, 235, 0.2);
+  }
+}
+
+.police-beacon-pulse {
+  animation: policeBeacon 1.2s ease-in-out infinite;
+}
+
+/* Leaflet Tactical Dark Mode Cartography */
+html.dark .leaflet-tile-pane {
+  filter: brightness(0.68) invert(1) contrast(1.25) hue-rotate(185deg) saturate(0.85);
+}
+
+html.dark .leaflet-container {
+  background-color: #101216 !important;
+}
+
+html.dark .leaflet-popup-content-wrapper,
+html.dark .leaflet-popup-tip {
+  background-color: #171A21 !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .leaflet-control-zoom a {
+  background-color: #171A21 !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark .leaflet-control-attribution {
+  background-color: rgba(16, 18, 22, 0.85) !important;
+  color: #94A3B8 !important;
+}
+
+html.dark .leaflet-control-attribution a {
+  color: #00C2A8 !important;
+}
+
 

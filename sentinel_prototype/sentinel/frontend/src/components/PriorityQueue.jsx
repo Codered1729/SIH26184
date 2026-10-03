@@ -14,6 +14,7 @@ export default function PriorityQueue({
   selectedComplaintId,
   highlightedAlertId,
   onRefresh,
+  isRefreshing = false,
   searchQuery: externalSearch = ''
 }) {
   const [filterTab, setFilterTab] = useState('all');
@@ -98,12 +99,21 @@ export default function PriorityQueue({
           {onRefresh && (
             <button 
               onClick={onRefresh}
+              disabled={isRefreshing}
               className="astrix-btn-outline"
-              style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: isRefreshing ? 'wait' : 'pointer',
+                opacity: isRefreshing ? 0.75 : 1,
+              }}
               title="Refresh Alert Stream"
             >
-              <RotateCw size={13} />
-              <span>Refresh</span>
+              <RotateCw size={13} className={isRefreshing ? 'spin-refresh' : ''} />
+              <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
           )}
         </div>

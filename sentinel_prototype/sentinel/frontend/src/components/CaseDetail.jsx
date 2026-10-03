@@ -21,6 +21,7 @@ export default function CaseDetail({
 }) {
   const [dossier, setDossier] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [locallyDispatched, setLocallyDispatched] = useState(false);
 
   useEffect(() => {
     if (complaintId) {
@@ -57,7 +58,7 @@ export default function CaseDetail({
   }
 
   const details = dossier.details || {};
-  const isDispatched = details.status === 'DISPATCHED';
+  const isDispatched = details.status === 'DISPATCHED' || locallyDispatched || (details.dispatch_cooldown_remaining > 0);
   const isDuplicate = details.authenticity_decision === 'DUPLICATE_UTR';
 
   return (
@@ -118,6 +119,7 @@ export default function CaseDetail({
             {!isDispatched && !isDuplicate && (
               <button
                 onClick={async () => {
+                  setLocallyDispatched(true);
                   if (onDispatch) await onDispatch(details);
                   setDossier((prev) =>
                     prev

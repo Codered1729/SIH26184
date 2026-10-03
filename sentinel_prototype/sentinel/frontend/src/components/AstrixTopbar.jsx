@@ -6,7 +6,9 @@ import {
   Sun, 
   Moon, 
   Menu,
-  X
+  X,
+  Shield,
+  LogOut
 } from 'lucide-react';
 import { SidebarToggleIcon } from './AstrixIcons';
 
@@ -21,6 +23,9 @@ export default function AstrixTopbar({
   outboxStatus = {},
   onOpenIntake,
   onRefresh,
+  isRefreshing = false,
+  currentUser = null,
+  onLockSession,
   theme = 'light',
   onToggleTheme,
   onReplayOutbox,
@@ -185,16 +190,22 @@ export default function AstrixTopbar({
           </span>
         </div>
 
-        {/* Refresh Button */}
+        {/* Refresh Button with Tactile Spin */}
         {onRefresh && (
           <button
             type="button"
             onClick={onRefresh}
-            title="Refresh Feeds"
+            disabled={isRefreshing}
+            title={isRefreshing ? "Synchronizing Telemetry Feeds..." : "Refresh Feeds"}
             className="astrix-btn-outline"
-            style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+            style={{ 
+              padding: '6px 8px', 
+              borderRadius: 'var(--radius-sm)', 
+              cursor: isRefreshing ? 'wait' : 'pointer',
+              opacity: isRefreshing ? 0.75 : 1,
+            }}
           >
-            <RotateCw size={13} />
+            <RotateCw size={13} className={isRefreshing ? 'spin-refresh' : ''} />
           </button>
         )}
 
@@ -231,6 +242,44 @@ export default function AstrixTopbar({
         >
           {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
         </button>
+
+        {/* Duty Officer Active Session Indicator & Quick Switch */}
+        {currentUser && (
+          <div 
+            onClick={onLockSession}
+            title={`Active Duty Officer: ${currentUser.name} (${currentUser.badge}) · Click to lock screen / switch profile`}
+            className="hidden-mobile astrix-btn-outline"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 8px',
+              borderRadius: 'var(--radius-full)',
+              cursor: 'pointer',
+              backgroundColor: 'var(--secondary)',
+              border: '1px solid var(--border)',
+            }}
+          >
+            <div style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--primary)',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '9px',
+              fontWeight: '800',
+            }}>
+              {currentUser.avatarInitials || 'DO'}
+            </div>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--foreground)' }}>
+              {currentUser.name.split(' ')[0]} {currentUser.name.split(' ')[1] || ''}
+            </span>
+            <LogOut size={11} style={{ color: 'var(--muted-foreground)' }} />
+          </div>
+        )}
       </div>
     </header>
   );

@@ -335,8 +335,19 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
 
       // Notify parent if alert dispatch handler provided
       if (onDispatchAlert) {
-        const linkedAlert = matchingAlerts[0] || alerts[0];
-        if (linkedAlert) onDispatchAlert(linkedAlert);
+        const atmObj = atms.find((a) => a.atm_id === atmId) || selectedAtm;
+        const linkedAlert = matchingAlerts[0] 
+          || alerts.find((a) => a.leading_atm?.atm_id === atmId) 
+          || alerts[0] 
+          || {
+            complaint_id: 'CYB-MAH-2026-0819',
+            leading_atm: { atm_id: atmId, name: atmObj?.name, city: atmObj?.city, bank: atmObj?.bank },
+            victim_city: atmObj?.city || 'Pune',
+            area: atmObj?.area || 'Hinjawadi Phase 1',
+            atmName: atmObj?.name || `${atmObj?.bank || 'HDFC'} - ${atmObj?.area || 'ATM'}`,
+            amount: 78000
+          };
+        onDispatchAlert(linkedAlert);
       }
     } catch (err) {
       console.error('Failed to dispatch patrol:', err);
@@ -690,14 +701,14 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
       )}
 
       {/* Top Bar with Cluster Selector & Vulnerability Filter */}
-      <div className="card" style={{ padding: '12px 16px', backgroundColor: '#FFFFFF' }}>
+      <div className="card astrix-card" style={{ padding: '12px 16px', backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h2 style={{ fontSize: '1.15rem', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Navigation size={18} color="var(--color-teal)" />
+            <h2 style={{ fontSize: '1.15rem', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Navigation size={18} style={{ color: 'var(--primary)' }} />
               Leaflet Cartography: ATM Clusters & Real-Time Vulnerability
             </h2>
-            <p style={{ color: 'var(--color-muted)', fontSize: '11.5px', marginTop: '1px' }}>
+            <p style={{ color: 'var(--muted-foreground)', fontSize: '11.5px', marginTop: '1px' }}>
               Spatiotemporal Hawkes cluster intensity and cash-out vulnerability status across Western Regional Inter-JCCT corridors (Maharashtra & Gujarat).
             </p>
           </div>
@@ -706,10 +717,10 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
             {/* JCCT Regional Coordination Selector */}
             <div style={{
               display: 'flex',
-              backgroundColor: '#EEF2F6',
+              backgroundColor: 'var(--secondary)',
               padding: '2px',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border-medium)',
+              border: '1px solid var(--border)',
             }}>
               <button
                 onClick={() => handleJcctChange('ALL')}
@@ -720,8 +731,8 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   fontWeight: '700',
                   border: 'none',
                   cursor: 'pointer',
-                  backgroundColor: selectedJcct === 'ALL' ? 'var(--color-navy)' : 'transparent',
-                  color: selectedJcct === 'ALL' ? '#FFFFFF' : 'var(--color-muted)',
+                  backgroundColor: selectedJcct === 'ALL' ? 'var(--primary)' : 'transparent',
+                  color: selectedJcct === 'ALL' ? '#FFFFFF' : 'var(--muted-foreground)',
                 }}
               >
                 🌐 Interstate Corridor ({clusters.length})
@@ -735,8 +746,8 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   fontWeight: '700',
                   border: 'none',
                   cursor: 'pointer',
-                  backgroundColor: selectedJcct === 'JCCT-Maharashtra' ? 'var(--color-teal)' : 'transparent',
-                  color: selectedJcct === 'JCCT-Maharashtra' ? '#0B1F3A' : 'var(--color-muted)',
+                  backgroundColor: selectedJcct === 'JCCT-Maharashtra' ? 'var(--primary)' : 'transparent',
+                  color: selectedJcct === 'JCCT-Maharashtra' ? '#071526' : 'var(--muted-foreground)',
                 }}
               >
                 🛡️ JCCT Maharashtra
@@ -751,7 +762,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   border: 'none',
                   cursor: 'pointer',
                   backgroundColor: selectedJcct === 'JCCT-Gujarat' ? '#D97706' : 'transparent',
-                  color: selectedJcct === 'JCCT-Gujarat' ? '#FFFFFF' : 'var(--color-muted)',
+                  color: selectedJcct === 'JCCT-Gujarat' ? '#FFFFFF' : 'var(--muted-foreground)',
                 }}
               >
                 ⚡ JCCT Gujarat
@@ -768,11 +779,11 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   gap: '4px',
                   fontSize: '11px',
                   fontWeight: '700',
-                  color: 'var(--color-navy)',
+                  color: 'var(--foreground)',
                   whiteSpace: 'nowrap',
                 }}
               >
-                <MapPin size={12} style={{ color: 'var(--color-teal)' }} />
+                <MapPin size={12} style={{ color: 'var(--primary)' }} />
                 <span>Cluster:</span>
               </label>
               <select
@@ -783,9 +794,9 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   padding: '4px 8px',
                   fontSize: '11.5px',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  backgroundColor: '#FFFFFF',
-                  color: 'var(--color-navy)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
                   fontWeight: '700',
                   cursor: 'pointer',
                   maxWidth: '260px',
@@ -813,9 +824,9 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                 padding: '4px 8px',
                 fontSize: '11.5px',
                 borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-medium)',
-                backgroundColor: '#FFFFFF',
-                color: 'var(--color-navy)',
+                border: '1px solid var(--border)',
+                backgroundColor: 'var(--secondary)',
+                color: 'var(--foreground)',
                 fontWeight: '700',
                 cursor: 'pointer',
               }}
@@ -835,15 +846,15 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                   padding: '4px 8px',
                   fontSize: '11px',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--border-medium)',
-                  backgroundColor: '#FFFFFF',
-                  color: 'var(--color-navy)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
                   fontWeight: '700',
                   cursor: 'pointer',
                 }}
                 title="Map Cartography Provider (No API Key Required)"
               >
-                <option value="osm">🗺️ OpenStreetMap (Free)</option>
+                <option value="osm">🗺️ OpenStreetMap (Standard)</option>
                 <option value="esri_gray">🛡️ Tactical Gray Canvas</option>
                 <option value="hot">🌐 Humanitarian OSM</option>
               </select>
@@ -852,20 +863,20 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
             {/* Toggle Cluster Zones */}
             <button
               onClick={() => setShowClusterZones(!showClusterZones)}
-              className="btn btn-secondary"
-              style={{ padding: '4px 10px', fontSize: '11px' }}
+              className="astrix-btn-outline"
+              style={{ padding: '4px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
-              <Layers size={12} color="var(--color-teal)" />
+              <Layers size={12} style={{ color: 'var(--primary)' }} />
               <span>{showClusterZones ? 'Hide Zones' : 'Show Zones'}</span>
             </button>
 
             {/* Snap to Maharashtra */}
             <button
               onClick={handleSnapToMaharashtra}
-              className="btn btn-navy"
-              style={{ padding: '5px 12px', fontSize: '11.5px' }}
+              className="astrix-btn-primary"
+              style={{ padding: '5px 12px', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
-              <RotateCcw size={12} color="var(--color-teal)" />
+              <RotateCcw size={12} />
               <span>Reset View</span>
             </button>
           </div>
@@ -875,32 +886,32 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
         <div style={{
           marginTop: '10px',
           paddingTop: '8px',
-          borderTop: '1px solid var(--border-subtle)',
+          borderTop: '1px solid var(--border)',
           display: 'flex',
           gap: '16px',
           flexWrap: 'wrap',
           fontSize: '11px',
-          color: 'var(--color-muted)',
+          color: 'var(--muted-foreground)',
           alignItems: 'center',
         }}>
           <div>
             Statewide Vulnerability Index:{' '}
-            <strong style={{ color: statewideRisk > 0.70 ? '#DC2626' : 'var(--color-navy)' }}>
+            <strong style={{ color: statewideRisk > 0.70 ? '#EF4444' : 'var(--foreground)' }}>
               {(statewideRisk * 100).toFixed(0)}%
             </strong>
           </div>
           <div>
-            Regional Clusters: <strong>{clusters.length} Active Corridors</strong>
+            Regional Clusters: <strong style={{ color: 'var(--foreground)' }}>{clusters.length} Active Corridors</strong>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#DC2626' }}></span>
-            <span>Critical Clusters: <strong>{summary?.critical_clusters || 2}</strong></span>
+            <span>Critical Clusters: <strong style={{ color: 'var(--foreground)' }}>{summary?.critical_clusters || 2}</strong></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#1D4ED8' }}></span>
-            <span>Patrols Dispatched: <strong>{atms.filter((a) => a.is_in_cooldown).length}</strong></span>
+            <span>Patrols Dispatched: <strong style={{ color: 'var(--foreground)' }}>{atms.filter((a) => a.is_in_cooldown).length}</strong></span>
           </div>
-          <div style={{ marginLeft: 'auto', color: 'var(--color-teal)', fontWeight: '700' }}>
+          <div style={{ marginLeft: 'auto', color: 'var(--primary)', fontWeight: '700' }}>
             Showing {displayedAtms.length} of {atms.length} Surveillance Terminals
           </div>
         </div>
@@ -909,47 +920,51 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
       {/* Main Map + Guidance Sidebar */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 350px', gap: '12px' }}>
         {/* Map Canvas */}
-        <div className="card" style={{ padding: '0', overflow: 'hidden', height: '600px', position: 'relative' }}>
+        <div className="card astrix-card" style={{ padding: '0', overflow: 'hidden', height: '600px', position: 'relative', border: '1px solid var(--border)' }}>
           <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }}></div>
 
           {/* Leaflet Map Legend */}
-          <div style={{
-            position: 'absolute',
-            bottom: '12px',
-            left: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.96)',
-            padding: '8px 12px',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-medium)',
-            boxShadow: 'var(--shadow-sm)',
-            zIndex: 999,
-            fontSize: '11px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-          }}>
-            <div style={{ fontWeight: '700', color: 'var(--color-navy)', marginBottom: '2px' }}>
+          <div 
+            className="leaflet-legend-box"
+            style={{
+              position: 'absolute',
+              bottom: '12px',
+              left: '12px',
+              backgroundColor: 'var(--card)',
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-sm)',
+              zIndex: 999,
+              fontSize: '11px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '5px',
+              color: 'var(--foreground)'
+            }}
+          >
+            <div style={{ fontWeight: '800', color: 'var(--foreground)', marginBottom: '2px', fontSize: '11.5px' }}>
               Leaflet Vulnerability & Status Key
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#DC2626' }}></span>
-              <span>Critical Vulnerability (&gt; 80%) / Active Threat</span>
+              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#DC2626', flexShrink: 0 }}></span>
+              <span style={{ color: 'var(--foreground)' }}>Critical Vulnerability (&gt; 80%) / Active Threat</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#D97706' }}></span>
-              <span>Elevated Activity (60–80%) / Suspicious Velocity</span>
+              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#D97706', flexShrink: 0 }}></span>
+              <span style={{ color: 'var(--foreground)' }}>Elevated Activity (60–80%) / Suspicious Velocity</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#00A896' }}></span>
-              <span>Baseline Surveillance (&lt; 60%) / Nominal</span>
+              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#00A896', flexShrink: 0 }}></span>
+              <span style={{ color: 'var(--foreground)' }}>Baseline Surveillance (&lt; 60%) / Nominal</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#1D4ED8' }}></span>
-              <span>Patrol Dispatched (15m Suppression Cooldown)</span>
+              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#1D4ED8', flexShrink: 0 }}></span>
+              <span style={{ color: 'var(--foreground)' }}>Patrol Dispatched (15m Suppression Cooldown)</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderTop: '1px solid #E2E8F0', paddingTop: '4px', marginTop: '2px' }}>
-              <span style={{ width: '12px', height: '2px', borderTop: '2px dashed #DC2626', display: 'inline-block' }}></span>
-              <span>Regional Cluster Surveillance Zone</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderTop: '1px solid var(--border)', paddingTop: '4px', marginTop: '2px' }}>
+              <span style={{ width: '12px', height: '2px', borderTop: '2px dashed #DC2626', display: 'inline-block', flexShrink: 0 }}></span>
+              <span style={{ color: 'var(--muted-foreground)' }}>Regional Cluster Surveillance Zone</span>
             </div>
           </div>
         </div>
@@ -957,20 +972,20 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
         {/* Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Tactical Directive */}
-          <div className="card" style={{ padding: '14px', backgroundColor: '#FFFFFF' }}>
+          <div className="card astrix-card" style={{ padding: '14px', backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-              <ShieldAlert size={16} color="var(--color-teal)" />
-              <h3 style={{ fontSize: '13px', color: 'var(--color-navy)' }}>
+              <ShieldAlert size={16} style={{ color: 'var(--primary)' }} />
+              <h3 style={{ fontSize: '13px', color: 'var(--foreground)', margin: 0 }}>
                 Patrol Unit Tactical Directive
               </h3>
             </div>
 
             <div style={{
               padding: '8px 10px',
-              backgroundColor: '#EFF6FF',
+              backgroundColor: 'var(--secondary)',
               borderRadius: 'var(--radius-sm)',
-              border: '1px solid #BFDBFE',
-              color: '#1E40AF',
+              border: '1px solid var(--border)',
+              color: 'var(--foreground)',
               fontSize: '11.5px',
               lineHeight: 1.4,
               marginBottom: '8px',
@@ -979,59 +994,59 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Top Hotspot:</span>
-                <strong>HDFC Hinjawadi Phase 1</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--muted-foreground)' }}>Top Hotspot:</span>
+                <strong style={{ color: 'var(--foreground)' }}>HDFC Hinjawadi Phase 1</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Primary Corridor:</span>
-                <strong>Mumbai — Pune Expressway</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--muted-foreground)' }}>Primary Corridor:</span>
+                <strong style={{ color: 'var(--foreground)' }}>Mumbai — Pune Expressway</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Active Suppression:</span>
-                <strong>{atms.filter((a) => a.is_in_cooldown).length} Terminals Suppressed</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
+                <span style={{ color: 'var(--muted-foreground)' }}>Active Suppression:</span>
+                <strong style={{ color: 'var(--foreground)' }}>{atms.filter((a) => a.is_in_cooldown).length} Terminals Suppressed</strong>
               </div>
             </div>
           </div>
 
           {/* Selected Cluster Details (if cluster selected and no single ATM selected) */}
           {selectedCluster && !selectedAtm && (
-            <div className="card" style={{ padding: '14px', backgroundColor: '#FFFFFF', border: '1.5px solid var(--color-navy)' }}>
+            <div className="card astrix-card" style={{ padding: '14px', backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span className="badge badge-navy" style={{ backgroundColor: 'var(--color-navy)', color: '#FFFFFF' }}>
+                <span className="badge badge-teal">
                   {selectedCluster.city} Cluster
                 </span>
-                <span style={{ fontSize: '10.5px', color: 'var(--color-muted)', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ fontSize: '10.5px', color: 'var(--muted-foreground)', fontFamily: 'var(--font-mono)' }}>
                   {selectedCluster.cluster_id}
                 </span>
               </div>
 
-              <h4 style={{ fontSize: '13px', color: 'var(--color-navy)', marginBottom: '3px' }}>
+              <h4 style={{ fontSize: '13px', color: 'var(--foreground)', marginBottom: '3px' }}>
                 {selectedCluster.name}
               </h4>
-              <p style={{ fontSize: '11px', color: 'var(--color-muted)', marginBottom: '8px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--muted-foreground)', marginBottom: '8px' }}>
                 {selectedCluster.corridor_desc}
               </p>
 
               {/* Cluster Stats */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px' }}>
-                  <span style={{ color: 'var(--color-muted)' }}>Cluster Vulnerability:</span>
-                  <strong style={{ color: selectedCluster.vulnerability_tier === 'CRITICAL' ? '#DC2626' : 'var(--color-navy)' }}>
+                  <span style={{ color: 'var(--muted-foreground)' }}>Cluster Vulnerability:</span>
+                  <strong style={{ color: selectedCluster.vulnerability_tier === 'CRITICAL' ? '#EF4444' : 'var(--foreground)' }}>
                     {(selectedCluster.vulnerability_score * 100).toFixed(0)}% ({selectedCluster.vulnerability_tier})
                   </strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px' }}>
-                  <span style={{ color: 'var(--color-muted)' }}>Peak ATM Intensity:</span>
-                  <strong>{(selectedCluster.max_vulnerability_score * 100).toFixed(0)}%</strong>
+                  <span style={{ color: 'var(--muted-foreground)' }}>Peak ATM Intensity:</span>
+                  <strong style={{ color: 'var(--foreground)' }}>{(selectedCluster.max_vulnerability_score * 100).toFixed(0)}%</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px' }}>
-                  <span style={{ color: 'var(--color-muted)' }}>Status:</span>
+                  <span style={{ color: 'var(--muted-foreground)' }}>Status:</span>
                   <span className="badge" style={{
                     fontSize: '9.5px',
-                    backgroundColor: selectedCluster.status === 'ACTIVE_THREAT' ? '#FEF2F2' : '#F0FDF4',
-                    color: selectedCluster.status === 'ACTIVE_THREAT' ? '#B91C1C' : '#15803D',
-                    border: `1px solid ${selectedCluster.status === 'ACTIVE_THREAT' ? '#FECACA' : '#BBF7D0'}`,
+                    backgroundColor: selectedCluster.status === 'ACTIVE_THREAT' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+                    color: selectedCluster.status === 'ACTIVE_THREAT' ? '#ef4444' : '#16a34a',
+                    border: `1px solid ${selectedCluster.status === 'ACTIVE_THREAT' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(34, 197, 94, 0.25)'}`,
                   }}>
                     {selectedCluster.status_label}
                   </span>
@@ -1039,9 +1054,9 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
               </div>
 
               {/* Member ATMs list */}
-              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '8px', marginTop: '6px' }}>
-                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-navy)', marginBottom: '6px' }}>
-                  Cluster Kiosks ({selectedCluster.atms?.length || 0})
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '8px', marginTop: '6px' }}>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--foreground)', marginBottom: '6px' }}>
+                  Cluster ATMs ({selectedCluster.atms?.length || 0})
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '160px', overflowY: 'auto' }}>
                   {(selectedCluster.atms || []).map((a) => (
@@ -1055,15 +1070,16 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                         }
                       }}
                       style={{
-                        padding: '5px 8px',
-                        backgroundColor: '#F8FAFC',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: '3px',
+                        padding: '6px 8px',
+                        backgroundColor: 'var(--secondary)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-sm)',
                         cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         fontSize: '11px',
+                        color: 'var(--foreground)',
                       }}
                     >
                       <div>
@@ -1072,7 +1088,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                       <span style={{
                         fontSize: '10px',
                         fontWeight: '800',
-                        color: a.status === 'ACTIVE_THREAT' ? '#DC2626' : (a.is_in_cooldown ? '#1D4ED8' : 'var(--color-teal)'),
+                        color: a.status === 'ACTIVE_THREAT' ? '#EF4444' : (a.is_in_cooldown ? '#1D4ED8' : 'var(--primary)'),
                       }}>
                         {(a.vulnerability_score * 100).toFixed(0)}%
                       </span>
@@ -1085,37 +1101,37 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
 
           {/* Selected ATM Details & Actions */}
           {selectedAtm ? (
-            <div className="card" style={{ padding: '14px', backgroundColor: '#FFFFFF', border: '1.5px solid var(--color-teal)' }}>
+            <div className="card astrix-card" style={{ padding: '14px', backgroundColor: 'var(--card)', border: '1.5px solid var(--primary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span className="badge badge-teal">{selectedAtm.bank} ATM</span>
-                <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--color-muted)' }}>
+                <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--muted-foreground)' }}>
                   {selectedAtm.atm_id}
                 </span>
               </div>
 
-              <h4 style={{ fontSize: '13px', color: 'var(--color-navy)', marginBottom: '1px' }}>
+              <h4 style={{ fontSize: '13px', color: 'var(--foreground)', marginBottom: '1px' }}>
                 {selectedAtm.area}, {selectedAtm.city}
               </h4>
-              <div style={{ fontSize: '10.5px', color: 'var(--color-muted)', marginBottom: '8px' }}>
+              <div style={{ fontSize: '10.5px', color: 'var(--muted-foreground)', marginBottom: '8px' }}>
                 GPS: {selectedAtm.lat?.toFixed(4)}, {selectedAtm.lon?.toFixed(4)}
               </div>
 
               {/* Vulnerability & Status Telemetry */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px' }}>
-                  <span style={{ color: 'var(--color-muted)' }}>Vulnerability Score:</span>
-                  <strong style={{ color: selectedAtm.vulnerability_score > 0.8 ? '#DC2626' : 'var(--color-navy)' }}>
+                  <span style={{ color: 'var(--muted-foreground)' }}>Vulnerability Score:</span>
+                  <strong style={{ color: selectedAtm.vulnerability_score > 0.8 ? '#EF4444' : 'var(--foreground)' }}>
                     {((selectedAtm.vulnerability_score || selectedAtm.hawkes_intensity || 0) * 100).toFixed(0)}% ({selectedAtm.vulnerability_tier || 'MONITORED'})
                   </strong>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px' }}>
-                  <span style={{ color: 'var(--color-muted)' }}>Operational Status:</span>
+                  <span style={{ color: 'var(--muted-foreground)' }}>Operational Status:</span>
                   <span className="badge" style={{
                     fontSize: '9.5px',
-                    backgroundColor: selectedAtm.is_in_cooldown ? '#EFF6FF' : (selectedAtm.status === 'ACTIVE_THREAT' ? '#FEF2F2' : '#F0FDF4'),
-                    color: selectedAtm.is_in_cooldown ? '#1D4ED8' : (selectedAtm.status === 'ACTIVE_THREAT' ? '#B91C1C' : '#15803D'),
-                    border: `1px solid ${selectedAtm.is_in_cooldown ? '#BFDBFE' : (selectedAtm.status === 'ACTIVE_THREAT' ? '#FECACA' : '#BBF7D0')}`,
+                    backgroundColor: selectedAtm.is_in_cooldown ? 'rgba(59, 130, 246, 0.12)' : (selectedAtm.status === 'ACTIVE_THREAT' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(34, 197, 94, 0.12)'),
+                    color: selectedAtm.is_in_cooldown ? '#3b82f6' : (selectedAtm.status === 'ACTIVE_THREAT' ? '#ef4444' : '#16a34a'),
+                    border: `1px solid ${selectedAtm.is_in_cooldown ? 'rgba(59, 130, 246, 0.25)' : (selectedAtm.status === 'ACTIVE_THREAT' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(34, 197, 94, 0.25)')}`,
                   }}>
                     {selectedAtm.status_label || selectedAtm.status}
                   </span>
@@ -1123,15 +1139,16 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
 
                 {selectedAtm.is_in_cooldown && (
                   <div style={{
-                    padding: '4px 8px',
-                    borderRadius: '3px',
-                    backgroundColor: '#EFF6FF',
-                    color: '#1E40AF',
+                    padding: '6px 8px',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                    color: '#3b82f6',
                     fontSize: '10.5px',
                     fontWeight: '700',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
                   }}>
                     <Clock size={12} />
                     <span>PATROL DISPATCHED ({Math.floor(selectedAtm.cooldown_remaining_sec / 60)}m cooldown remaining)</span>
@@ -1143,12 +1160,12 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
               <div style={{
                 marginTop: '8px',
                 paddingTop: '8px',
-                borderTop: '1px solid var(--border-subtle)',
+                borderTop: '1px solid var(--border)',
                 marginBottom: '10px',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <AlertTriangle size={13} color={matchingAlerts.length > 0 ? '#DC2626' : 'var(--color-teal)'} />
+                  <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <AlertTriangle size={13} style={{ color: matchingAlerts.length > 0 ? '#EF4444' : 'var(--primary)' }} />
                     Alerts on {selectedAtm.bank}
                   </span>
                   <span className={`badge ${matchingAlerts.length > 0 ? 'badge-critical' : 'badge-verified'}`} style={{ fontSize: '10px', padding: '2px 6px' }}>
@@ -1158,29 +1175,29 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
 
                 {matchingAlerts.length > 0 ? (
                   <div style={{
-                    backgroundColor: '#FEF2F2',
-                    border: '1px solid #FECACA',
+                    backgroundColor: 'var(--secondary)',
+                    border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-sm)',
                     padding: '8px 10px',
                     marginBottom: '8px',
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: '800', color: '#B91C1C' }}>LATEST INCIDENT</span>
-                      <span style={{ fontSize: '10px', color: '#6B7280', fontFamily: 'var(--font-mono)' }}>{matchingAlerts[0].complaint_id}</span>
+                      <span style={{ fontSize: '10px', fontWeight: '800', color: '#EF4444' }}>LATEST INCIDENT</span>
+                      <span style={{ fontSize: '10px', color: 'var(--muted-foreground)', fontFamily: 'var(--font-mono)' }}>{matchingAlerts[0].complaint_id}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: '800', color: '#1A1A1A' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--foreground)' }}>
                         ₹{(matchingAlerts[0].amount || 0).toLocaleString('en-IN')}
                       </span>
-                      <span className="badge" style={{ fontSize: '9.5px', padding: '1px 5px', backgroundColor: '#FFFFFF' }}>
+                      <span className="badge" style={{ fontSize: '9.5px', padding: '1px 5px', backgroundColor: 'var(--card)', color: 'var(--foreground)' }}>
                         {matchingAlerts[0].status || 'PENDING'}
                       </span>
                     </div>
                     {onSelectAlert && (
                       <button
                         onClick={() => onSelectAlert(matchingAlerts[0])}
-                        className="btn btn-navy"
-                        style={{ width: '100%', padding: '4px 8px', fontSize: '10.5px' }}
+                        className="astrix-btn-outline"
+                        style={{ width: '100%', padding: '4px 8px', fontSize: '10.5px', justifyContent: 'center', gap: '4px' }}
                       >
                         <span>Open Case Dossier</span>
                         <ExternalLink size={11} />
@@ -1188,7 +1205,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                     )}
                   </div>
                 ) : (
-                  <div style={{ fontSize: '11px', color: 'var(--color-muted)', padding: '6px 8px', backgroundColor: '#F8FAFC', borderRadius: 'var(--radius-sm)', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--muted-foreground)', padding: '6px 8px', backgroundColor: 'var(--secondary)', borderRadius: 'var(--radius-sm)', marginBottom: '8px' }}>
                     No active fraud complaints for {selectedAtm.bank}. General surveillance active.
                   </div>
                 )}
@@ -1199,13 +1216,17 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                 <button
                   onClick={() => handleDispatchPatrol(selectedAtm.atm_id)}
                   disabled={selectedAtm.is_in_cooldown}
-                  className="btn btn-primary"
+                  className="astrix-btn-primary"
                   style={{
                     flex: 1,
                     padding: '7px',
                     fontSize: '11.5px',
                     opacity: selectedAtm.is_in_cooldown ? 0.6 : 1,
                     cursor: selectedAtm.is_in_cooldown ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '5px',
                   }}
                 >
                   <Send size={12} />
@@ -1215,7 +1236,7 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
                 {selectedAtm.is_in_cooldown && (
                   <button
                     onClick={() => handleClearStatus(selectedAtm.atm_id)}
-                    className="btn btn-secondary"
+                    className="astrix-btn-outline"
                     style={{ padding: '7px 10px', fontSize: '11px' }}
                     title="Clear cooldown and reset status"
                   >
@@ -1226,9 +1247,9 @@ export default function GeospatialMap({ alerts = [], onSelectAlert, onSelectAtm,
             </div>
           ) : (
             !selectedCluster && (
-              <div className="card" style={{ padding: '20px', textAlign: 'center', color: 'var(--color-muted)', backgroundColor: '#FFFFFF' }}>
-                <Building size={22} color="var(--color-muted)" style={{ margin: '0 auto 6px', opacity: 0.5 }} />
-                <div style={{ fontSize: '12px', fontWeight: '600' }}>Select a Cluster or ATM Marker</div>
+              <div className="card astrix-card" style={{ padding: '20px', textAlign: 'center', color: 'var(--muted-foreground)', backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+                <Building size={22} style={{ margin: '0 auto 6px', color: 'var(--muted-foreground)', opacity: 0.5 }} />
+                <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--foreground)' }}>Select a Cluster or ATM Marker</div>
                 <p style={{ fontSize: '11px', marginTop: '2px' }}>
                   Click any regional cluster badge or ATM marker to inspect vulnerability scores, examine operational statuses, and alert patrol units.
                 </p>

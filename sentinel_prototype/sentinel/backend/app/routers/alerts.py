@@ -57,7 +57,10 @@ def get_alerts(filter_tab: Optional[str] = Query("all")):
                 cooldown_rem = int(900 - cd_elapsed)
 
         alert_status = alert.get("status", "PENDING_DISPATCH")
-        if remaining == 0 and alert_status not in ("HELD_FOR_REVIEW", "DISPATCHED"):
+        if cooldown_rem > 0 and alert_status != "HELD_FOR_REVIEW":
+            alert_status = "DISPATCHED"
+            alert["status"] = "DISPATCHED"
+        elif remaining == 0 and alert_status not in ("HELD_FOR_REVIEW", "DISPATCHED"):
             alert_status = "EXPIRED"
             alert["status"] = "EXPIRED"
 
@@ -68,6 +71,7 @@ def get_alerts(filter_tab: Optional[str] = Query("all")):
             "window_status": status_window,
             "status": alert_status,
             "cooldown_remaining_sec": cooldown_rem,
+            "dispatch_cooldown_remaining": cooldown_rem,
             "is_in_cooldown": cooldown_rem > 0,
         }
 
@@ -490,7 +494,7 @@ def build_dynamic_syndicate_graph(
         "channel": "NEFT",
         "velocity_min": round(2.5 + N * 2.0, 1),
         "status": "PRESERVED",
-        "status_label": "BNSS Â§106 Lien Applied",
+        "status_label": "BNSS Sec. 106 Lien Applied",
         "status_color": "#059669",
         "mule_account": mule_nb_acc,
         "mule_city": target_city,

@@ -25,8 +25,12 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
       return;
     }
     setSecondsLeft(alert.remaining_seconds ?? 600);
-    setCooldownLeft(alert.dispatch_cooldown_remaining ?? 0);
-  }, [alert.remaining_seconds, alert.dispatch_cooldown_remaining, isHeld]);
+    if (alert.dispatch_cooldown_remaining && alert.dispatch_cooldown_remaining > 0) {
+      setCooldownLeft(alert.dispatch_cooldown_remaining);
+    } else if (alert.status === 'DISPATCHED') {
+      setCooldownLeft((prev) => (prev > 0 ? prev : 900));
+    }
+  }, [alert.remaining_seconds, alert.dispatch_cooldown_remaining, alert.status, isHeld]);
 
   useEffect(() => {
     if (isHeld) return;
@@ -64,8 +68,9 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
     timerStage = 'URGENT';
   }
 
+  const [locallyDispatched, setLocallyDispatched] = useState(false);
   const isDuplicate = isHeld;
-  const isDispatched = alert.status === 'DISPATCHED';
+  const isDispatched = alert.status === 'DISPATCHED' || locallyDispatched || (alert.dispatch_cooldown_remaining > 0) || (cooldownLeft > 0);
 
   // Format Target ATM location clearly from backend/mock fields (bank, area, city, atm_id)
   const targetAtmDisplay = (() => {
@@ -292,7 +297,11 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
 
           {!isDispatched && !isDuplicate && (
             <button
-              onClick={() => onDispatch(alert)}
+              onClick={() => {
+                setLocallyDispatched(true);
+                setCooldownLeft(900);
+                if (onDispatch) onDispatch(alert);
+              }}
               className="astrix-btn-primary"
               style={{
                 padding: '5px 12px',
@@ -306,6 +315,26 @@ export default function AlertCard({ alert, onSelect, onDispatch, isSelected = fa
               <Send size={12} />
               <span>Dispatch Police</span>
             </button>
+          )}
+
+          {isDispatched && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '5px 10px',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: 'rgba(34, 197, 94, 0.12)',
+                border: '1px solid rgba(34, 197, 94, 0.35)',
+                color: '#16a34a',
+                fontSize: '11px',
+                fontWeight: '700',
+              }}
+            >
+              <ShieldCheck size={13} />
+              <span>Patrol Deployed ({cooldownLeft > 0 ? formatTime(cooldownLeft) : 'Active'})</span>
+            </div>
           )}
         </div>
       </div>

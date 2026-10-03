@@ -13,7 +13,8 @@ import {
   Moon, 
   CheckCircle2, 
   Shield,
-  X 
+  X,
+  LogOut
 } from 'lucide-react';
 
 export default function AstrixSidebar({
@@ -30,7 +31,9 @@ export default function AstrixSidebar({
   onToggleTheme,
   backendOnline = true,
   outboxStatus = {},
-  onReplayOutbox
+  onReplayOutbox,
+  currentUser = null,
+  onLockSession,
 }) {
   const effectivelyCollapsed = isCollapsed && !isMobileOpen;
 
@@ -230,74 +233,139 @@ export default function AstrixSidebar({
 
         {/* User Profile & Theme Toggle Footer */}
         <div style={{
-          padding: effectivelyCollapsed ? '10px 8px' : '12px 14px',
+          padding: effectivelyCollapsed ? '12px 8px' : '12px 14px',
           borderTop: '1px solid var(--sidebar-border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: effectivelyCollapsed ? 'center' : 'space-between',
-          gap: '8px',
         }}>
           {!effectivelyCollapsed ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-              <div style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: 'var(--radius-full)',
-                backgroundColor: 'var(--primary)',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                fontWeight: '700',
-                flexShrink: 0,
-              }}>
-                <Shield size={14} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div 
+                onClick={onLockSession}
+                title="Click to lock session or switch officer"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: 'var(--primary)',
+                  color: '#FFFFFF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12.5px',
+                  fontWeight: '800',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  border: '1.5px solid var(--sidebar-border)',
+                }}
+              >
+                {currentUser?.avatarInitials || <Shield size={16} />}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--sidebar-foreground)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  Duty Officer
+              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                <span 
+                  title={currentUser?.name || 'Duty Officer'}
+                  style={{ 
+                    fontSize: '12.5px', 
+                    fontWeight: '700', 
+                    color: 'var(--sidebar-foreground)', 
+                    whiteSpace: 'nowrap', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis',
+                    lineHeight: 1.3
+                  }}
+                >
+                  {currentUser?.name || 'Duty Officer'}
                 </span>
-                <span style={{ fontSize: '10.5px', color: 'var(--sidebar-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  Maharashtra Control
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '3px' }}>
+                  <span 
+                    title={currentUser?.badge || 'Maharashtra Control'}
+                    style={{ fontSize: '10px', color: 'var(--sidebar-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'var(--font-mono)' }}
+                  >
+                    {currentUser?.badge || 'Maharashtra Control'}
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    {onLockSession && (
+                      <button
+                        type="button"
+                        onClick={onLockSession}
+                        title="Lock Terminal / Switch Duty Officer"
+                        className="astrix-btn-outline"
+                        style={{
+                          padding: '4px 6px',
+                          borderRadius: 'var(--radius-sm)',
+                          backgroundColor: 'var(--secondary)',
+                          color: 'var(--foreground)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          border: '1px solid var(--border)',
+                        }}
+                      >
+                        <LogOut size={12} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={onToggleTheme}
+                      title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                      style={{
+                        padding: '4px 6px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border)',
+                        backgroundColor: 'var(--secondary)',
+                        color: 'var(--foreground)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {theme === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
-            <div style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: 'var(--primary)',
-              color: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '11px',
-              fontWeight: '700',
-            }}>
-              <Shield size={14} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <div 
+                onClick={onLockSession}
+                title={`Duty Officer: ${currentUser?.name || 'Officer'} · Click to lock`}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: 'var(--primary)',
+                  color: '#FFFFFF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  border: '1.5px solid var(--sidebar-border)',
+                }}
+              >
+                {currentUser?.avatarInitials || <Shield size={15} />}
+              </div>
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                style={{
+                  padding: '6px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--secondary)',
+                  color: 'var(--foreground)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+              </button>
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={onToggleTheme}
-            title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            style={{
-              padding: '6px',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--secondary)',
-              color: 'var(--foreground)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
         </div>
       </aside>
     </>
