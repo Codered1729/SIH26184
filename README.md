@@ -36,11 +36,11 @@
 > - **[Data Provenance & Causal Simulation Pipeline (#2)](#2-data-provenance-real-sources--generation-pipeline-from-scratch):** 18,000 complaints, 28,222 hops, OSM ATM coordinates, and exact Rupee conservation ($\Delta \equiv ₹0.00$).
 > - **[System Architecture & Dataflow (#3)](#3-end-to-end-system-architecture--dataflow):** End-to-end operational pipeline, repository structure, and 5 real-world data streams.
 > - **[13 Core Features Directory (#4)](#4-exhaustive-feature-directory-mechanisms-working--metrics):** NLP extraction, 4-tier authenticity gate, CatBoost forecaster, Hawkes ranker, Bayesian updater, and BNSS §106 notices.
-> - **[Machine Learning Benchmark & Calibration (#5)](#5-in-depth-machine-learning-analysis--model-evaluation):** 7-model comparative matrix, Isotonic calibration (Brier: 0.1233, ECE: 0.0187), and native C++ TreeSHAP.
-> - **[Cross-Platform Installation & Deployment (#10)](#10-cross-platform-installation--execution-guide):** One-click automated launchers (Windows/Linux/macOS), Docker, Render Blueprint, and port mapping.
-> - **[Presenter Runbook & Judging Cheat Sheet (#11)](#11-presenter-runbook--judging-cheat-sheet):** 3-minute hackathon demo script and technical defense figures for jury Q&A.
-> - **[Enterprise Hardening & Error Catalog (#12)](#12-enterprise-hardening-algorithmic-scaling--resilience-engineering):** Database concurrency, SQLite WAL/DLQ guarantees, and complete system error catalog & mitigations.
-> - **[Evolution & Engineering Transformation (#13)](#13-evolution--engineering-transformation-previous-vs-current-architecture):** Exhaustive 8-dimension comparative deep-dive analyzing prototype evolution into a mathematical production system.
+> - **[Machine Learning Benchmark & Calibration (#5)](#5-in-depth-machine-learning-analysis--model-evaluation):** 7-model comparative matrix, Isotonic calibration (Brier: 0.1432, ECE: 0.0157), and native C++ TreeSHAP.
+> - **[What All This Means to the Project (#6)](#6-what-all-this-means-to-the-project-operational--legal-significance):** Operational, constitutional, and systems engineering significance.
+> - **[Data Governance & Statutory Legal Grounding (#7)](#7-data-governance--statutory-legal-grounding):** DPDP Act 2023 compliance, Section 106 & 107(5) BNSS, and Section 63(4) BSA cryptographic hash seals.
+> - **[Cross-Platform Installation & Execution Guide (#8)](#8-cross-platform-installation--execution-guide):** One-click automated launchers (Windows/Linux/macOS), Docker, Render Blueprint, and port mapping.
+> - **[Presenter Runbook & Judging Cheat Sheet (#9)](#9-presenter-runbook--judging-cheat-sheet):** 3-minute hackathon demo script and technical defense figures for jury Q&A.
 
 ---
 
@@ -79,22 +79,9 @@
    - [Operational Value: Intercepting Stolen Funds in the Golden Window](#operational-value-intercepting-stolen-funds-in-the-golden-window)
    - [Constitutional & Statutory Value: Eliminating Wrongful Account Freezes](#constitutional--statutory-value-eliminating-wrongful-account-freezes)
    - [Systems Engineering Value: Resilient Tactical Edge vs. Enterprise Distributed](#systems-engineering-value-resilient-tactical-edge-vs-enterprise-distributed)
-7. [System Topology & Scaling Roadmap (Prototype vs. Phase 2 Production)](#7-system-topology--scaling-roadmap-prototype-vs-phase-2-production)
-8. [Master Verification Report (22 Modules 100% PASS)](#8-master-verification-report-22-modules-100-pass)
-9. [Data Governance & Statutory Legal Grounding](#9-data-governance--statutory-legal-grounding)
-10. [Cross-Platform Installation & Execution Guide](#10-cross-platform-installation--execution-guide)
-11. [Presenter Runbook & Judging Cheat Sheet](#11-presenter-runbook--judging-cheat-sheet)
-12. [Enterprise Hardening, Algorithmic Scaling & Resilience Engineering](#12-enterprise-hardening-algorithmic-scaling--resilience-engineering)
-    - [System Error Catalog & Concrete Mitigations Matrix](#9-system-error-catalog--concrete-mitigations-matrix)
-13. [Evolution & Engineering Transformation (Previous vs. Current Architecture)](#13-evolution--engineering-transformation-previous-vs-current-architecture)
-    - [The Core Transformation & 8-Dimension Evaluation Matrix](#the-core-transformation--8-dimension-evaluation-matrix)
-    - [Data Generation & Physical Realism](#data-generation--physical-realism)
-    - [ML Model Training & Evaluation Integrity](#ml-model-training--evaluation-integrity)
-    - [Explainable Machine Learning (XAI)](#explainable-machine-learning-xai)
-    - [Spatiotemporal Hawkes Point-Process ATM Interception](#spatiotemporal-hawkes-point-process-atm-interception)
-    - [Backend Serving Architecture & Robustness](#backend-serving-architecture--robustness)
-    - [Statutory Compliance & Judicial Admissibility](#statutory-compliance--judicial-admissibility)
-    - [Summary of Quantitative Achievements](#summary-of-quantitative-achievements)
+7. [Data Governance & Statutory Legal Grounding](#7-data-governance--statutory-legal-grounding)
+8. [Cross-Platform Installation & Execution Guide](#8-cross-platform-installation--execution-guide)
+9. [Presenter Runbook & Judging Cheat Sheet](#9-presenter-runbook--judging-cheat-sheet)
 
 ---
 
@@ -113,7 +100,7 @@ SENTINEL provides an end-to-end intelligence and lawful intervention layer speci
 
 1. **Intake & NLP Extraction:** Ingests unformatted complainant SMS alerts or CFCFRMS feeds, extracting UTRs, amounts, and accounts in $< 0.1$ ms.
 2. **Authenticity Scoring Gate:** Front-gates complaints before prediction. Enforces defense-in-depth: instant hard-fail ($Score = 0.00$) on duplicate UTRs, client IP rate-limiting, and NPCI checksum verification to neutralize automated Sybil claims.
-3. **Predictive Spatiotemporal Forecasting:** Utilizes an ultra-fast **CatBoost GBDT classifier** ($0.0006$ ms latency, $0.1233$ calibrated Brier score, $0.875$ PR-AUC, $0.906$ ROC-AUC) with native C++ TreeSHAP explainability, and a **vectorized cKDTree Hawkes point-process** ($0.76\text{ ms} - 1.54\text{ ms}$ latency for 1,000 ATMs, MLE fitted) to dynamically rank candidate ATM withdrawal locations.
+3. **Predictive Spatiotemporal Forecasting:** Utilizes an ultra-fast **CatBoost GBDT classifier** ($0.0018\text{ ms} / 1.8\text{ }\mu\text{s}$ latency, $0.1432$ calibrated Brier score, $0.681$ PR-AUC, $0.826$ ROC-AUC) with native C++ TreeSHAP explainability, and a **vectorized cKDTree Hawkes point-process** ($0.76\text{ ms} - 1.54\text{ ms}$ latency for 1,000 ATMs, MLE fitted) to dynamically rank candidate ATM withdrawal locations.
 4. **Dynamic Bayesian Updates:** Dynamically updates spatial belief as bank hops arrive, automatically decaying stale alerts to `_missed` after 45 minutes of silence.
 5. **Lawful Disputed-Amount Preservation Dispatch:** Auto-generates court-admissible preservation notices under **Sections 106 & 107(5) BNSS, 2023** (placing a lien strictly on the disputed amount, prohibiting blanket account freezes) certified with mandatory digital hash seals under **Section 63(4) BSA, 2023** backed by a durable SQLite transactional outbox.
 
@@ -296,10 +283,10 @@ Under Indian jurisprudence, police and intelligence systems cannot harvest finan
 |    +------------------------------------+  +----------------------------------------------------+ |
 |    | Production Model: CatBoost         |  | Hawkes Self-Exciting Point-Process Ranker          | |
 |    | - Oblivious Trees (depth=6)        |  | - Spatiotemporal intensity kernel:                 | |
-|    | - PR-AUC: 0.875 | ROC-AUC: 0.906   |  |   lambda(atm, t) = mu + sum alpha * exp(-dt)*K(d)  | |
-|    | - Brier Score: 0.1233 (ECE: 0.0187)|  | - Vectorized cKDTree: 0.76 - 1.54 ms (< 2ms SLA)   | |
-|    | - Latency: 0.0006 ms (1.6M req/s)  |  | - Hit@3: 75.0% (+103.8% lift over static baseline) | |
-|    | - Native C++ TreeSHAP attributions |  | - Interdiction window reduced from 28.0m to 11.4m   | |
+|    | - PR-AUC: 0.681 | ROC-AUC: 0.826   |  |   lambda(atm, t) = mu + sum alpha * exp(-dt)*K(d)  | |
+|    | - Brier Score: 0.1432 (ECE: 0.0157)|  | - Vectorized cKDTree: 0.76 - 1.54 ms (< 2ms SLA)   | |
+|    | - Latency: 0.0018 ms (~550k req/s) |  | - Hit@3: 75.2% (+229.8% lift over static baseline) | |
+|    | - Native C++ TreeSHAP attributions |  | - Dynamic 15m ATM suppression cooldown             | |
 |    +------------------------------------+  +----------------------------------------------------+ |
 +---------------------------------------------------------------------------------------------------+
                                                   |
@@ -368,10 +355,10 @@ Under Indian jurisprudence, police and intelligence systems cannot harvest finan
 * **Artifact:** `ml/models/cashout_model.pkl`
 * **How It Works:** Evaluates cash-out probability using CatBoost symmetric (oblivious) decision trees calibrated with post-hoc Isotonic Regression across 32 engineered features.
 * **Production Model (CatBoost):**
-  - **Isotonic Probability Calibration:** Delivers the **lowest Brier score (0.1233)** (down from 0.1745 uncalibrated, a 29.3% error reduction) and an **Expected Calibration Error (ECE) of 0.0187** (-62.6% calibration error). This ensures predicted probabilities strictly reflect real empirical frequencies, essential for the downstream Bayesian updater.
-  - **Empirical Accuracy:** Out-of-sample **PR-AUC of 0.8747** and **ROC-AUC of 0.9063** with a **KS Statistic of 0.6427** on strict walk-forward temporal holdouts (3,600 unseen complaints).
-  - **Inference Latency:** Executes at **0.0006 ms/sample (0.6 µs)** in CPU register memory without branch mispredictions (~1,600,000 samples/sec on a single CPU core).
-* **F1-Optimal Decision Cutoff ($\tau^* = 0.444$):** Identified through PR curve optimization; delivers **80.56% – 85.80% interdiction recall** and **77.46% precision**, capturing 4 out of 5 cash-out attempts before ATM extraction.
+  - **Isotonic Probability Calibration:** Delivers the **lowest Brier score (0.1432)** and an **Expected Calibration Error (ECE) of 0.0157**. This ensures predicted probabilities strictly reflect real empirical frequencies, essential for the downstream Bayesian updater.
+  - **Empirical Accuracy:** Out-of-sample **PR-AUC of 0.6806** and **ROC-AUC of 0.8259** with a **KS Statistic of 0.5050** on strict walk-forward temporal holdouts (4 temporal folds, 3,600 unseen complaints).
+  - **Inference Latency:** Executes at **0.0018 ms/sample (1.8 µs)** in CPU register memory without branch mispredictions (~550,000 samples/sec on a single commodity CPU core).
+* **F1-Optimal Decision Cutoff ($\tau^* = 0.301$):** Identified through PR curve optimization; delivers **71.95% interdiction recall** and **57.01% precision** (**0.6359 F1 score**), capturing approximately 3 out of 4 cash-out attempts before physical ATM extraction.
 * **Explainability (Native C++ TreeSHAP):** Computes exact Shapley attributions in $< 1\text{ ms}$ via CatBoost's C++ TreeSHAP engine, returning directional risk drivers (`+Risk` vs `-Risk`) without heuristic approximations.
 * **Fail-Closed Diagnostic Probe (`/health/model`):** Verifies bundle presence, SHA-256 hash, and feature count on startup; fails closed with HTTP 503 if weights are corrupt or absent.
 
@@ -387,9 +374,9 @@ Under Indian jurisprudence, police and intelligence systems cannot harvest finan
   - Evaluates 1,000 candidate ATMs in **0.76 ms – 1.54 ms** ($30\times$ faster than pure Python loops), well within the $< 2.0\text{ ms}$ real-time patrol dispatch SLA.
   - Utilizes a sparse distance matrix with a 10 km bounding radius and temporal pre-filtering ($dt \le 3600\text{ s}$).
 * **Empirical Validation (500 Simulated Bursts):**
-  - **Hit@1:** `61.8%` (Hawkes) vs `15.0%` (Static Baseline) $\rightarrow$ **+312.0% relative lift**.
-  - **Hit@3:** `75.0%` (Hawkes) vs `24.6%` (Static Baseline) $\rightarrow$ **dynamic relative lift**, reducing field interdiction time by **59.3%**.
-  - **Hit@5:** `77.8%` (Hawkes) vs `55.8%` (Static Baseline) $\rightarrow$ **+39.4% relative lift**.
+  - **Hit@1:** `67.6%` (Hawkes) vs `6.8%` (Static Baseline) $\rightarrow$ **+894.1% relative lift**.
+  - **Hit@3:** `75.2%` (Hawkes) vs `22.8%` (Static Baseline) $\rightarrow$ **+229.8% relative lift**, dynamically exciting candidate ATMs within the 10-minute spatiotemporal window.
+  - **Hit@5:** `77.8%` (Hawkes) vs `33.6%` (Static Baseline) $\rightarrow$ **+131.5% relative lift**.
 
 ---
 
@@ -571,9 +558,9 @@ Evaluated across **500 simulated sequential cash-out episodes** (runner withdraw
 
 | Evaluation Metric | Static Baseline | Hawkes Point-Process | Relative Gain | Operational Meaning |
 |---|---|---|---|---|
-| **Hit@1 Accuracy** | 15.0% | **61.8%** | **+312.0%** | Hawkes identifies the exact next ATM kiosk chosen by the runner >4x better than static frequency. |
-| **Hit@3 Accuracy** | 22.8% | **75.0%** | **Dynamic Lift** | Models localized spatiotemporal clustering of sequential withdrawals within the interdiction radius. |
-| **Hit@5 Accuracy** | 55.8% | **77.8%** | **+39.4%** | Broad coverage across district patrol sectors. |
+| **Hit@1 Accuracy** | 6.8% | **67.6%** | **+894.1%** | Hawkes identifies the exact next ATM kiosk chosen by the runner >9x better than static frequency. |
+| **Hit@3 Accuracy** | 22.8% | **75.2%** | **+229.8%** | Models localized spatiotemporal clustering of sequential withdrawals within the interdiction radius. |
+| **Hit@5 Accuracy** | 33.6% | **77.8%** | **+131.5%** | Broad coverage across district patrol sectors. |
 
 ---
 
@@ -607,89 +594,7 @@ Rather than creating an overly complex distributed cluster that crashes on a loc
 
 ---
 
-## 7. System Topology & Scaling Roadmap (Prototype vs. Phase 2 Production)
-
-SENTINEL operates in two distinct execution tiers: a **Demo-Resilient Air-Gapped Prototype** (guaranteeing zero container crashes, zero JVM memory bloat, and sub-millisecond local execution during live judging) and a **Phase 2 Enterprise Scaling Roadmap** designed for statewide multi-agency deployment.
-
-```
-                          CLIENT BROWSER (Chrome / Firefox / Edge)
-                                               |
-                    +--------------------------+--------------------------+
-                    | (Dev Hot-Reload Mode)                               | (Production / Demo)
-                    | http://localhost:5173                               | http://localhost:8000
-                    v                                                     v
-        +-----------------------+                            +--------------------------+
-        |   Vite Dev Server     |                            |   FastAPI ASGI Server    |
-        |   (Port 5173)         |                            |   (Port 8000)            |
-        +-----------------------+                            +--------------------------+
-                    |                                                     |-- Serves frontend/dist
-                    | Reverse Proxy /api                                  |-- REST API (/api/v1)
-                    +---------------------------------------------------->|-- WebSocket (/api/v1/ws)
-                                                                          |-- Swagger (/docs)
-                                                                          |-- Health (/health)
-```
-
-### Active Port Allocation
-
-| Port | Protocol | Binding | Service Component | Purpose & Endpoints |
-|---|---|---|---|---|
-| **`8000`** | HTTP / WS | `0.0.0.0:8000` | **FastAPI ASGI Server** (`app.main:app`) | **Primary Unified Port**.<br>• Root Web UI: `http://localhost:8000/`<br>• REST API: `http://localhost:8000/api/v1` and `/api`<br>• Telemetry WebSocket: `ws://localhost:8000/api/v1/ws/alerts`<br>• Officer Auth Session: `http://localhost:8000/api/v1/auth/session`<br>• Interactive OpenAPI Docs: `http://localhost:8000/docs`<br>• Health Check: `http://localhost:8000/health` |
-| **`5173`** | HTTP | `localhost:5173` | **Vite Dev Server** (`frontend/vite.config.js`) | **Frontend Hot-Reloading**.<br>Used during local frontend development. Proxies all `/api/*` network requests to `http://localhost:8000`. |
-| **`8000:8000`**| Docker Bridge | `8000` | **Containerized Gateway** (`docker-compose.yml`) | Maps host port `8000` directly to the containerized ASGI backend. |
-
-### Architectural Decoupling: Prototype Scope vs. Production Roadmap
-
-| Subsystem | Phase 1 Prototype (Built & Benchmarked) | Phase 2 Production Scaling Roadmap | Systems Rationale & Migration Boundary |
-|---|---|---|---|
-| **Graph Store** | `InMemoryGraphStore` (NetworkX in RAM) | Neo4j Enterprise Cluster (Bolt Driver) | Single-process pointer traversal ($O(V+E)$) eliminates JVM memory bloat and socket latency for local triage (< 100k nodes). Migrating to Neo4j is required when cross-bank statewide graphs exceed single-machine memory. |
-| **Attestation Ledger** | `InMemoryHashChainLedger` (SHA-256) | Hyperledger Fabric / Consortium DLT | Cryptographic hash chaining delivers tamper-evident courtroom proof under Section 63(4) BSA without multi-node Raft/BFT consensus latency. Migrating to Fabric is required only if cross-bank participants demand a zero-trust decentralized consensus authority. |
-| **Dispatch Gateway** | Durable SQLite Outbox (`.outbox.db`) | Direct CFCFRMS / 1930 REST Webhooks | Single-writer transactional SQLite with `CircuitBreaker` guarantees at-least-once local delivery and zero message loss during webhook drops. Connects to live CFCFRMS APIs during LEA pilot deployment. |
-| **Event Pipeline** | Python Asyncio Queue + WebSockets | Apache Kafka Cluster | In-process asyncio event loop pushes sub-millisecond telemetry to local dashboards without multi-broker coordination overhead. Migrating to Kafka is required when nationwide ingestion across 36 states exceeds 50,000 events/second. |
-
----
-
-## 8. Master Verification Report (22 Modules 100% PASS)
-
-The entire SENTINEL codebase has been comprehensively reverified offline. Every component, algorithmic module, API route, and simulated drill executes with zero failures and zero external network calls:
-
-```
-======================================================================
-SENTINEL - Master Reverification Run (22 Modules)
-Python Interpreter: 3.13.2 (64-bit)
-Mode:               100% OFFLINE (Air-Gapped & Resilient)
-======================================================================
-```
-
-| # | Module / Test Script | Subsystem Under Test | Status | Execution Time | Test Scope & Assertions |
-|---|---|---|---|---|---|
-| 1 | `ml/generate_synthetic_data.py` | Data Generation & Calibration | **PASS** | 1.02s | Generates 18,000 complaints, 42,412 hops, calibrated RBI ATM densities |
-| 2 | `ml/benchmark_models.py` | Walk-Forward Model Evaluation | **PASS** | 11.22s | Evaluates 7 models on 4 temporal folds; zero lookahead data leakage |
-| 3 | `ml/train_and_serialize.py` | Model Training & Serialization | **PASS** | 14.49s | Fits 32-feature pipeline, calibrates optimal thresholds, bundles `.pkl` |
-| 4 | `ml/load_into_services.py` | Model Deserialization & Loading | **PASS** | 0.77s | Verifies bundle integrity and warmup across all estimators |
-| 5 | `backend/app/services/intake_extractor.py` | NLP & Regex SMS Parser | **PASS** | 0.06s | 100% precision parsing UTRs, amounts, accounts, and IFSC codes |
-| 6 | `backend/app/services/authenticity.py` | 4-Layer Authenticity Gate | **PASS** | 0.05s | Duplicate UTR hard-fail (Score 0.0), rate limiting, NPCI Mod10 check |
-| 7 | `backend/app/services/intake_service.py` | End-to-End Intake Pipeline | **PASS** | 0.06s | Ingests raw complaint text, extracts entities, scores authenticity |
-| 8 | `backend/app/services/hawkes.py` | Hawkes Spatiotemporal Ranker | **PASS** | 0.05s | Geodesic Haversine spatial kernel and exponential temporal decay |
-| 9 | `backend/app/services/bayesian_updater.py`| Bayesian Belief & Silence Decay | **PASS** | 0.06s | Closed-form posterior update and 45-minute exponential silence decay |
-| 10 | `backend/app/services/priority.py` | Multi-Factor Priority Engine | **PASS** | 0.05s | Computes normalized composite urgency ($R \times U \times A \times C \times Ac$) |
-| 11 | `backend/app/services/predictor.py` | Multi-Model Prediction Service | **PASS** | 3.06s | Real-time multi-model scoring, consensus matrix, Top-3 LEA explainability |
-| 12 | `backend/app/services/spatiotemporal_engine.py` | Regional Geospatial Engine | **PASS** | 0.07s | Leaflet GeoJSON layer, 5 Maharashtra clusters, statewide vulnerability |
-| 13 | `backend/app/services/bnss_notice.py` | BNSS 2023 Lawful Notice Generator| **PASS** | 0.07s | Dual HTML & telex generation, Section 63 BSA SHA-256 hash seal |
-| 14 | `backend/app/services/dispatch.py` | Outbox & Dispatch Engine | **PASS** | 0.43s | Enqueues to SQLite outbox, trips circuit breaker on simulated bank failure |
-| 15 | `backend/app/services/dispatch_pipeline.py`| Integrated Dispatch Pipeline | **PASS** | 0.22s | End-to-end alert dispatch, 15m suppression cooldown activation |
-| 16 | `backend/app/adapters/graph_store.py` | NetworkX In-Memory Graph Store | **PASS** | 0.22s | Bounded k-hop subgraph traversal with temporal edge filtering |
-| 17 | `backend/app/adapters/ledger.py` | SHA-256 Hash Chain Ledger | **PASS** | 0.05s | Cryptographic hash chaining ($H_n = \text{SHA256}(H_{n-1} \,\|\, \dots)$) |
-| 18 | `backend/app/adapters/resilient.py` | Resilient Adapter Wrappers | **PASS** | 0.21s | Automatic failover to local memory stores when primary adapters fail |
-| 19 | `backend/app/core/resilience.py` | Circuit Breaker & SQLite Queue | **PASS** | 0.48s | CLOSED $\rightarrow$ OPEN $\rightarrow$ HALF-OPEN state machine transitions |
-| 20 | `backend/tests/test_api_routes.py` | REST API Integration Test Suite | **PASS** | 3.56s | Comprehensive assertions across 13 REST/WebSocket endpoints |
-| 21 | `backend/tests/test_simulation.py` | Scenario Simulator & Audit Tests | **PASS** | 3.55s | Exercises all 4 canonical scenarios and verifies unbroken audit ledger |
-| 22 | `verify_phase4.py` | Master Full-System Test Harness | **PASS** | 3.72s | Complete end-to-end reverification across Phases 1 through 4 |
-
-**Overall Verification Result:** **22 passed, 0 failed (100% SUCCESS)** in 3.57 seconds.
-
----
-
-## 9. Data Governance & Statutory Legal Grounding
+## 7. Data Governance & Statutory Legal Grounding
 
 ### DPDP Act, 2023 Compliance Framework
 SENTINEL processes financial identifiers and location data in strict alignment with the **Digital Personal Data Protection (DPDP) Act, 2023**:
@@ -709,7 +614,7 @@ SENTINEL processes financial identifiers and location data in strict alignment w
 
 ---
 
-## 10. Cross-Platform Installation & Execution Guide
+## 8. Cross-Platform Installation & Execution Guide
 
 ### Prerequisites & System Requirements
 - **Python:** Version `3.10`, `3.11`, `3.12`, or `3.13` (64-bit).
@@ -862,7 +767,7 @@ SENTINEL is deployed in production on Render with zero-configuration Infrastruct
 
 ---
 
-## 11. Presenter Runbook & Judging Cheat Sheet
+## 9. Presenter Runbook & Judging Cheat Sheet
 
 ### 3-Minute Hackathon Presentation Flow
 
@@ -873,7 +778,7 @@ SENTINEL is deployed in production on Render with zero-configuration Infrastruct
 | Step | Action | What Judges See | 1-Sentence Punchline |
 |---|---|---|---|
 | **1. Ingest Fraud** | Click **`⚡ 1. High-Velocity UPI`** | Priority Queue displays critical card (`#FEE2E2`), dynamic 20m countdown window, and ₹78,000 amount. | *"Caught within the 20-minute golden window before physical ATM cash-out."* |
-| **2. Case Dossier** | Click alert card $\rightarrow$ Case Dossier | Funds flow visual diagram, device IMEI cluster, and CatBoost 91% risk dial with Top-3 explainable drivers. | *"CatBoost inference in 0.0006 milliseconds with optimal probability calibration."* |
+| **2. Case Dossier** | Click alert card $\rightarrow$ Case Dossier | Funds flow visual diagram, device IMEI cluster, and CatBoost 91% risk dial with Top-3 explainable drivers. | *"CatBoost inference in 0.0018 milliseconds (1.8 µs) with optimal probability calibration."* |
 | **3. Localize Threat** | Click **Geospatial Map** | Leaflet map with pulsing red Hawkes intensity circle at Hinjawadi ATM; click "Dispatch Patrol". | *"Self-exciting point-process ranks candidate ATMs using spatiotemporal decay kernels with 15m suppression."* |
 | **4. Lawful Order** | Click **BNSS Terminal** | Court-admissible Sections 106 & 107(5) BNSS order with Section 63(4) BSA hash certificate; Outbox status `CLOSED`. | *"Legally grounded disputed-amount lien ready for nodal bank execution without blanket account freezes."* |
 | **5. Audit Trail** | Click **Audit Ledger** | Unbroken SHA-256 cryptographic hash chain; click "Inspect" on any record. | *"Tamper-evident chain of custody satisfying judicial electronic evidence standards."* |
@@ -886,154 +791,18 @@ SENTINEL is deployed in production on Render with zero-configuration Infrastruct
 
 ### Key Figures to Memorize for Technical Q&A
 
-* **Production Model:** **CatBoost** (Depth 6 Oblivious Trees, Out-of-Sample PR-AUC **`0.875`**, ROC-AUC **`0.906`**, Calibrated Brier Score **`0.1233`**, ECE **`0.0187`**, Latency **`0.0006 ms (0.6 µs)`**). Chosen because its ordered boosting and post-hoc Isotonic Regression deliver optimal probability calibration strictly required by the downstream Bayesian spatial belief updater.
-* **F1-Optimal Operational Decision Cutoff:** **`0.444`** (grid-search calibrated on strict temporal walk-forward holdout splits, delivering **`80.56% – 85.80% recall`** and **`77.46% precision`**).
-* **Hawkes Spatiotemporal Point-Process:** Vectorized via **`scipy.spatial.cKDTree`** with parameters fitted via MLE ($\alpha = 0.01, \beta = 0.01667, \sigma = 10.0\text{ km}$); evaluates 1,000 ATMs in **`0.76 ms – 1.54 ms`** (Hit@3: 75.0%, cutting patrol response time by 59.3%).
+* **Production Model:** **CatBoost** (Depth 6 Oblivious Trees, Out-of-Sample PR-AUC **`0.6806`**, ROC-AUC **`0.8259`**, Calibrated Brier Score **`0.1432`**, ECE **`0.0157`**, Latency **`0.0018 ms (1.8 µs)`**). Chosen because its ordered boosting and post-hoc Isotonic Regression deliver optimal probability calibration strictly required by the downstream Bayesian spatial belief updater.
+* **F1-Optimal Operational Decision Cutoff:** **`0.301`** (grid-search calibrated on strict temporal walk-forward holdout splits, delivering **`71.95% recall`**, **`57.01% precision`**, and **`0.6359 F1`**).
+* **Hawkes Spatiotemporal Point-Process:** Vectorized via **`scipy.spatial.cKDTree`** with parameters fitted via MLE ($\alpha = 0.01, \beta = 0.01667, \sigma = 10.0\text{ km}$); evaluates 1,000 ATMs in **`0.76 ms – 1.54 ms`** (Hit@1: 67.6%, Hit@3: 75.2%, Hit@5: 77.8%, cutting patrol response time by 59.3%).
 * **Data Provenance:** Calibrated synthetic dataset of **18,000 complaints**, **28,222 hops**, and **400 device clusters** modeled on published RBI ATM density reports, MHA/I4C JCCT parliamentary statistics, and NPCI volume distributions.
 * **Exact Rupee Conservation Law:** Mathematically verified zero rupee drift ($\Delta \equiv ₹0.00$) across Siphons, Active Threat Runways, and Liens.
-* **Authenticity Gate Gating Accuracy:** **85.15% accuracy**, **95.19% precision**, blocking 100% of duplicate UTRs, griefing floods, and malformed strings across 2,000 adversarial evaluation cases.
+* **Authenticity Gate Gating Accuracy:** **84.70% accuracy**, **94.02% precision**, **86.39% recall**, **0.9005 F1**, blocking 100% of duplicate UTRs, griefing floods, and malformed strings across 2,000 adversarial evaluation cases.
 * **Dynamic Golden Windows:** UPI: `18–25 min` | Multi-Hop: `35–45 min` | NEFT: `45–60 min`.
 * **ATM Dispatch Cooldown:** `15 minutes (900 seconds)` suppression timer preventing patrol unit spam.
 * **Statutory Authorities:** *Sections 106 & 107(5) BNSS, 2023* (Police Seizure & Targeted Disputed-Amount Liens), *Section 105 BNSS, 2023* (Lawful Electronic Preservation), and *Section 63(4) BSA, 2023* (Mandatory Electronic Hash Certificate).
 * **Data Governance:** *DPDP Act, 2023* compliant (data minimization, account masking, zero raw PII retention).
 * **Live Hosted Cloud Demo:** [https://sentinel-sih26184.onrender.com](https://sentinel-sih26184.onrender.com) (Render Docker Blueprint + GitHub Actions keepalive cron auto-pinger).
-* **Full Verification Status:** 100% offline verified across all 22 modules (`verify_phase4.py` / `run_all_tests.py`).
-
----
-
-## 12. Enterprise Hardening, Algorithmic Scaling & Resilience Engineering
-
-To guarantee production-grade reliability and address senior jury technical scrutiny, SENTINEL implements comprehensive enterprise hardening across its algorithmic, database, and operational layers:
-
-### 1. Algorithmic Scaling: Hawkes Point-Process Optimization
-* **Temporal Cutoff ($dt > 3600\text{s}$):** Historical withdrawal events older than 1 hour are short-circuited immediately in `HawkesATMRanker.intensity_at()`, preventing computationally expensive exponential decay calculations on mathematically zero weights.
-* **Spatial Bounding-Box Filter ($\Delta \text{lat}, \Delta \text{lon} \le 0.15^\circ$):** Candidate ATMs outside a $\sim 15\text{km}$ bounding box bypass expensive Haversine trigonometric functions. ATMs beyond $10\text{km}$ are cleanly zeroed out.
-* **Computational Complexity:** Slashes intensity evaluation from $O(M \times N)$ across thousands of ATMs to local neighborhood decay ($O(K)$), keeping ranking latency strictly $< 5\text{ms}$.
-* **Methodological Defense:** All candidate ATMs within regional corridors are evaluated during active triage alerts rather than pre-filtering to known withdrawal locations, preventing spatial blind-spots caused by synthetic shifting or mule evasion.
-
-### 2. Database Concurrency & Outbox Resilience (SQLite WAL & DLQ)
-* **Write-Ahead Logging (WAL Mode):** SQLite outbox connections explicitly execute `PRAGMA journal_mode=WAL;` and `PRAGMA busy_timeout=5000;`, enabling concurrent read access while transactions are committed and eliminating `database is locked` exceptions under concurrent load.
-* **Automated Retention Purging:** The outbox backlog executes `purge_delivered(retention_seconds=86400)` on replay cycles, automatically pruning delivered records older than 24 hours to prevent unconstrained database growth.
-* **Dead-Letter Queue (DLQ):** Messages exceeding `MAX_ATTEMPTS = 10` transition from `failed` to `dead`, isolating poisoned messages from retrying indefinitely and alerting operators without stalling the outbox queue.
-* **Asynchronous Resilience:** Outbox retries support both native synchronous methods and asyncio coroutines, preventing event loop blocking during gateway down-states.
-
-### 3. Database Vulnerability Mitigation (Neo4j Constraints & Indexing)
-* **Uniqueness Constraints:** Enforces uniqueness on core graph entities via `infra/neo4j/schema.cypher` and `GraphStore.init_schema()`:
-  * `CONSTRAINT constraint_account_number FOR (a:Account) REQUIRE a.account_number IS UNIQUE`
-  * `CONSTRAINT constraint_device_imei FOR (d:Device) REQUIRE d.imei IS UNIQUE`
-  * `CONSTRAINT constraint_atm_id FOR (atm:ATM) REQUIRE atm.atm_id IS UNIQUE`
-  * `CONSTRAINT constraint_transaction_utr FOR (t:Transaction) REQUIRE t.utr IS UNIQUE`
-* **Performance Indexes:** Backed by composite indexes on `(Account.account_number)`, `(Device.imei)`, `(ATM.atm_id)`, and `(Transaction.utr)` to ensure $O(1)$ node lookup and prevent Cartesian product graph query explosions during multi-hop traversal.
-
-### 4. Data Durability & Process Rehydration (.ledger.jsonl)
-* **Append-Only Disk Serialization:** The cryptographic hash chain persists all 3-party attestations (`complainant`, `bank`, `police`) directly to `.ledger.jsonl`.
-* **State Rehydration:** When the backend process or container restarts, `InMemoryHashChainLedger._rehydrate()` automatically reconstructs the hash chain and verifies past record hashes against genesis, guaranteeing tamper-evident continuity across container lifecycles.
-* **Hermetic Test Environments:** Self-test suites and unit test runners instantiate with `storage_path=":memory:"` to guarantee zero cross-test pollution and 100% repeatable assertions.
-
-### 5. Dynamic Banking Entity & IFSC Resolution
-* **Automated IFSC Parsing:** Replaces static bank fallbacks with `resolve_target_bank()`, mapping 20+ nationalized and commercial bank prefixes (`SBIN`, `HDFC`, `ICIC`, `UTIB`, `KKBK`, `PUNB`, `BARB`, etc.) directly to designated nodal cell clearing webhooks.
-* **Handle & Narrative Extraction:** Regex pattern matching extracts UPI banking handles (`@okhdfcbank`, `@okicici`, `@oksbi`, `@paytm`, `@okaxis`) and grievance complaint text narratives to route statutory notices to the correct beneficiary bank.
-
-### 6. Statutory Officer RBAC & Security Dependency
-* **GovTech Security Dependency:** All Section 105/106 BNSS statutory lien generations and patrol unit dispatches are protected by FastAPI's `verify_officer_token` dependency.
-* **Clearance Auditing:** Verifies `X-Officer-Token`, badge credentials (`X-Officer-Badge`), and operational role (`X-Officer-Role`), rejecting unauthorized entities (such as `BANK_NODAL` attempting police patrol dispatches) with HTTP 403 Forbidden.
-
-### 7. Scenario 4 Patrol Unit Dispatch & Real-Time Sync
-* **Status Preservation:** Fixed polling state reversion in `GET /api/v1/alerts` so that expired multi-hop alerts (`multihop_decay` / `CYB-MAH-2026-0904`) that are actively dispatched by an officer retain their `DISPATCHED` status and do not regress to `EXPIRED`.
-* **Live WebSocket Telemetry:** Broadcasts `ALERT_DISPATCHED` envelopes upon patrol dispatch and records tamper-evident SHA-256 audit entries in the compliance ledger.
-* **UI Feedback:** Displays active 15-minute suppression cooldown indicators and disables duplicate dispatch triggers across `AlertCard.jsx` and `CaseDetail.jsx`.
-
-### 9. System Error Catalog & Concrete Mitigations Matrix
-
-Every critical failure mode anticipated during high-stress operations, hackathon jury cross-examination, and real-world deployment is backed by an automated mitigation and test verification proof:
-
-| Operational Subsystem | Potential Failure Mode / Symptom | Root Cause | Built-in Automated Mitigation | Verification Test |
-|---|---|---|---|---|
-| **Graph Store Concurrency** | Graph queries return empty or hang on $k$-hop traversal | Neo4j container down, bolt port unreachable, or high-concurrency lock | `ResilientGraphStore`: CircuitBreaker trips after 2 failures; seamlessly fails over to `InMemoryGraphStore` | `adapters/resilient.py` (proves seamless fallback to in-memory store) |
-| **Graph Index Scaling** | High-throughput ingestion throttles graph CPU | `MERGE` statements trigger full table scans | Enforced uniqueness constraints (`account_id`, `imei`, `atm_id`, `utr`) and composite timestamp indexes via `schema.cypher` | `adapters/graph_store.py` (verifies uniqueness constraints) |
-| **Audit Ledger Partition** | Attestation counts wrong or network partition occurs | Hyperledger Fabric orderer/peer unreachable | `ResilientLedger`: Falls back to disk-serialized SHA-256 hash-chain ledger (`.ledger.jsonl`), surviving reboots | `adapters/ledger.py` (rehydration and hash verification tests) |
-| **Nodal Gateway Outage** | Interdiction alerts fail to reach bank or LEA | Bank webhook down, DNS failure, or TLS expiry | `DispatchService`: Every alert is durably staged in transactional SQLite outbox with WAL mode; zero data loss | `services/dispatch.py` (proves 3/3 alerts queued during outage, 3/3 replayed after recovery) |
-| **Outbox Lock Contention** | `database is locked` under concurrent async requests | Multi-process/thread access on default SQLite journal | `PRAGMA journal_mode=WAL;`, `busy_timeout=5000;`, Dead-Letter Queue (DLQ after 10 attempts), and 24h retention purging | `core/resilience.py` (WAL concurrency & DLQ recovery tests) |
-| **Hawkes Execution Spike** | Ranking latency exceeds SLA under 1,000+ candidate ATMs | $O(M \times N)$ distance calculation over all historical events | Vectorized `scipy.spatial.cKDTree` spatial index + temporal cutoff ($dt > 3600\text{s}$) + 10km spatial decay kernel | `services/hawkes.py` (asserts sub-2ms execution for 1,000 candidate ATMs) |
-| **Model Bundle Missing** | Server starts without trained model weights | Deployment forgot to copy `.pkl` or file corrupted | Diagnostic fail-closed `/health/model` endpoint returns HTTP 503 Service Unavailable, preventing uncalibrated predictions | `routers/health.py` & verified by `verify_phase4.py` |
-| **Graph Explosion** | Feature computation spikes on high-degree merchant accounts | Infinite cyclic traversal through large commercial account hubs | Bounded $k$-hop traversal (`max_hops=3`, default) with post-incident timestamp filtering and graph pruning | `adapters/graph_store.py` (confirms bounded traversal) |
-| **Target Bank Mismatch** | BNSS Section 106 notice targets wrong beneficiary bank | Static bank fallback in naive intake script | `resolve_target_bank()` parses bank from IFSC prefix (SBIN, HDFC, ICIC, UTIB, KKBK, PUNB, etc.) and UPI handles | `routers/notices.py` (verifies dynamic bank routing) |
-| **Adversarial Replay Attack** | Sybil attacker re-submits identical complaint to freeze victim | Competitor or griefing script flooding duplicate UTRs | Multi-Tier Authenticity Gate triggers instant hard-fail: `Score = 0.00`, `HELD_FOR_REVIEW`, blocking all dispatches | `services/authenticity.py` (100% duplicate UTR block rate) |
-| **Legal Admissibility Risk** | Freeze order contested in court for blanket account lock | Old CrPC 91 summons freezing entire ₹5,00,000 balance | Section 106 & 107(5) BNSS targeted lien placed strictly on disputed rupee quantum with Section 63(4) BSA SHA-256 certificate | Courtroom-ready electronic evidence generator |
-
----
-
-## 13. Evolution & Engineering Transformation (Previous vs. Current Architecture)
-
-### The Core Transformation & 8-Dimension Evaluation Matrix
-
-SENTINEL evolved from an initial hackathon proof-of-concept into a production-grade, mathematically grounded cyber-intelligence system. The upgrade replaced heuristic assumptions with empirical rigor across all eight engineering dimensions:
-
-| Engineering Dimension | Previous Prototype Implementation | Current Production Implementation | Core Transformation |
-| :--- | :--- | :--- | :--- |
-| **1. Data Generation** | Independent random draws; arbitrary linear risk formula; disconnected mule hops; money leaks. | **Causal Simulation Engine** with PMLA structuring, log-normal channel velocity, OpenStreetMap ATM grounding, and 2,000 adversarial cases. | Replaced random noise with causal banking dynamics and realistic fraud topology. |
-| **2. Rupee Conservation** | Subgraph branches did not sum to victim loss ($\Delta \ne 0$). | **Exact Rupee Conservation Law ($\Delta \equiv ₹0.00$)** across Siphons, Active Threat Runways, and Liens. | Complete mathematical auditability with zero rupee drift across all $N$-hop seeds. |
-| **3. ML Evaluation** | Random train/test split with future leakage; training-set evaluation claiming 98%+ accuracy. | **Strict Walk-Forward Temporal Holdout (20%)**; PR-AUC (0.875), ROC-AUC (0.906), KS Statistic (0.643). | Eliminated temporal data leakage; established honest, defensible evaluation metrics. |
-| **4. Calibration & Threshold** | Uncalibrated sigmoid output; arbitrary naive default threshold ($\tau = 0.50$). | **Isotonic Probability Calibration** (Brier: 0.1233, ECE: 0.0187); **F1-Optimal Threshold ($\tau^* = 0.444$)**. | Reduced probability error by 29.3%; elevated police interdiction recall to 80.6%–85.8%. |
-| **5. Explainability (XAI)** | Hardcoded `if/elif` string heuristics; fake fallback formula if model missing. | **Native CatBoost C++ TreeSHAP** calculating exact directional attributions; fail-closed architecture. | True Shapley attribution in $< 1\text{ ms}$; eliminated fabricated explanations. |
-| **6. Hawkes Spatiotemporal** | Nested pure-Python loops (~44 ms); guessed parameters; circular benchmark. | **Vectorized `scipy.spatial.cKDTree` (0.76 ms – 1.54 ms)**; MLE parameter calibration; uniform benchmark. | $30\times$ faster execution (< 2ms SLA); Hit@3 reached 75.0%; interdiction time cut by 59.3%. |
-| **7. Serving Architecture** | Monolithic 2,053-line `routes.py`; unvalidated dictionary inputs; basic ping health check. | **6 Modular Sub-Routers**; **Strict Pydantic v2 schemas** (NPCI UPI rules); diagnostic fail-closed `/health/model`. | Robust error boundaries; 100% typed validation; eliminated silent service degradation. |
-| **8. Statutory Law** | Outdated CrPC 1973 & Evidence Act citations; blanket account freezing. | **BNSS 2023** (§105, §106, §107(5)) & **BSA 2023** (§63(4) SHA-256 certificate); **Targeted Quantum Liens**. | Constitutional proportionality; instant courtroom admissibility without writ petition risk. |
-
----
-
-### Detailed Subsystem Evolution
-
-#### 1. Data Generation & Physical Realism
-* **Previous:** Sampled features from independent uniform distributions without causal correlation. Ground-truth cashout labels were synthesized using an ad-hoc linear score formula ($\text{Score} = 0.3 \cdot \text{amount} + 0.2 \cdot \text{velocity} + \dots$). Intermediate amounts at child nodes were assigned arbitrary mock values, causing money leaks across the graph. Zero adversarial cases were modeled.
-* **Current (Causal Simulation Engine):** Implemented realistic PMLA 2002 smurfing dynamics where syndicates break illicit funds into structured tranches clustering just below statutory reporting thresholds (₹48,500 – ₹49,200). Modeled log-normal channel latency distributions (instantaneous UPI/IMPS vs scheduled NEFT windows). Grounded all coordinates in real OpenStreetMap physical ATMs across 8 major Maharashtra and Gujarat corridors. Added 2,000 adversarial cases (duplicate UTRs, griefing bursts, malformed strings, and serial filers).
-* **Why & Result:** Financial fraud operates on strict ledger invariants. Synthetic noise creates models that fail in the field. The new causal engine enforces the **Exact Rupee Conservation Law Invariant**:
-  $$\text{Total Disputed} \equiv \sum_{k=1}^{N-1} \text{Siphoned Cash}(S_k) + \text{Active Threat Runway}(A_N) + \text{BNSS §106 Preservation Lien}(L_N) \quad (\Delta \equiv ₹0.00)$$
-  Verified across all test cases with **zero rupee discrepancy ($\Delta \equiv ₹0.00$)**.
-
-#### 2. ML Model Training & Evaluation Integrity
-* **Previous:** Evaluated models using random train/test splits, causing severe temporal data leakage (future fraud events leaked into the training set). Reported training-set over-optimistic accuracy (98%+). Evaluated strictly at default threshold ($\tau = 0.50$) with zero calibration metrics (Brier score, ECE omitted).
-* **Current:** Split the 18,000-complaint dataset chronologically: first 80% (14,400 complaints) for training and cross-validation, and final untouched 20% (3,600 complaints) strictly as temporal holdout test set. Evaluated using industry-standard fraud metrics: PR-AUC (0.8747), ROC-AUC (0.9063), and Kolmogorov-Smirnov (0.6427). Wrapped gradient boosting in post-hoc Isotonic Regression on held-out folds. Conducted grid-search optimization to identify operational F1-optimal threshold ($\tau^* = 0.444$).
-* **Why & Result:** In cybercrime dispatch, a false negative means permanent loss of victim savings. Lowering threshold from naive 0.50 to 0.444 elevated interdiction recall to **80.56% – 85.80%** (+5.5% to +10.7% more cashouts intercepted). Isotonic calibration dropped Brier error by **29.3%** and ECE by **62.6%**, delivering trustworthy probabilities required by the Bayesian spatial updater.
-
-#### 3. Explainable Machine Learning (XAI)
-* **Previous:** Rule-based heuristic `if/elif` string logic. Fabricated attribution weights calculated by dividing arbitrary integers. When model failed to load, silently fell back to an ad-hoc arithmetic equation (`prob = amount / 100000 * 0.6 + 0.2`).
-* **Current:** Evaluated directly via CatBoost's native C++ TreeSHAP engine, calculating exact directional Shapley contributions across all tree split paths in CPU register memory in $< 1.0\text{ ms}$. If the model bundle fails to load or corrupts, the system fails closed with structured HTTP 503, eliminating silent service degradation.
-* **Why & Result:** Evidence in Indian criminal courts must satisfy Section 63(4) BSA 2023. Fabricated explanations collapse under cross-examination. Native TreeSHAP guarantees authentic mathematical attribution and 100% fail-closed integrity.
-
-#### 4. Spatiotemporal Hawkes Point-Process ATM Interception
-* **Previous:** Nested pure-Python loops evaluating candidate ATMs ($N$) against past cashouts ($M$), calculating trigonometric Haversine distance and exponential decay at each iteration (~44 ms latency). Guessed parameters without empirical fitting. Synthetic test events generated using the same formula as the ranker (circular benchmark).
-* **Current:** Accelerated via `scipy.spatial.cKDTree` spatial index bounded by a 10 km spatial cutoff radius ($r \approx 0.09^\circ$), eliminating 95%+ of irrelevant ATM pairs in logarithmic time. Vectorized single-exponent kernel evaluated via NumPy C-level routines. Fitted parameters empirically via Maximum Likelihood Estimation (MLE) using L-BFGS-B optimizer ($\alpha = 0.01, \beta = 0.01667, \gamma = 10.0\text{ km}$). Tested on honest uniform benchmark without kernel bias.
-* **Why & Result:** Police patrol response requires sub-2ms ranking latency. Execution latency dropped from **~44 ms down to 0.76 ms – 1.54 ms ($30\times$ speedup)**. Hit@3 reached **75.0%** (+103.8% lift over static distance baseline), cutting mean time-to-interdiction from 28.0 minutes to **11.4 minutes (-59.3%)**.
-
-#### 5. Backend Serving Architecture & Robustness
-* **Previous:** Monolithic 2,053-line `routes.py` file. Untyped dictionary inputs that defaulted missing keys to zero without validation. Basic ping health check (`{"status": "healthy"}`) with zero visibility into model weights or calibration.
-* **Current:** Decomposed into 6 modular single-responsibility routers under `backend/app/routers/` (`health.py`, `intake.py`, `alerts.py`, `atms.py`, `notices.py`, `ledger.py`). Enforced strict Pydantic v2 schemas validating Indian phone numbers, 12-digit UTRs, IFSC codes, and rejecting UPI transactions exceeding the ₹2,00,000 regulatory ceiling with HTTP 422. Added diagnostic fail-closed `/health/model` probe. Protected sensitive dispatch routes with `verify_officer_token`.
-* **Why & Result:** Isolates failure domains and guarantees 100% typed data contracts. Expanded test suite to **36 comprehensive unit and integration tests** passing 100% in 6.7 seconds.
-
-#### 6. Statutory Compliance & Judicial Admissibility
-* **Previous:** Cited repealed Code of Criminal Procedure, 1973 (Section 91 CrPC) and Section 65B of Indian Evidence Act, 1872. Instructed banks to freeze entire accounts indiscriminately, blocking legitimate operating capital. Generated plain text notices without cryptographic proof.
-* **Current:** Grounded strictly in current July 2024 statutory codes: Section 105 BNSS (summons for electronic evidence), Section 106 & 107(5) BNSS (targeted disputed-amount liens), and Section 63(4) BSA (two-part electronic hash certificate). Restricts preservation holds strictly to the disputed amount ($₹\text{Disputed}$), keeping remaining balances active.
-* **Why & Result:** Blanket freezes violate Article 19(1)(g) of the Constitution and trigger High Court contempt proceedings. Targeted liens eliminate civil liability while cryptographic SHA-256 hash chains guarantee immediate courtroom admissibility.
-
----
-
-### Summary of Quantitative Achievements
-
-| Performance Metric / Engineering Dimension | Baseline Prototype | Current Production System | Net Improvement |
-| :--- | :---: | :---: | :---: |
-| **PR-AUC (Fraud Class Discrimination)** | Not evaluated | **0.8747** | **+24.9% above target benchmark** |
-| **ROC-AUC (Generalizability)** | 0.980 (Overfit Train) | **0.9063 (Out-of-Sample Holdout)** | **Validated out-of-sample generalizability** |
-| **Probability Calibration Error (Brier Score)** | 0.1745 | **0.1233** | **-29.3% error reduction** |
-| **Expected Calibration Error (ECE)** | Not evaluated | **0.0187** | **-62.6% error reduction (optimal reliability)** |
-| **Police Interdiction Recall** | 75.1% (@ 0.50) | **80.56% – 85.80% (@ $\tau^* = 0.444$)** | **+5.5% to +10.7% more cashouts intercepted** |
-| **Hawkes 1,000-ATM Ranking Latency** | ~44.0 ms | **0.76 ms – 1.54 ms** | **$30\times$ faster (< 2ms SLA)** |
-| **Hawkes Hit@3 Spatial Accuracy** | 36.8% (Distance) | **75.0%** | **+103.8% lift in tactical interception** |
-| **Mean Time-to-Interdiction** | 28.0 min (Baseline) | **11.4 min** | **-59.3% time savings in golden window** |
-| **Adversarial Authenticity Gate Accuracy** | 0.0% (Unprotected) | **85.15% (100% on key attack vectors)** | **100% block of duplicate UTRs & griefing** |
-| **End-to-End Pipeline Latency** | ~55.0 ms | **3.83 ms – 6.89 ms** | **$3.6\times$ faster than 25ms operational SLA** |
-| **Rupee Conservation Invariant ($\Delta$)** | Unbalanced ($\Delta \ne 0$) | **$\Delta \equiv ₹0.00$** | **100% exact Rupee conservation across all hops** |
-| **Passing Test Suite Coverage** | 12 tests | **36 tests + 22-module master verification** | **300% test expansion, 100% PASS** |
+* **Full Verification Status:** 100% offline verified across all core modules and regression test suites.
 
 ---
 *Developed for Smart India Hackathon (SIH 26184) — Autonomous Cyber Fraud Cash-Out Hotspot Forecaster & Lawful Preservation System*
